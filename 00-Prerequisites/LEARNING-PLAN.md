@@ -1,10 +1,10 @@
 # Start here: small experiments, low-energy default
 
-Yeh tumhara working learning plan hai. Earlier two files background discussions hain; daily checklist nahi. Unke daily streaks, fixed study hours, public posts, aur deep interrogation ko compulsory mat samjho.
+Yeh tumhara working learning plan hai. Earlier discussions `archive/` mein hain; daily checklist nahi. Unke daily streaks, fixed study hours, public posts, aur deep interrogation ko compulsory mat samjho.
 
 ## Aaj kya karna hai?
 
-Lab 01 aur recording complete karne ki tumhari update mil gayi. Next: [Lab 02: one file, different paths](05-LAB-02-Files-And-Paths.md). Start with its tiny recall check. Detailed lessons one milestone at a time add karenge, actual results ke basis par.
+Open the current lab from the [learning index](README.md). This plan is a reference; daily rereading required nahi. Detailed lessons one milestone at a time add karenge, actual results ke basis par.
 
 ## Session rules
 
@@ -59,6 +59,6 @@ Python, HTTP, and CRUD get revisited only when the project exposes a gap. Promet
 
 ## Minimum tracking
 
-Use [the tiny session log](04-SESSION-LOG.md). One entry per session if useful; no score, hours target, or mandatory commit.
+Use [the tiny session log](SESSION-LOG.md). One entry per session if useful; no score, hours target, or mandatory commit.
 
 Progress means: **I can do this and explain what happened.** If recall is fuzzy, do one changed example with a hint and try again. No need to restart the entire topic.

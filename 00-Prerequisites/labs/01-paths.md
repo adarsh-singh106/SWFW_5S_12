@@ -1,5 +1,7 @@
 # Lab 01: Where am I, and where will this command go?
 
+[All labs](../README.md) | [Next: files and paths](02-files-and-paths.md)
+
 **Budget:** 10 minutes. **Goal:** predict `/`, `~`, and `..` without guessing.
 
 This is the first small checkpoint of the paths/files milestone. No installations, file deletion, or project code needed for this experiment.
@@ -86,7 +88,7 @@ If your output differs, paste it. We will inspect the environment rather than fo
 
 ## 5. Stop and leave a small trail
 
-In [the session log](04-SESSION-LOG.md), record what you observed and the next action. You can paste this back into chat:
+Optionally leave one line in [the session log](../SESSION-LOG.md): last step → next step. You can paste this back into chat:
 
 ```text
 Linux environment: ...

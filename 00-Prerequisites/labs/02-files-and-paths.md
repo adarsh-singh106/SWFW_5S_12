@@ -1,5 +1,7 @@
 # Lab 02: One file, different paths
 
+[All labs](../README.md) | [Previous: paths](01-paths.md) | [Next: file permissions](03-file-permissions.md)
+
 **Default: 10 minutes.** Feeling good? Optional 15-minute extension at the end. Stop at any step and resume there. Use the same **Linux terminal** as Lab 01.
 
 ## 1. Recall first — 60 seconds, notes closed
@@ -96,7 +98,7 @@ Notes closed, record 30–60 seconds:
 
 Checkpoint: read the same file from two directories and explain the deliberate failure. If the output surprises you, paste the command plus `pwd` output into chat; that is enough to debug together.
 
-Log only: `Lab 02: last completed step ___ → next ___`. No transcript needed.
+Optional [log bookmark](../SESSION-LOG.md): `Lab 02: last completed step ___ → next ___`. No transcript needed.
 
 ## Check after trying
 
