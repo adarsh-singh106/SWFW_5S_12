@@ -1,6 +1,6 @@
 # Lab 04: File readable hai, directory access rok sakti hai?
 
-[All labs](../README.md) | [Previous: file permissions](03-file-permissions.md)
+[All labs](../README.md) | [Previous: file permissions](03-file-permissions.md) | [Next: programs and processes](05-programs-and-processes.md)
 
 **Day 4 target. Default: 10 minutes.** Lab 03 complete maana hai; repeat nahi karna. Same Linux terminal, ordinary user, no `sudo`.
 
