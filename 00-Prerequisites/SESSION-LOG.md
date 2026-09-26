@@ -62,3 +62,19 @@ After time away, read only the last entry and resume its next action. No backlog
 - You requested moving forward. Added the program/process/PID experiment with each new command option explained.
 - Next action: open Lab 05 and locate `sleep` in Terminal A; use another terminal on the same Linux machine to inspect the running process.
 - Lab 05 completion is not yet reported. Lab 04 Q2 remains a later recall item, not a blocker.
+
+## Lab 05 — completed with terminal evidence
+
+- Shell A PID: 38; shell B PID: 43. Observed sleep PIDs: 45, 48, 50, 52; each reported PPID 38 and user ash.
+- Shared output shows Ctrl+C interruptions, a short sleep returning naturally, and `/usr/bin/sleep` still resolving after an interruption.
+- Extra experiment: shell B ran `kill 52`; shell A reported Terminated. Repeating `kill 52` reported No such process, and the final sleep process listing had no rows.
+- Explained distinction: Ctrl+C sends SIGINT to the foreground process group in this setup; plain `kill 52` sends SIGTERM to that PID. Neither deletes the executable.
+- Next recall: why could shell B send a signal to a process parented by shell A? Then continue to signals without repeating the completed basic process experiment.
+- Lab 05 recording and the user's own conceptual explanation have not been reviewed. Lab 04 Q2 remains a later revision item.
+
+## Lab 06 — ready to start
+
+- You requested moving forward. Added the STOP/CONT/TERM experiment, with new command options and variable syntax explained.
+- Explained directly: the same-user setup allowed B to signal A's child; being its parent was not required.
+- Next: start a fresh practice sleep, identify its PID, and compare its state after pause, resume, and termination. Lab 06 completion is not yet reported.
+- After signals: check service-manager availability before the services/logs lab.
