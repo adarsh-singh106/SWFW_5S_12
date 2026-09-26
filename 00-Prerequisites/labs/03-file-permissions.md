@@ -1,6 +1,6 @@
 # Lab 03: File hai, phir bhi read kyun nahi ho rahi?
 
-[All labs](../README.md) | [Previous: files and paths](02-files-and-paths.md)
+[All labs](../README.md) | [Previous: files and paths](02-files-and-paths.md) | [Next: directory permissions](04-directory-permissions.md)
 
 **10 minutes.** Same Linux terminal. Today: one user's read permission on one practice file. Directory permissions and execution come later.
 
