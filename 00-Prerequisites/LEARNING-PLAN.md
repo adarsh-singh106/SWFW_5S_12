@@ -16,6 +16,30 @@ Open the current lab from the [learning index](README.md). This plan is a refere
 
 Ten minutes is our starting experiment, not a promise that the full project fits this budget. After a few sessions, compare actual progress with the project deadline and adjust scope. Mandatory project requirements stay visible; optional sophistication comes later.
 
+## 14-day target
+
+Your confirmed baseline: **day 4**, Labs 01–03 completed by report. Use your learning-day labels rather than inferring the start date from chat timestamps.
+
+**Finish line:** your own small collector retrieves and explains one observation from another Linux node and reports collection failure honestly. The archived syllabus includes optional breadth; finishing every item is not required before starting the project.
+
+| Day | Target |
+| --- | --- |
+| 1–3 | Paths, files, file permissions — completed by report |
+| 4 | Directory permissions; finish this block |
+| 5–6 | Program/process, PID, inspect and stop your own practice process |
+| 7 | Practice service, logs, one startup failure |
+| 8–9 | IP/port/listener, localhost, connection failure; prepare second Linux node |
+| 10–11 | SSH, host verification, key authentication, harmless remote command |
+| 12 | Explain one raw local metric and parse it in Python |
+| 13 | Collect it remotely and represent collection failure |
+| 14 | End-to-end demo, repair gaps, begin project work |
+
+These are targets, not confirmed forecasts. There is little setup buffer. Check the actual Linux environment before choosing service/VM setup. A lab need not equal a day.
+
+Pace checks: **day 7 = service/process evidence; day 11 = remote command; day 14 = remote observation plus failure result.** If one slips, inspect the blocker, cut optional breadth, and get direct setup help. If core work still does not fit, revise the date explicitly; no doubled workload or hidden catch-up debt.
+
+Ten minutes remains the low-energy default, but cannot guarantee the full 14-day outcome. Some tasks need multiple sessions or an optional longer session. Shell extras, additional metrics, numeric permission drills, and deep internals can continue during project work.
+
 ## Har concept ka learning loop
 
 1. **Need:** project ko is concept ki zaroorat kyun hai?
