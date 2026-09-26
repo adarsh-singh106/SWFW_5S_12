@@ -2,6 +2,8 @@
 
 Created: 2026-09-26. [Back to current learning index](../README.md).
 
+**Timeline update:** you confirmed a 14-day target on learning day 4. See the [active checkpoints](../LEARNING-PLAN.md#14-day-target). Optional syllabus breadth can continue during project work; the target is one remote observation, not exhaustive mastery.
+
 This is the detailed reference map you requested. It lives in `archive/` for reference; current progress and the next available lab live in the index. Earlier archived discussions are historical, not extra assignments.
 
 **Destination:** explain how a command runs on a Linux machine, diagnose basic access/process/network failures, and collect one meaningful observation from another machine. Then start the Fleet Manager and learn deeper topics as its requirements demand them.
@@ -102,7 +104,7 @@ Tools encountered: `whoami`, `id`, `ls -l`, `ls -ld`, `chmod`; understand the pu
 
 **Recall:** which permission changed? Why can metadata remain visible when reading contents fails? Why might a privileged retry hide the original problem?
 
-Existing lesson: [Lab 03](../labs/03-file-permissions.md). Directory-permission lesson is still to be created.
+Existing lessons: [Lab 03](../labs/03-file-permissions.md) and [Lab 04: directory permissions](../labs/04-directory-permissions.md).
 
 **Big recording 1:** demonstrate a path failure and a permission failure, explain their different causes, and fix both. Three-to-five minutes total, replacing the small recording that session.
 
@@ -270,4 +272,4 @@ Prometheus metric types, scraping, service discovery, Grafana, failure-detector 
 
 Kubernetes, Terraform, cloud architecture, advanced observability internals, and other infrastructure platforms stay out of the core prerequisite syllabus unless the actual project creates a reason for them.
 
-**Immediate next learning step after this syllabus:** a brief Lab 03 recall, then a small directory-permissions experiment. No new lab is assigned by this document itself.
+**Next learning step:** [Lab 04: directory permissions](../labs/04-directory-permissions.md). Lab 03 completion was reported; no repeat required. Current progress is maintained in the learning index.
