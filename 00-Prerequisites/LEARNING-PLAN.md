@@ -8,10 +8,10 @@ Open the current lab from the [learning index](README.md). This plan is a refere
 
 ## Session rules
 
-- **Default: 10 minutes total**, including recall and recording. Timer ends toh stop; unfinished experiment next session continue.
+- **Low-energy option: 10 minutes total**, including recall and recording. You may stop at a safe checkpoint and continue next session. Ten minutes is not a limit on lesson depth or understanding.
 - **Almost no energy: 2 minutes.** One old question answer karo, check karo, next action likho. Recording optional in this mode.
 - **No energy: rest.** No streak, catch-up debt, or doubled work tomorrow.
-- **Extra energy: optional 15–20 minutes.** Extra work tomorrow ka minimum nahi banega.
+- **More energy: continue as useful**, with breaks. No need to fit every lab into ten minutes; extra work tomorrow ka minimum nahi banega.
 - Setup/debugging bhi session ka work hai. Agar wahi time le gaya, lesson complete karna compulsory nahi.
 
 Ten minutes is our starting experiment, not a promise that the full project fits this budget. After a few sessions, compare actual progress with the project deadline and adjust scope. Mandatory project requirements stay visible; optional sophistication comes later.
@@ -41,6 +41,8 @@ Pace checks: **day 7 = service/process evidence; day 11 = remote command; day 14
 Ten minutes remains the low-energy default, but cannot guarantee the full 14-day outcome. Some tasks need multiple sessions or an optional longer session. Shell extras, additional metrics, numeric permission drills, and deep internals can continue during project work.
 
 ## Har concept ka learning loop
+
+**Lesson-writing rule:** assume this is your first encounter. Start with the concrete problem, connect to known concepts, explain the mechanism, and only then introduce commands. Define new terminology and explain every new flag/argument. Show expected observations, why they follow, and useful alternate outcomes. Recall questions must follow from material already explained, not unexplained project context. Provide worked answers for later checking. A longer clear lesson can span several sessions; do not compress away the explanation to meet a timer.
 
 1. **Need:** project ko is concept ki zaroorat kyun hai?
 2. **Model:** shortest useful explanation padho.

@@ -11,8 +11,8 @@ This is the detailed reference map you requested. It lives in `archive/` for ref
 ## 1. How to use this syllabus
 
 - Modules are topics, not days or fixed-size lessons. Each becomes several small experiments when needed.
-- Default session: 10 minutes including recall and recording. Two-minute recall-only sessions and complete rest days are allowed. No catch-up debt.
-- Good-energy extension: optional 15–20 minutes. This does not increase tomorrow's minimum.
+- Low-energy session option: 10 minutes including recall and recording. This is not a maximum lesson length. Two-minute recall-only sessions and complete rest days are allowed. No catch-up debt.
+- Longer sessions are welcome when useful, with breaks. First-time explanations must remain self-contained; split a lesson across sessions instead of omitting the mechanism to fit a timer. This does not increase tomorrow's minimum.
 - Read the explanation needed for one experiment, predict its result, run it, and explain the evidence. Don't read every module before beginning.
 - Ask for a hint when stuck. Repeat a changed example after correcting a misconception; don't restart the whole course.
 - A command list below is a set of tools to encounter, not a memorization exam. Looking up syntax is fine; you should understand what the command is meant to do.

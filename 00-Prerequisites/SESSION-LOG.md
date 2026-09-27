@@ -78,3 +78,10 @@ After time away, read only the last entry and resume its next action. No backlog
 - Explained directly: the same-user setup allowed B to signal A's child; being its parent was not required.
 - Next: start a fresh practice sleep, identify its PID, and compare its state after pause, resume, and termination. Lab 06 completion is not yet reported.
 - After signals: check service-manager availability before the services/logs lab.
+
+## Learning preference clarified — 2026-09-27
+
+- You explicitly prefer self-explanatory first-principles material and allow lessons to take longer than ten minutes.
+- Updated the plan: ten minutes is a low-energy session option, not a content/depth limit; longer lessons may span sessions.
+- Expanded Lab 06 with the problem behind signals, kernel delivery, waiting versus stopped versus exited, shell-variable expansion, foreground behavior, and worked recall answers.
+- Lab 06 completion is still not reported. Next: read its model, then perform the experiment at your own pace.
