@@ -85,3 +85,31 @@ After time away, read only the last entry and resume its next action. No backlog
 - Updated the plan: ten minutes is a low-energy session option, not a content/depth limit; longer lessons may span sessions.
 - Expanded Lab 06 with the problem behind signals, kernel delivery, waiting versus stopped versus exited, shell-variable expansion, foreground behavior, and worked recall answers.
 - Lab 06 completion is still not reported. Next: read its model, then perform the experiment at your own pace.
+
+## Lab 06 — simpler language requested
+
+- You asked for the Markdown itself to use easy-to-understand language, after the waiting/start distinction remained unclear.
+- Rewrote Lab 06 in conversational Hinglish using the sleep lifecycle: process starts, requests a wait, waits, then gets CPU time to continue and exit.
+- Clarified that waiting/stopped/exited are not all possible states; separated ready/running, waiting, stopped, and exited. Moved advanced details below the core experiment.
+- Added this writing preference to the learning plan. Lab 06 practical completion is still not reported.
+
+## Language preference corrected
+
+- You clarified that learning documents should stay in English, using easy words and clear explanations.
+- Rewrote Lab 06 in simple English and updated the learning plan for future lessons. This replaces the previous Hinglish preference for lesson text.
+- Kept the practical steps, explanations, and recall answers. Lab 06 completion is still not reported.
+
+## Lab 06 — completed with evidence and explanation
+
+- Shared output: A shell PID 11; B shell PID 15; sleep PID 17, PPID 11, user ash.
+- Verified sequence: S+ initially, T after STOP, S with the same PID after CONT, no process row after TERM.
+- User correctly explained pause versus waiting, same-process continuation, and termination. Clarified that STOP suspends execution without freezing elapsed time, and TERM ends the process rather than deleting the executable.
+- The + suffix initially indicated membership in the terminal's foreground process group; its absence after CONT is consistent with resuming without putting the job back in the foreground.
+- Next: ask for `ps -p 1 -o pid,comm,args` in the user's Linux terminal to identify its init process before designing the services/logs lab. WSL versus VM remains unconfirmed. Lab 06 recording has not been reviewed.
+
+## Lab 07 — ready, with an environment check
+
+- You requested moving on. Added the services/logs lesson in simple English, starting with why a service manager is useful.
+- The user's PID 1 and service-manager availability are still unknown. The lesson checks both before selecting the systemd path; no setup changes are assumed.
+- Next: read sections 1–2, then share the section 3 results. If systemd is available, continue the read-only status/log observations.
+- Lab 07 is not complete yet. Creating and debugging a disposable practice service remains the following milestone.

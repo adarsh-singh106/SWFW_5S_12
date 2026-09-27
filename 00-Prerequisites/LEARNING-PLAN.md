@@ -1,4 +1,4 @@
-# Start here: small experiments, low-energy default
+﻿# Start here: small experiments, low-energy default
 
 Yeh tumhara working learning plan hai. Earlier discussions `archive/` mein hain; daily checklist nahi. Unke daily streaks, fixed study hours, public posts, aur deep interrogation ko compulsory mat samjho.
 
@@ -42,7 +42,7 @@ Ten minutes remains the low-energy default, but cannot guarantee the full 14-day
 
 ## Har concept ka learning loop
 
-**Lesson-writing rule:** assume this is your first encounter. Start with the concrete problem, connect to known concepts, explain the mechanism, and only then introduce commands. Define new terminology and explain every new flag/argument. Show expected observations, why they follow, and useful alternate outcomes. Recall questions must follow from material already explained, not unexplained project context. Provide worked answers for later checking. A longer clear lesson can span several sessions; do not compress away the explanation to meet a timer.
+**Lesson-writing rule:** write learning materials in simple English with familiar words, short sentences, and examples from your own labs. Do not switch the lesson text to Hinglish. This supersedes the earlier Hinglish preference. Keep technical names, but explain them before using them. Explicitly distinguish easily confused ideas (for example, a process starting versus its instructions using the CPU right now). Put optional edge cases after the main experiment. Assume this is your first encounter. Start with the concrete problem, connect to known concepts, explain the mechanism, and only then introduce commands. Define new terminology and explain every new flag/argument. Show expected observations, why they follow, and useful alternate outcomes. Recall questions must follow from material already explained, not unexplained project context. Provide worked answers for later checking. A longer clear lesson can span several sessions; do not compress away the explanation to meet a timer.
 
 1. **Need:** project ko is concept ki zaroorat kyun hai?
 2. **Model:** shortest useful explanation padho.
@@ -88,3 +88,5 @@ Python, HTTP, and CRUD get revisited only when the project exposes a gap. Promet
 Use [the tiny session log](SESSION-LOG.md). One entry per session if useful; no score, hours target, or mandatory commit.
 
 Progress means: **I can do this and explain what happened.** If recall is fuzzy, do one changed example with a hint and try again. No need to restart the entire topic.
+
+
