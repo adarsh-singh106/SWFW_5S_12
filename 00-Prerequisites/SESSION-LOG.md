@@ -113,3 +113,23 @@ After time away, read only the last entry and resume its next action. No backlog
 - The user's PID 1 and service-manager availability are still unknown. The lesson checks both before selecting the systemd path; no setup changes are assumed.
 - Next: read sections 1–2, then share the section 3 results. If systemd is available, continue the read-only status/log observations.
 - Lab 07 is not complete yet. Creating and debugging a disposable practice service remains the following milestone.
+
+## Lab 07 — WSL environment identified
+
+- User output confirms Debian on WSL 2, WSL version 2.7.11.0, and PID 1 init(Debian) running /init. systemctl resolves to /usr/bin/systemctl.
+- systemd is not currently the system manager at PID 1. Checked Microsoft's official systemd setup documentation; the reported WSL version supports it.
+- Added section 3A to Lab 07. Next user action: inspect /etc/wsl.conf and package status for systemd and systemd-sysv before changing configuration.
+- No packages installed, system settings edited, or WSL restart performed by the assistant. Service inspection remains pending setup verification.
+
+## Lab 07 — configuration and packages checked
+
+- User output: /etc/wsl.conf does not exist; systemd and systemd-sysv are installed (ii), version 252.39-1~deb12u2.
+- Added explained instructions to create the missing config, restart WSL after saving work, and verify PID 1 plus service-manager access.
+- No installation is needed for this step. Configuration creation and restart are not yet reported as performed; systemd activation is not yet verified.
+- Next user action: exit the package-list pager with q, then follow Lab 07 section 3A.
+
+## Lab 07 — systemd activation verified
+
+- Initial config command was split at /etc/ and failed without creating the file. User reran it on one line; cat confirmed [boot] and systemd=true in /etc/wsl.conf.
+- Latest shared output: PID 1, executable name systemd, arguments /sbin/init. systemd activation is verified; the earlier /init result is historical.
+- Next: section 4, list running services through systemctl. Status and log observations remain pending; Lab 07 is not yet complete.
