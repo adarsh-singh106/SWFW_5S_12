@@ -133,3 +133,16 @@ After time away, read only the last entry and resume its next action. No backlog
 - Initial config command was split at /etc/ and failed without creating the file. User reran it on one line; cat confirmed [boot] and systemd=true in /etc/wsl.conf.
 - Latest shared output: PID 1, executable name systemd, arguments /sbin/init. systemd activation is verified; the earlier /init result is historical.
 - Next: section 4, list running services through systemctl. Status and log observations remain pending; Lab 07 is not yet complete.
+
+## Lab 07 — video support requested
+
+- You said the purpose and concepts of the lesson were difficult to follow and asked for YouTube resources.
+- Added two Learn Linux TV links to the lab: systemd/systemctl first, journalctl later. Links and topic coverage were checked against the creator's published pages/descriptions.
+- Suggested watching a small portion, then explaining the service manager's purpose before returning to the status experiment. No extra course or mandatory video completion added.
+- Lab 07 service/log observations are still pending.
+
+## Lab 07 — completed & test in progress
+
+- You reported completing reading and performing Lab 07.
+- Prerequisites check test (Parts 1 & 2) initiated to assess understanding before moving to network endpoint and listener labs.
+
