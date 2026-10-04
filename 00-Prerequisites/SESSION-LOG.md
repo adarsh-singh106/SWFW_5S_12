@@ -141,8 +141,11 @@ After time away, read only the last entry and resume its next action. No backlog
 - Suggested watching a small portion, then explaining the service manager's purpose before returning to the status experiment. No extra course or mandatory video completion added.
 - Lab 07 service/log observations are still pending.
 
-## Lab 07 — completed & test in progress
+## Lab 07 & Prerequisites Test — completed with distinction
 
 - You reported completing reading and performing Lab 07.
-- Prerequisites check test (Parts 1 & 2) initiated to assess understanding before moving to network endpoint and listener labs.
+- Prerequisites Check Test completed covering Labs 01 to 07.
+- Full test record with user's exact answers and detailed evaluations saved to `00-Prerequisites/labs/test.md`. Score: ~90% (Pass with distinction).
+- Key conceptual clarifications noted: Linux permission "first match" rule (no fallback to others for file owner) and `Ctrl+C` sending `SIGINT`.
+- Next: Lab 08 on network endpoints, IP addresses, ports, and listeners.
 

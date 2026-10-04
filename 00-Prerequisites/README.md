@@ -1,6 +1,6 @@
 # Prerequisites: start here
 
-**Current: [Lab 07 — Services and logs](labs/07-services-and-logs.md).** systemd is now verified as PID 1 in Debian/WSL 2. Continue at section 4: list running services, then inspect status and logs. Lab 06 is complete with evidence and explanation reviewed. Lab 04's [Q2 worked answer](labs/04-directory-permissions.md#q2-worked-answer--baad-mein-revise-karne-ke-liye) remains available for later revision.
+**Current: [Lab 08 — Network endpoints: IP, ports, and listeners](labs/08-network-endpoints.md).** Prerequisites Check Test completed with distinction (~90%). Lab 08 covers local network interfaces, TCP listeners, and socket inspection with `ss` and `curl`.
 
 | Lab | Topic | Progress |
 | --- | --- | --- |
@@ -10,7 +10,9 @@
 | [04](labs/04-directory-permissions.md) | Directory permissions | Completion reported; Q1/output checked; Q2 needs later revision |
 | [05](labs/05-programs-and-processes.md) | Programs, processes, PID and PPID | Completed; terminal evidence reviewed; explanation/recording not yet reviewed |
 | [06](labs/06-signals.md) | Signals: pause, resume, terminate | Completed; output and explanation reviewed; timer/exit wording clarified |
-| [07](labs/07-services-and-logs.md) | Service manager, status, and logs | Completed; prerequisites test in progress |
+| [07](labs/07-services-and-logs.md) | Service manager, status, and logs | Completed; systemd verified as PID 1 |
+| [Test](labs/test.md) | **Prerequisites Check Test (Labs 01–07)** | **Passed (~90%)**; exact answers and evaluations recorded |
+| [08](labs/08-network-endpoints.md) | Network endpoints, IP, ports, and listeners | Ready to start |
 
 **Target:** by day 14, collect and explain one remote metric. This is a target, not a confirmed pace forecast. See the [14-day checkpoints](LEARNING-PLAN.md#14-day-target) when planning; the detailed syllabus includes topics that can continue during the project.
 
