@@ -149,3 +149,12 @@ After time away, read only the last entry and resume its next action. No backlog
 - Key conceptual clarifications noted: Linux permission "first match" rule (no fallback to others for file owner) and `Ctrl+C` sending `SIGINT`.
 - Next: Lab 08 on network endpoints, IP addresses, ports, and listeners.
 
+## Lab 08 — completed with audio recall
+
+- User performed Lab 08 commands (`ip addr`, `ss -tlpn`, Python HTTP server on port 8080, and `curl`).
+- Verified distinctions: `lo` (127.0.0.1) vs `eth0` network interface.
+- Recall questions verified: IP vs port explained using hotel address vs room number; connection refused explained as absence of listening process; `0.0.0.0:8080` explained as accepting connections across all interfaces on port 8080.
+- User doubts clarified: dynamic IP behavior of `eth0` under default WSL 2 NAT vs static IPs in production servers; `LISTEN` state and `Recv-Q` / `Send-Q` backlog queues in `ss -tlpn`.
+- Next: Lab 09 on SSH client, server, key authentication, and preparing the 2nd node.
+
+
