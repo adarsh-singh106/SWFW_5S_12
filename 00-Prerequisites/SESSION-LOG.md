@@ -168,6 +168,13 @@ After time away, read only the last entry and resume its next action. No backlog
 - Terminal output walkthrough appended to `00-Prerequisites/labs/09-ssh-and-keys.md`.
 - Next: Prepare second Linux node and Lab 10 (Remote cross-node metric collection).
 
+## Lab 10 — ready (Option A: Ubuntu selected as Node 2)
+
+- User selected Option A (installing Ubuntu alongside Debian in WSL 2) to establish the second managed fleet node.
+- Created `00-Prerequisites/labs/10-remote-node-and-cross-machine-ssh.md`.
+- Next user action: Run `wsl --install -d Ubuntu` in PowerShell and initialize credentials.
+
+
 
 
 

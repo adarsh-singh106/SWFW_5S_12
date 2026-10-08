@@ -1,6 +1,6 @@
 # Prerequisites: start here
 
-**Current: [Lab 09 — SSH: Client, Server, and Keys](labs/09-ssh-and-keys.md).** Lab 09 completed with verified key generation, host verification, and non-interactive remote execution. Next step: prepare second Linux node.
+**Current: [Lab 10 — Two Nodes: Cross-Machine SSH & Remote Execution](labs/10-remote-node-and-cross-machine-ssh.md).** Setting up Ubuntu alongside Debian to form a 2-node fleet, testing cross-node key copy, and executing remote observations.
 
 | Lab | Topic | Progress |
 | --- | --- | --- |
@@ -14,6 +14,7 @@
 | [Test](labs/test.md) | **Prerequisites Check Test (Labs 01–07)** | **Passed (~90%)**; exact answers and evaluations recorded |
 | [08](labs/08-network-endpoints.md) | Network endpoints, IP, ports, and listeners | Completed; verified with `ip`, `ss`, Python server, and `curl` |
 | [09](labs/09-ssh-and-keys.md) | SSH: Client, Server, and Key Authentication | Completed; keypairs, authorized_keys & non-interactive execution verified |
+| [10](labs/10-remote-node-and-cross-machine-ssh.md) | Two Nodes: Cross-Machine SSH & Remote Execution | Ready to start |
 
 **Target:** by day 14, collect and explain one remote metric. This is a target, not a confirmed pace forecast. See the [14-day checkpoints](LEARNING-PLAN.md#14-day-target) when planning; the detailed syllabus includes topics that can continue during the project.
 
