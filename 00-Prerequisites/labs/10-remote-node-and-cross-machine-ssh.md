@@ -72,7 +72,7 @@ In modern Ubuntu, SSH uses **systemd socket activation** (`ssh.socket`). To move
 
 ```bash
 sudo mkdir -p /etc/systemd/system/ssh.socket.d
-printf '[Socket]\nListenStream=\nListenStream=2222\n' | sudo tee /etc/systemd/system/ssh.socket.d/listen.conf
+printf '[Socket]\nListenStream=\nListenStream=0.0.0.0:2222\nListenStream=[::]:2222\n' | sudo tee /etc/systemd/system/ssh.socket.d/listen.conf
 sudo systemctl daemon-reload
 sudo systemctl restart ssh.socket
 ```
