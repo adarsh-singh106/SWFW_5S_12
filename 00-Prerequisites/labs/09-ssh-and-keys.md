@@ -189,6 +189,60 @@ You will see:
 > [!CAUTION]
 > **Lab 03 Connection:** SSH has strict security rules. If your private key (`id_ed25519`) has loose permissions (like `chmod 644` or `chmod 777` where others could read it), SSH will **refuse to use the key** and error out with `UNPROTECTED PRIVATE KEY FILE!`.
 
+### Deep Dive: Why SSH Demands `chmod 600` (Connecting to Lab 03)
+
+Linux is a **multi-user system**. On a real server, multiple users or services (`ash`, `bob`, `www-data`, etc.) can execute programs on the same machine.
+
+Remember what a **Private Key** is: it is the master credential proving your identity. If someone gets your private key, they can log into all your servers as **you** without a password.
+
+#### 1. What "Loose Permissions" mean (from Lab 03):
+If your private key has default file permissions like `chmod 644` (`-rw-r--r--`):
+
+```text
+-rw-r--r--
+ │   │  └─ Others have READ permission (r--)  <-- DANGER!
+ │   └──── Group has READ permission (r--)
+ └──────── Owner has read & write (rw-)
+```
+
+Any other user on that machine could run `cat /home/ash/.ssh/id_ed25519` and steal your secret key!
+
+#### 2. What "Strict Permissions" look like (`chmod 600`):
+When you run `chmod 600 ~/.ssh/id_ed25519`:
+
+```text
+-rw-------
+ │   │  └─ Others have NO permission (---)    <-- SAFE!
+ │   └──── Group has NO permission (---)      <-- SAFE!
+ └──────── Owner alone can read & write (rw-)
+```
+
+Only **you** (`ash`) can read or write the file. All other users get `Permission denied`.
+
+#### 3. What SSH checks before connecting:
+Before SSH uses your private key, it checks the file's permission bits. If group or others have read permissions, SSH deliberately refuses to use it and crashes out:
+
+```text
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@         WARNING: UNPROTECTED PRIVATE KEY FILE!          @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Permissions 0644 for '/home/ash/.ssh/id_ed25519' are too open.
+It is required that your private key files are NOT accessible by others.
+This private key will be ignored.
+```
+
+SSH essentially says: *"You left your master house key on the front porch where anyone walking by can photocopy it. I refuse to use this key until you put it in a private safe."*
+
+#### 4. The Golden Rule of SSH Permissions:
+
+| Path | Required Permission | Command | What it means |
+| :--- | :--- | :--- | :--- |
+| **`~/.ssh/`** (Folder) | `700` (`drwx------`) | `chmod 700 ~/.ssh` | Only you can enter (`x`) and list (`r`) this directory. |
+| **`~/.ssh/id_ed25519`** (Private Key) | `600` (`-rw-------`) | `chmod 600 ~/.ssh/id_ed25519` | Only you can read or write your secret key. |
+| **`~/.ssh/authorized_keys`** (Public list) | `600` (`-rw-------`) | `chmod 600 ~/.ssh/authorized_keys` | Only you can modify who is allowed to log in. |
+| **`~/.ssh/id_ed25519.pub`** (Public Key) | `644` (`-rw-r--r--`) | *(Default is fine)* | Safe for anyone to read because it's public. |
+
+
 ---
 
 ## 6. Step 4: Authorize your public key

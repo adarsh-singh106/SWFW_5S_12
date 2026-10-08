@@ -29,6 +29,9 @@ For these basic checks, Linux uses the owner bits when your user owns the file. 
 
 Project connection: a collector can find a file yet lack permission to read it. That is a different failure from a missing path.
 
+> [!TIP]
+> **Real-World Impact (Preview of Lab 09):** In Lab 09, you will generate an SSH private key (`~/.ssh/id_ed25519`). SSH explicitly validates these permission bits: if the group or others slots have read permissions (such as `-rw-r--r--` or mode 644), SSH treats the key as compromised and halts with `WARNING: UNPROTECTED PRIVATE KEY FILE!`. It strictly requires `-rw-------` (`chmod 600`), where only the owner has access.
+
 ## 3. Check your identity
 
 Run these individually:
