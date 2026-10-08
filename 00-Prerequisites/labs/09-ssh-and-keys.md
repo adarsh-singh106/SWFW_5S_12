@@ -305,3 +305,43 @@ We have a few simple options for our second node on your Windows machine:
 2. **A lightweight Docker container** running Debian/Ubuntu with SSH.
 
 Let me know your answers and which option for the second node you prefer!
+
+---
+
+## 10. Lab 09 Review & Terminal Output Walkthrough
+
+*(Appended after lab completion & recall review)*
+
+### Part A: Checkpoint Recall Answers & Evaluation
+
+1. **What is the difference between `id_ed25519` and `id_ed25519.pub`?**
+   - **Your Answer:** `id_ed25519` (without `.pub`) is the private key; we must never share it with anyone. `id_ed25519.pub` is the public key, which can be shared.
+   - **Evaluation: 10/10.** Spot-on. The private key stays secret on the client; the public key is placed in `~/.ssh/authorized_keys` on servers you wish to access.
+
+2. **Why does SSH fail if private key permissions are `-rw-rw-rw-`?**
+   - **Your Answer:** Because group and others also have permissions to read and write the private key. That is dangerous and incorrect; only the user should have access.
+   - **Evaluation: 10/10.** Exactly right. SSH strictly protects secrets. If a private key is readable by anyone else, SSH halts with `WARNING: UNPROTECTED PRIVATE KEY FILE!`.
+
+3. **When you run `ssh user@host "command"`, does it stay open or exit?**
+   - **Your Answer:** It exits immediately and does not wait. This is the standard way to execute commands on a remote server.
+   - **Evaluation: 10/10.** Exactly right. Non-interactive SSH executes the specified command, pipes stdout/stderr back to the client, and terminates immediately.
+
+---
+
+### Part B: Terminal Output Decoded
+
+1. **Host Key Generation & Fingerprint Match:**
+   - During package installation:
+     `Creating SSH2 ED25519 key... 256 SHA256:PecTjEjXLCnlgQZfvj4Ip5wnID7Gu42szLlBIUWyY8k root@DeathNode (ED25519)`
+   - When connecting via `ssh ash@127.0.0.1`:
+     `ED25519 key fingerprint is SHA256:PecTjEjXLCnlgQZfvj4Ip5wnID7Gu42szLlBIUWyY8k.`
+   - *Explanation:* These two strings match identically because the prompt was asking you to verify the server's newly generated **Host Key**.
+
+2. **Daemon Status (`systemctl status ssh`):**
+   - `Main PID: 1084 (sshd)` identifies the listening background process.
+   - `Server listening on 0.0.0.0 port 22` confirms the socket is bound across all interfaces on the SSH port.
+
+3. **Remote Output Streaming:**
+   - `DeathNode` and `12:00:18 up 1:46, 1 user, load average: ...`
+   - *Explanation:* The command executed on the destination environment and streamed its standard output back through the encrypted SSH channel before cleanly exiting.
+

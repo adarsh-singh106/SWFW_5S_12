@@ -158,5 +158,16 @@ After time away, read only the last entry and resume its next action. No backlog
 - Full review, checkpoint evaluation, and explicit answers appended directly to `00-Prerequisites/labs/08-network-endpoints.md` in Section 10.
 - Next: Lab 09 on SSH client, server, key authentication, and preparing the 2nd node.
 
+## Lab 09 — completed with terminal evidence and recall
+
+- User installed `openssh-server` and `openssh-client` on Debian; verified SSH daemon listening on port 22 with `systemctl` and `ss -tlpn`.
+- Host verification tested on `127.0.0.1`; user confirmed and observed Host Key fingerprint match against package setup output.
+- Generated ED25519 keypair; verified permissions on `~/.ssh/id_ed25519` (600) and `~/.ssh` (700).
+- Configured `~/.ssh/authorized_keys`; demonstrated passwordless login and non-interactive command execution (`ssh ash@127.0.0.1 "hostname && uptime"`).
+- Recall questions verified: private vs public key (10/10); permission restrictions on private keys (10/10); non-interactive command execution lifecycle (10/10).
+- Terminal output walkthrough appended to `00-Prerequisites/labs/09-ssh-and-keys.md`.
+- Next: Prepare second Linux node and Lab 10 (Remote cross-node metric collection).
+
+
 
 

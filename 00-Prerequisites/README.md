@@ -1,6 +1,6 @@
 # Prerequisites: start here
 
-**Current: [Lab 09 — SSH: Client, Server, and Keys](labs/09-ssh-and-keys.md).** Lab 08 completed with excellent recall and real-world analogy. Lab 09 covers the SSH daemon listener on port 22, host keys, public/private key authentication, and non-interactive command execution.
+**Current: [Lab 09 — SSH: Client, Server, and Keys](labs/09-ssh-and-keys.md).** Lab 09 completed with verified key generation, host verification, and non-interactive remote execution. Next step: prepare second Linux node.
 
 | Lab | Topic | Progress |
 | --- | --- | --- |
@@ -13,7 +13,7 @@
 | [07](labs/07-services-and-logs.md) | Service manager, status, and logs | Completed; systemd verified as PID 1 |
 | [Test](labs/test.md) | **Prerequisites Check Test (Labs 01–07)** | **Passed (~90%)**; exact answers and evaluations recorded |
 | [08](labs/08-network-endpoints.md) | Network endpoints, IP, ports, and listeners | Completed; verified with `ip`, `ss`, Python server, and `curl` |
-| [09](labs/09-ssh-and-keys.md) | SSH: Client, Server, and Key Authentication | Ready to start |
+| [09](labs/09-ssh-and-keys.md) | SSH: Client, Server, and Key Authentication | Completed; keypairs, authorized_keys & non-interactive execution verified |
 
 **Target:** by day 14, collect and explain one remote metric. This is a target, not a confirmed pace forecast. See the [14-day checkpoints](LEARNING-PLAN.md#14-day-target) when planning; the detailed syllabus includes topics that can continue during the project.
 
