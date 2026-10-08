@@ -20,25 +20,88 @@ Our Fleet Manager will need to run commands on multiple Linux nodes to collect m
 
 ---
 
-## 2. Keep these ideas separate
+## 2. The Core Concept: Keys, Roles, and What They Protect
 
-| Component | What it does | Real-world analogy |
-| :--- | :--- | :--- |
-| **SSH Client (`ssh`)** | The command-line program on your local machine that requests a connection | The visitor making the call |
-| **SSH Server Daemon (`sshd`)** | The background service on the destination machine listening on **Port 22** | The security guard at door 22 |
-| **Host Key (Server's identity)** | A cryptographic key pair belonging to the server itself | The security guard's official government ID badge |
-| **User Key Pair (Client's identity)** | A private key + public key used to log you in without a password | A physical lock & key |
-| **Private Key (`id_ed25519`)** | Stays secret on your client machine. **Never shared with anyone.** | The physical metal key in your pocket |
-| **Public Key (`id_ed25519.pub`)** | Safe to share. Placed in `~/.ssh/authorized_keys` on the target machine. | The padlock mounted on the door |
+To understand SSH security, look at it in two simple layers:
+1. **The Math (Layer 1):** What are Private and Public keys?
+2. **The Role (Layer 2):** Who owns them (**Server** vs. **User**)?
+
+```text
+               ┌────────────────────────────────────────────────────────┐
+               │                      SSH CONNECTION                    │
+               └────────────────────────────────────────────────────────┘
+                       ▲                                        ▲
+                       │                                        │
+           1. Host Key verifies the SERVER          2. User Key verifies YOU
+           "Is this the real server?"               "Are you allowed to log in as ash?"
+```
+
+---
+
+### Layer 1: The Cryptographic Pair (Private Key vs. Public Key)
+
+Whenever you generate an SSH key, you never get a single key. You always generate a **matched twin pair**:
+
+| Key | What it is | Real-world Analogy | Where it lives | Can you share it? |
+| :--- | :--- | :--- | :--- | :--- |
+| **Private Key** | The secret mathematical half. | The **physical key** in your pocket. | Only on the machine that created it. | **NEVER share it.** Anyone who has it can impersonate you. |
+| **Public Key** | The public mathematical half matching your private key. | The **padlock** built specifically for your physical key. | Safe to copy to any machine you want to access. | **Yes, safe to share.** Giving someone a padlock doesn't give them your key. |
+
+*Mathematical Rule:* Anything locked or signed by one half can only be unlocked or verified by the matching other half.
+
+---
+
+### Layer 2: The Two Roles (Host Key vs. User Key Pair)
+
+Notice: **Both the Host Key and the User Key are Private/Public key pairs!**  
+The difference is **WHO owns them** and **WHAT question they answer**:
+
+#### 1. Host Key (Proves the Server's Identity)
+* **Who owns it?** The **Server machine** (generated automatically when `openssh-server` is installed).
+* **Where it lives:** In `/etc/ssh/ssh_host_*` on the server.
+* **Question it answers:** *"Am I really connecting to the genuine server, or is an attacker on the network spoofing the server?"*
+* **How it works:**
+  - The server holds its **Host Private Key** in `/etc/ssh/`.
+  - When a client connects, the server presents its **Host Public Key** (the fingerprint you see when connecting: `ED25519 key fingerprint is SHA256:...`).
+  - When you accept it, your client saves that fingerprint in `~/.ssh/known_hosts`.
+  - Future connections verify that the server's fingerprint still matches `known_hosts`.
+* **Real-world Analogy:** The **official badge and photo ID** worn by a hotel receptionist. It proves you are talking to the real hotel staff, not an imposter standing in the lobby.
+
+#### 2. User Key Pair (Proves Your Identity)
+* **Who owns it?** **You (the client/user)** (generated when you run `ssh-keygen`).
+* **Where it lives:** In `~/.ssh/id_ed25519` on your local client machine.
+* **Question it answers:** *"Does the person connecting have permission to log in as user `ash` without typing a password?"*
+* **How it works:**
+  - You keep the **User Private Key** (`id_ed25519`) secret in your own `~/.ssh/` folder.
+  - You place your **User Public Key** (`id_ed25519.pub`) into the server's `~/.ssh/authorized_keys` file.
+  - When you connect, the server challenges your client: *"Prove you possess the private key that unlocks this public padlock."* Your client signs the challenge using its private key, and the server lets you in.
+* **Real-world Analogy:** Your **personal keycard** that opens the door to room `ash`.
+
+---
+
+### Quick Comparison Summary
+
+| Term | Who owns it? | Stored file name | What question does it answer? |
+| :--- | :--- | :--- | :--- |
+| **Private Key** | The creator of the key pair | `~/.ssh/id_ed25519` (User) or `/etc/ssh/ssh_host_*_key` (Server) | *"The secret proof used to sign and unlock."* |
+| **Public Key** | Given to anyone who needs to verify you | `~/.ssh/id_ed25519.pub` (User) or `/etc/ssh/ssh_host_*.pub` (Server) | *"The lock that only the matching private key can open."* |
+| **Host Key** | The **Server machine** | Server: `/etc/ssh/`<br>Client: `~/.ssh/known_hosts` | *"Client asking: Is this server authentic and genuine?"* |
+| **User Key Pair** | **You (the User / Client)** | Client: `~/.ssh/id_ed25519`<br>Server: `~/.ssh/authorized_keys` | *"Server asking: Does this user have permission to log in?"* |
+
+> [!TIP]
+> **Rule of thumb to remember:**
+> - **Host Key:** Protects **you from connecting to a fake server**.
+> - **User Key:** Protects **the server from unauthorized users logging in**.
 
 ```text
 Local Machine (Client)                             Target Machine (Server)
 ┌───────────────────────┐                         ┌─────────────────────────────┐
 │  ssh ash@127.0.0.1    │ ──(Encrypted Port 22)──>│  sshd (Listening on Port 22)│
-│  Uses: Private Key    │                         │  Checks: authorized_keys    │
+│  Uses: User Priv Key  │                         │  Checks: authorized_keys    │
 │  (~/.ssh/id_ed25519)  │                         │  (~/.ssh/authorized_keys)   │
 └───────────────────────┘                         └─────────────────────────────┘
 ```
+
 
 ---
 
