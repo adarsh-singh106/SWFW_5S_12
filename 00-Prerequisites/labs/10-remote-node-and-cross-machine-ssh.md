@@ -56,18 +56,27 @@ Inside your **Ubuntu terminal (`kurai@DeathNode`)**, run:
 sudo apt update && sudo apt install -y openssh-server
 ```
 
-Now configure Ubuntu's SSH daemon to listen on port `2222`:
+In modern Ubuntu, SSH uses **systemd socket activation** (`ssh.socket`). To move Ubuntu's SSH socket to port `2222` and free port `22` for Debian, create a systemd socket override:
 
 ```bash
-printf 'Port 2222\n' | sudo tee /etc/ssh/sshd_config.d/port.conf
+sudo mkdir -p /etc/systemd/system/ssh.socket.d
+printf '[Socket]\nListenStream=\nListenStream=2222\n' | sudo tee /etc/systemd/system/ssh.socket.d/listen.conf
+sudo systemctl daemon-reload
+sudo systemctl restart ssh.socket
 ```
 
-Start the SSH service:
+Verify that Ubuntu's SSH socket is active on port `2222`:
 
 ```bash
-sudo systemctl start ssh
-systemctl status ssh --no-pager
+systemctl status ssh.socket --no-pager
 ```
+
+Now, return to **Debian (`ash@DeathNode`)** and restart Debian's SSH server so it reclaims port `22`:
+
+```bash
+sudo systemctl restart ssh
+```
+
 
 Now inspect your listeners using the command from Lab 08:
 
