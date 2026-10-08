@@ -170,3 +170,46 @@ Close your notes and answer these three questions aloud:
 3. When you run `ss -tlpn`, what does a line showing `0.0.0.0:8080` tell you about who is listening?
 
 Record 30–60 seconds or reply with your answers to verify your mental model before we prepare for remote SSH access in Lab 09!
+
+---
+
+## 10. Lab 08 Review & Explicit Conceptual Answers
+
+*(Appended after lab completion & recall review)*
+
+### Part A: Checkpoint Recall Answers & Evaluation
+
+1. **What is the difference between an IP address and a port?**
+   - **Your Answer:** An IP address identifies the network interface (the machine), while a port identifies the communication channel. *Analogy: The hotel street address is the IP address, and the hotel room number is the port.*
+   - **Evaluation: 10/10.** Spot-on analogy. An IP gets packets to the correct machine; the port gets packets to the correct program.
+
+2. **If `curl` reports `Connection refused`, does that mean the entire computer is turned off? What does it actually prove?**
+   - **Your Answer:** It does not mean the computer is turned off. It means the machine is reachable, but no process has opened a listening socket on that specific port.
+   - **Evaluation: 10/10.** Exactly right. If the machine were powered off or the IP unreachable, you would get a network timeout (`No route to host` or `Connection timed out`), not an immediate refusal.
+
+3. **When you run `ss -tlpn`, what does a line showing `0.0.0.0:8080` tell you?**
+   - **Your Answer:** It means the process has opened a socket on port 8080 and accepts connections coming from all network interfaces and all IP addresses.
+   - **Evaluation: 10/10.** Exactly right. Contrast with `127.0.0.1:8080`, which accepts connections *only* from the local loopback interface.
+
+---
+
+### Part B: Explicit Clarifications on Your Specific Questions
+
+#### Question 1: Does the `eth0` IP address change or stay the same?
+* **In WSL 2 (Your current machine):** **Yes, it changes.** Every time Windows restarts or you run `wsl --shutdown`, Windows Hyper-V creates a fresh virtual network switch and dynamically assigns a new private IP (typically in the `172.x.x.x` range) via internal DHCP. It remains constant only while that specific WSL session stays running.
+* **In Production Linux Servers:** **No, it stays fixed.** Real production servers use a **Static IP** (or DHCP reservation). If a server's IP changed randomly on reboot, monitoring agents, databases, and clients would lose their connection destination.
+
+#### Question 2: In `ss -tlpn`, what do `State`, `Recv-Q`, and `Send-Q` mean?
+When viewing sockets in `LISTEN` state:
+
+```text
+State    Recv-Q   Send-Q   Local Address:Port
+LISTEN   0        128      0.0.0.0:8080
+```
+
+* **`State = LISTEN`:** The program is alive, has opened a socket, and called the `listen()` system call to wait for incoming connections.
+* **`Send-Q` (Listening Backlog Limit):** Think of this as the **maximum size of the waiting bench outside room 8080**. The program told the Linux kernel: *"Queue up to 128 incoming connection handshakes for me."* If more than 128 clients try to connect before the application handles them, the kernel starts rejecting new requests.
+* **`Recv-Q` (Current Waiting Queue):** How many clients are **currently waiting on that bench right now**, waiting for Python to call `accept()` and start talking to them. Because Python handled your single `curl` instantly, `Recv-Q` was **0** (no queue).
+
+*(Note: When a connection is actively open and transferring data (`ESTABLISHED`), `Recv-Q` and `Send-Q` switch to measuring unread/unsent bytes in network buffers. But while in `LISTEN` state, they track the connection queue backlog).*
+
