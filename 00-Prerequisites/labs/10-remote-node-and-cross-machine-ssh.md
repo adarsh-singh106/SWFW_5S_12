@@ -194,3 +194,39 @@ Answer these aloud:
 1. Why did we need Ubuntu to listen on port `2222` instead of port `22` in this WSL environment?
 2. When Debian runs `ssh -p 2222 kurai@127.0.0.1 "whoami"`, why does it print `kurai` and not `ash`?
 3. Where is the **private key** stored, and where is the **public key** stored in this two-node setup?
+
+---
+
+## 8. Lab 10 Review & Conceptual Answers
+
+*(Appended after lab completion & recall review)*
+
+### Part A: Checkpoint Recall Answers & Evaluation
+
+1. **Why did we need Ubuntu to listen on port `2222` instead of `22`?**
+   - **Your Answer:** Because Debian was already using port 22 for its SSH service. Since Ubuntu is on the same machine sharing the WSL 2 network stack, if Ubuntu also tried to bind to port 22, it would fail with a port conflict (`Address already in use`). Moving Ubuntu to 2222 (or any unused port) allows both SSH servers to run concurrently.
+   - **Evaluation: 10/10.** Flawless understanding of port collision and WSL 2 shared network architecture.
+
+2. **Why does running `whoami` via SSH print `kurai` and not `ash`?**
+   - **Your Answer:** Because the command is sent over the network to the Ubuntu environment to execute under the `kurai` user. The remote process executes in `kurai`'s shell and context, not `ash`'s local shell.
+   - **Evaluation: 10/10.** Spot-on. Non-interactive SSH spawns a remote process under the target user's identity on the remote node and streams back stdout.
+
+3. **Where is the private key stored and where is the public key stored?**
+   - **Your Answer:** Debian generated the keypair. Debian's private key stays on Debian (`~/.ssh/id_ed25519`) and never leaves its machine. Debian's public key was copied over and appended to Ubuntu's `~/.ssh/authorized_keys` file. Ubuntu only has the public key, and Ubuntu does not need its own keypair because it is not initiating connections.
+   - **Evaluation: 10/10.** Exactly right. Private keys remain strictly with the client; public keys are installed on the server.
+
+---
+
+### Part B: Precision Check on Terminology ("Host" vs "Client")
+
+You mentioned:
+> *"And in this case, our host is Debian, and Ubuntu is the user."*
+
+Here is the standard networking and SSH terminology to keep razor-sharp:
+
+| Term | In our setup | What it means |
+| :--- | :--- | :--- |
+| **SSH Client** | **Debian (`DeathNode`)** | The machine/initiator that **starts the connection** (our Fleet Controller). |
+| **Remote Host / Server** | **Ubuntu (`DeathNode`)** | The destination machine that **hosts the service** and accepts incoming connections. In network speak, any machine reachable on an IP is a "host". |
+| **User Account** | **`kurai`** | The specific Linux user identity on the remote host that Debian is logging into. |
+

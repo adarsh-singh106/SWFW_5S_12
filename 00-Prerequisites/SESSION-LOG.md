@@ -168,11 +168,16 @@ After time away, read only the last entry and resume its next action. No backlog
 - Terminal output walkthrough appended to `00-Prerequisites/labs/09-ssh-and-keys.md`.
 - Next: Prepare second Linux node and Lab 10 (Remote cross-node metric collection).
 
-## Lab 10 — ready (Option A: Ubuntu selected as Node 2)
+## Lab 10 — completed with cross-node execution and recall
 
-- User selected Option A (installing Ubuntu alongside Debian in WSL 2) to establish the second managed fleet node.
-- Created `00-Prerequisites/labs/10-remote-node-and-cross-machine-ssh.md`.
-- Next user action: Run `wsl --install -d Ubuntu` in PowerShell and initialize credentials.
+- Ubuntu 26.04 installed as Node 2 alongside Debian (Controller).
+- Identified WSL 2 shared network architecture: both distros share `eth0` IP and machine hostname.
+- Configured Ubuntu SSH socket activation (`ssh.socket`) override to listen on port 2222 on both IPv4 (`0.0.0.0`) and IPv6 (`[::]`), avoiding collision with Debian's port 22.
+- Debian public key (`~/.ssh/id_ed25519.pub`) transferred to Ubuntu's `/home/kurai/.ssh/authorized_keys` via `ssh-copy-id -p 2222`.
+- Verified passwordless cross-node execution: Debian ran `whoami` and `cat /etc/os-release` on Ubuntu over port 2222, returning `kurai` and Ubuntu 26.04 without password prompt.
+- Recall questions verified: Port separation in WSL 2 (10/10), remote execution context (10/10), private/public key locations (10/10). Terminology precision clarified (Client vs Host/Server).
+- Next: Lab 11 on reading raw local Linux metrics (`/proc/stat`, `/proc/meminfo`, `/proc/loadavg`) and parsing them in Python.
+
 
 
 
