@@ -186,6 +186,12 @@ After time away, read only the last entry and resume its next action. No backlog
 - Terminal output analysis and review appended to `00-Prerequisites/labs/11-reading-local-metrics.md`.
 - Next: Lab 12 on Remote Metric Collection (connecting to Ubuntu over SSH, parsing remote metrics in Python, and representing failure honestly).
 
+## Lab 12 — ready to start (The Final Prerequisite Milestone)
+
+- Lab 12 written: Controller (Debian) observes Managed Node (Ubuntu) over SSH using Python `subprocess`.
+- Implements: Strict timeouts, BatchMode non-interactive execution, float parsing of `/proc/uptime`, and honest error handling (`status: "unreachable"` vs `"status: "healthy"`).
+- Next action: Run `remote_collector.py` on Debian for happy path, simulate Ubuntu node downtime (`systemctl stop ssh.socket ssh.service`), observe honest degradation, and verify recovery.
+
 
 
 
