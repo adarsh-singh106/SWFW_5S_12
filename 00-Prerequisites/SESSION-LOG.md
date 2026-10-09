@@ -178,10 +178,14 @@ After time away, read only the last entry and resume its next action. No backlog
 - Recall questions verified: Port separation in WSL 2 (10/10), remote execution context (10/10), private/public key locations (10/10). Terminology precision clarified (Client vs Host/Server).
 - Next: Lab 11 on reading raw local Linux metrics (`/proc/stat`, `/proc/meminfo`, `/proc/loadavg`) and parsing them in Python.
 
-## Lab 11 — ready (Raw Linux Metrics & Python Parsing)
+## Lab 11 — completed with metric parsing and recall
 
-- Created `00-Prerequisites/labs/11-reading-local-metrics.md`.
-- Next user action: Inspect `/proc/uptime` and `/proc/meminfo` in Debian, create `parse_uptime.py`, and run it.
+- Inspected `/proc/uptime` (system seconds + idle seconds) and `/proc/meminfo` (`MemTotal`, `MemFree`, `MemAvailable` in kB).
+- Created `parse_uptime.py` on Debian; successfully parsed raw kernel float strings into structured JSON with health status.
+- Recall questions verified: `/proc` in RAM vs disk (10/10), units of uptime and meminfo (10/10), observability principle "Missing ≠ Zero" (10/10).
+- Terminal output analysis and review appended to `00-Prerequisites/labs/11-reading-local-metrics.md`.
+- Next: Lab 12 on Remote Metric Collection (connecting to Ubuntu over SSH, parsing remote metrics in Python, and representing failure honestly).
+
 
 
 

@@ -174,3 +174,43 @@ Close your notes and answer:
 3. Why should a monitoring agent report `status: "failed"` instead of returning `0` when a metric cannot be read?
 
 Once you've run the script, share your output and your answers! In Lab 12, we will run this logic remotely to collect metrics from Node 2!
+
+---
+
+## 8. Lab 11 Review & Conceptual Answers
+
+*(Appended after lab completion & recall review)*
+
+### Part A: Checkpoint Recall Answers & Evaluation
+
+1. **Does `/proc/uptime` occupy space on secondary storage (hard drive)? Where does its data come from?**
+   - **Your Answer:** The uptime file is in RAM (not on secondary storage), and its data is calculated at runtime by the Linux kernel reading its hardware timer when the request comes in.
+   - **Evaluation: 10/10.** Perfect explanation. It is a kernel pseudo-filesystem generated on-the-fly in memory.
+
+2. **What are the units of the numbers in `/proc/uptime` and `/proc/meminfo`?**
+   - **Your Answer:** Uptime is in seconds (system duration since boot), and meminfo is in kilobytes (`kB`), reporting RAM (primary memory) allocation.
+   - **Evaluation: 10/10.** Spot-on.
+
+3. **Why should a monitoring agent report `status: "failed"` instead of returning `0` when a metric cannot be read?**
+   - **Your Answer:** Because returning 0 would falsely communicate that the system rebooted 0 seconds ago. If there is a connection issue, it should honestly state that the server is unreachable or failed, rather than fabricating a zero value.
+   - **Evaluation: 10/10.** Flawless understanding of the fundamental observability rule: **Missing ≠ Zero**.
+
+---
+
+### Part B: Terminal Output Analysis
+
+Your parsed JSON output:
+```json
+{
+  "metric": "system_uptime",
+  "unit": "seconds",
+  "uptime_seconds": 469.28,
+  "uptime_hours": 0.13,
+  "collected_at": 1791522327,
+  "status": "healthy"
+}
+```
+
+- **Accuracy:** The raw seconds (`469.28`) correctly correspond to `~0.13` hours (~7.8 minutes).
+- **Structure:** Clean key-value pairs formatted with measurement name, explicit unit, timestamp, and health status. This is the exact data contract a Prometheus exporter or custom collector uses.
+
