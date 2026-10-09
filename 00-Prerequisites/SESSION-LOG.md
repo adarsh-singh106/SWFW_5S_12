@@ -186,11 +186,15 @@ After time away, read only the last entry and resume its next action. No backlog
 - Terminal output analysis and review appended to `00-Prerequisites/labs/11-reading-local-metrics.md`.
 - Next: Lab 12 on Remote Metric Collection (connecting to Ubuntu over SSH, parsing remote metrics in Python, and representing failure honestly).
 
-## Lab 12 — ready to start (The Final Prerequisite Milestone)
+## Lab 12 — completed with terminal evidence and recall (PREREQUISITES FINISHED)
 
-- Lab 12 written: Controller (Debian) observes Managed Node (Ubuntu) over SSH using Python `subprocess`.
-- Implements: Strict timeouts, BatchMode non-interactive execution, float parsing of `/proc/uptime`, and honest error handling (`status: "unreachable"` vs `"status: "healthy"`).
-- Next action: Run `remote_collector.py` on Debian for happy path, simulate Ubuntu node downtime (`systemctl stop ssh.socket ssh.service`), observe honest degradation, and verify recovery.
+- Script `remote_collector.py` run on Debian (`ash@DeathNode`) targeting Ubuntu (`kurai@DeathNode:2222`).
+- Happy path verified: collected Ubuntu's `/proc/uptime`, returning structured JSON (`uptime_seconds: 1576.01`, `status: "healthy"`).
+- Failure path verified: Ubuntu stopped `ssh.socket`; Debian collector caught connection refused cleanly within `ConnectTimeout=3`, returning `status: "unreachable"` without crashing or returning fake zero.
+- Recovery path verified: Ubuntu restarted `ssh.socket`; Debian collector immediately recovered and returned `status: "healthy"` (`uptime_seconds: 2260.31`).
+- Recall questions verified: `ConnectTimeout` to prevent thread hanging / head-of-line blocking (10/10); "Missing ≠ Zero" avoiding metric corruption (10/10); alignment with project Requirements 1 & 3 (10/10).
+- **Prerequisite track complete:** Finished on target.
+- Next: Transition to SWFW_5S_12 core project architecture, database schema, and node onboarding design.
 
 
 

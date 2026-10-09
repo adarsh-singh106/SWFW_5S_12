@@ -209,7 +209,101 @@ It immediately recovers and returns `"status": "healthy"`!
 
 ## 6. Checkpoint & Recall
 
-Answer these aloud:
-1. Why is setting a `ConnectTimeout` in automated SSH calls critical when collecting metrics from multiple nodes in a fleet?
-2. When the node went down, why was returning `status: "unreachable"` better than letting the script crash or returning `0`?
-3. How does this collector satisfy Requirement 1 and Requirement 3 of our Fleet Manager project?
+1. **Why is setting a `ConnectTimeout` in automated SSH calls critical when collecting metrics from multiple nodes in a fleet?**
+2. **When the node went down, why was returning `status: "unreachable"` better than letting the script crash or returning `0`?**
+3. **How does this collector satisfy Requirement 1 and Requirement 3 of our Fleet Manager project?**
+
+---
+## 7. Terminal Evidence & Recall Evaluation
+
+### Verified Terminal Run (Controller: `ash@DeathNode` | Managed Node: `kurai@DeathNode`)
+
+1. **Happy Path Execution:**
+   ```bash
+   ash@DeathNode:~$ python3 remote_collector.py
+   {
+     "node_id": "ubuntu-node-02",
+     "target_host": "127.0.0.1",
+     "port": 2222,
+     "metric": "system_uptime",
+     "unit": "seconds",
+     "uptime_seconds": 1576.01,
+     "uptime_hours": 0.44,
+     "status": "healthy",
+     "collected_at": 1791523433
+   }
+   ```
+   *Analysis:* Python spawned non-interactive SSH over port 2222, authenticated using ED25519 key, read raw `/proc/uptime` from Ubuntu, parsed float values, and emitted structured telemetry.
+
+2. **Controlled Failure Execution:**
+   On Ubuntu:
+   ```bash
+   kurai@DeathNode:~$ sudo systemctl stop ssh.socket
+   kurai@DeathNode:~$ systemctl status ssh.socket
+   ○ ssh.socket - OpenBSD Secure Shell server socket
+        Active: inactive (dead)
+   ```
+   On Debian:
+   ```bash
+   ash@DeathNode:~$ python3 remote_collector.py
+   {
+     "node_id": "ubuntu-node-02",
+     "status": "unreachable",
+     "error": "ssh: connect to host 127.0.0.1 port 2222: Connection refused",
+     "collected_at": 1791524083
+   }
+   ```
+   *Analysis:* The collector caught non-zero returncode without crashing or emitting false zeros, honestly degrading with `status: "unreachable"`.
+
+3. **Recovery Execution:**
+   On Ubuntu:
+   ```bash
+   kurai@DeathNode:~$ sudo systemctl start ssh.socket
+   kurai@DeathNode:~$ systemctl status ssh.socket
+   ● ssh.socket - OpenBSD Secure Shell server socket
+        Active: active (listening)
+   ```
+   On Debian:
+   ```bash
+   ash@DeathNode:~$ python3 remote_collector.py
+   {
+     "node_id": "ubuntu-node-02",
+     "target_host": "127.0.0.1",
+     "port": 2222,
+     "metric": "system_uptime",
+     "unit": "seconds",
+     "uptime_seconds": 2260.31,
+     "uptime_hours": 0.63,
+     "status": "healthy",
+     "collected_at": 1791524117
+   }
+   ```
+   *Analysis:* The node seamlessly resumed reporting healthy telemetry (uptime increased to 2260.31s).
+
+### Recall Evaluation
+
+* **Q1 (ConnectTimeout):** *Why is ConnectTimeout critical in automated fleet collection?*
+  * **User Answer:** Without it, the process waits forever. With it, we set a timer (e.g. 5 sec) so the process tries and fails fast if the machine doesn't respond.
+  * **Evaluation (10/10):** Exactly right. In a fleet with unresponsive or partitioned nodes, the Linux kernel's default TCP SYN timeout takes over 2 minutes. `ConnectTimeout` prevents head-of-line blocking across the fleet.
+* **Q2 (Honest Failure vs 0 / Crash):** *Why is returning `status: "unreachable"` better than crashing or returning 0?*
+  * **User Answer:** The process shouldn't crash or return 0; it should elegantly say unreachable with the real problem instead of error-like behavior.
+  * **Evaluation (10/10):** Perfect. Crashing takes down the monitoring daemon. Returning 0 corrupts time-series metrics ("Missing ≠ Zero").
+* **Q3 (Project Requirements 1 & 3):** *How does this satisfy Requirement 1 and Requirement 3?*
+  * **User Answer:** Req 1: Debian is monitoring Ubuntu remotely via SSH. Req 3: It handles failure gracefully without crashing.
+  * **Evaluation (10/10):** Accurate alignment with project specs SWFW_5S_12.
+
+---
+
+## 8. Milestone Achieved: Prerequisite Track Complete
+
+With Lab 12 completed, tested, and empirically proven:
+- **Paths, Files, and Permissions (Labs 01–04)**: Mastered
+- **Processes, Signals, and Systemd Services (Labs 05–07)**: Mastered
+- **Prerequisite Diagnostic Test**: Passed (~90%)
+- **Networking, Endpoints, and Ports (Lab 08)**: Mastered
+- **SSH Cryptography & Key Authentication (Lab 09)**: Mastered
+- **Multi-Node Architecture & Cross-Machine Execution (Lab 10)**: Mastered
+- **Raw Linux Kernel Metrics & `/proc` Parsing (Lab 11)**: Mastered
+- **Remote Telemetry Collector & Honest Degradation (Lab 12)**: Mastered
+
+The foundational prerequisite phase is **complete**. Ready to begin Phase 1 Architecture of SWFW_5S_12!

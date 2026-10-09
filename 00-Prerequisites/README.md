@@ -1,6 +1,6 @@
 # Prerequisites: start here
 
-**Current: [Lab 12 — The Remote Collector (SSH + Python + Honest Failure)](labs/12-remote-metric-collector.md).** Completing the prerequisite milestone: Controller (Debian) observes Managed Node (Ubuntu) over SSH in Python and handles failure honestly.
+**Prerequisites Complete! Final: [Lab 12 — The Remote Collector (SSH + Python + Honest Failure)](labs/12-remote-metric-collector.md).** Prerequisite milestone achieved: Debian observed Ubuntu over SSH in Python, parsed `/proc/uptime`, and handled failure/recovery honestly. Next: Phase 1 — Fleet Manager Project Architecture.
 
 | Lab | Topic | Progress |
 | --- | --- | --- |
@@ -16,7 +16,7 @@
 | [09](labs/09-ssh-and-keys.md) | SSH: Client, Server, and Key Authentication | Completed; keypairs, authorized_keys & non-interactive execution verified |
 | [10](labs/10-remote-node-and-cross-machine-ssh.md) | Two Nodes: Cross-Machine SSH & Remote Execution | Completed; 2 distros linked over port 2222 with authorized_keys |
 | [11](labs/11-reading-local-metrics.md) | Where Metrics Come From: `/proc` & Python Parsing | Completed; `/proc/uptime` & `/proc/meminfo` parsed to JSON in Python |
-| [12](labs/12-remote-metric-collector.md) | The Remote Collector: SSH + Python + Honest Failure | Ready to run; final prerequisite milestone |
+| [12](labs/12-remote-metric-collector.md) | The Remote Collector: SSH + Python + Honest Failure | **Completed**; happy path, controlled failure & recovery empirically verified |
 
 **Target:** by day 14, collect and explain one remote metric. This is a target, not a confirmed pace forecast. See the [14-day checkpoints](LEARNING-PLAN.md#14-day-target) when planning; the detailed syllabus includes topics that can continue during the project.
 
