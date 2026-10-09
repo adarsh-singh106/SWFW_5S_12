@@ -178,6 +178,12 @@ After time away, read only the last entry and resume its next action. No backlog
 - Recall questions verified: Port separation in WSL 2 (10/10), remote execution context (10/10), private/public key locations (10/10). Terminology precision clarified (Client vs Host/Server).
 - Next: Lab 11 on reading raw local Linux metrics (`/proc/stat`, `/proc/meminfo`, `/proc/loadavg`) and parsing them in Python.
 
+## Lab 11 — ready (Raw Linux Metrics & Python Parsing)
+
+- Created `00-Prerequisites/labs/11-reading-local-metrics.md`.
+- Next user action: Inspect `/proc/uptime` and `/proc/meminfo` in Debian, create `parse_uptime.py`, and run it.
+
+
 
 
 

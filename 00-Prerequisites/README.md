@@ -1,6 +1,6 @@
 # Prerequisites: start here
 
-**Current: [Lab 10 — Two Nodes: Cross-Machine SSH & Remote Execution](labs/10-remote-node-and-cross-machine-ssh.md).** Lab 10 completed with verified cross-node SSH key copy, port segregation, and remote non-interactive execution. Next: Lab 11 (Reading & Parsing Raw Linux Metrics).
+**Current: [Lab 11 — Where Do Metrics Come From? (The `/proc` Filesystem & Python Parsing)](labs/11-reading-local-metrics.md).** Discovering how the Linux kernel exposes live hardware/process metrics via `/proc` and parsing them with Python.
 
 | Lab | Topic | Progress |
 | --- | --- | --- |
@@ -15,6 +15,7 @@
 | [08](labs/08-network-endpoints.md) | Network endpoints, IP, ports, and listeners | Completed; verified with `ip`, `ss`, Python server, and `curl` |
 | [09](labs/09-ssh-and-keys.md) | SSH: Client, Server, and Key Authentication | Completed; keypairs, authorized_keys & non-interactive execution verified |
 | [10](labs/10-remote-node-and-cross-machine-ssh.md) | Two Nodes: Cross-Machine SSH & Remote Execution | Completed; 2 distros linked over port 2222 with authorized_keys |
+| [11](labs/11-reading-local-metrics.md) | Where Metrics Come From: `/proc` & Python Parsing | Ready to start |
 
 **Target:** by day 14, collect and explain one remote metric. This is a target, not a confirmed pace forecast. See the [14-day checkpoints](LEARNING-PLAN.md#14-day-target) when planning; the detailed syllabus includes topics that can continue during the project.
 
