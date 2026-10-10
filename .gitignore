@@ -1,0 +1,34 @@
+# Local Python environments and generated caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.coverage
+htmlcov/
+
+# Local secrets; retain deliberately sanitized examples
+.env
+.env.*
+!.env.example
+!.env.*.example
+.ssh/
+id_rsa
+id_ed25519
+*.key
+*.pem
+
+# Application runtime data, build output, and local recordings
+/fleet-manager/.local/
+/fleet-manager/backend/build/
+/fleet-manager/backend/dist/
+/fleet-manager/frontend/node_modules/
+/fleet-manager/frontend/dist/
+/fleet-manager/recordings/
+
+# OS metadata
+.DS_Store
+Thumbs.db
