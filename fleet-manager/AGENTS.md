@@ -2,6 +2,10 @@
 
 Apply the root working instructions; these rules add product-specific constraints.
 
+## Session continuity
+
+Read [the charter](docs/PROJECT-CHARTER.md) and [current checkpoint](docs/LEARNING-STATE.md), then follow the checkpoint's lesson link and approval boundary. Use [the documentation map](docs/README.md) for organization and [the roadmap](docs/ROADMAP.md) for feature direction. Keep learning material under `docs/learn/<topic>/`; separate external references and student notes from AI-drafted explanations as the map specifies. Update the checkpoint after meaningful progress with observed evidence, learning status, unresolved questions, and one exact next action. Do not infer approval from a guide's proposed design.
+
 ## Official scope
 
 Project `SWFW_5S_12`: Distributed Linux Fleet Management.
