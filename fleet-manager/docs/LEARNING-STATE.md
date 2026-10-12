@@ -1,50 +1,38 @@
 # Current learning and engineering checkpoint
 
-Date: 2026-10-10
+Date: 2026-10-12
+Author/environment: executing Codex agent (session identity; runtime CODEX_VERSION=0.158.0), Windows PowerShell 5.1.26100.9444. Editor launch path is unverified.
 
-Current author/environment: executing Codex agent in the shared Windows workspace, using PowerShell. Exact model/build and editor launch path were not independently verified in this session. Earlier environment observations below belong to the 2026-10-09 session.
+## Current work and approval
 
-## Directory preparation: 2026-10-10
+- Mode: LEARN. Current feature: persistent node inventory, beginning with the registration flow.
+- User approved organizing documentation by purpose/topic and preparing the first lesson. Documentation work is complete; application implementation, dependencies, and technology choices remain unapproved.
+- Next action: read [registration flow](learn/node-inventory/01-registration-flow.md), then answer its section 7 scenario or identify the unclear step. Next proposed coding unit is SSH-port validation after agreeing its contract and implementation scope.
 
-- Authorized scope: user requested preparing the directory to start the project. Added only `src/` and `tests/` with Git placeholders and README navigation; no framework selection, dependencies, or application implementation.
-- Review correction: Git lists 19 tracked prerequisite files, not the 18 claimed in the earlier checkpoint below. The earlier hash-validation claims are historical reports and were not independently reproduced. Current review found no prerequisite differences against HEAD.
-- Learning: directory purposes explained; no independent demonstration or application assessed. Video: not required for directory preparation.
-- Verification: source/test placeholders exist and are not ignored; Git diff against HEAD confirms prerequisite files unchanged. User subsequently authorized committing the preparation files. No application runtime tests apply yet.
-- Next micro-step: explain and obtain approval for the persistent inventory feature, including endpoint fields, duplicate rules, technology choice, and restart/validation checks. Existing feature approval requirements remain in effect.
+## Engineering state
 
-The remaining sections retain the earlier foundation checkpoint; file counts and environment checks there are historical, not current verification.
+- Starting Git state: clean main at 321b203. Application src/ and tests/ contain placeholders; no application capability has been implemented.
+- Added documentation map, node-inventory guide, registration-flow lesson, and separate references page; updated application README navigation and this snapshot.
+- Continuity review: shared instructions now require resuming the current lesson with concrete explanations and a focused student task; nested instructions link to the charter/checkpoint/documentation map/roadmap. Roadmap points to lesson 01. User authorized separate local commits for coherent file groups; separate checkouts need the corresponding changes before resuming. Publishing/pushing is not authorized.
+- Documentation validation: initial lesson work passed prerequisite path/SHA-256 comparison. The subsequent continuity review passed the cumulative nine-file scope check, 31 local links, whitespace/diff checks, and prerequisite comparison against HEAD. External lesson references were inspected; no application tests apply to these documentation changes.
+- Git currently tracks 19 prerequisite files. Earlier snapshots claimed 18; use the verified count of 19. Earlier checkpoint text remains available in Git at 321b203; its historical test claims are not fresh verification.
+- Original WSL scripts remain uninspected/unpreserved. Starting a stopped distribution requires permission; this work did not start WSL or change its configuration.
+- Application runtime and independent Linux-node baseline remain pending. Agent instruction discovery: Codex UNVERIFIED; Antigravity UNVERIFIED by separate canary tests.
 
-## Current scope
+## Learning state
 
-- Mode: LEARN. Major milestone: 0, project foundation.
-- Micro-Step 1 accepted by the student. Authorized housekeeping batch: streamlined rules, concise project documents/navigation, safe ignores, and preservation of accessible original scripts after secret inspection.
-- Minimal documentation is in place. Milestone 0 remains partial: original-script preservation, agent discovery tests, and an executable application baseline are pending. These do not block proposing the first feature. No application capability is implemented.
+- Explained in conversation: registration versus observation, persistence, honest save outcomes, and guided incremental implementation.
+- New lesson available: participants, HTTP request/response, registration/storage flow, and response uncertainty. Availability does not mean the student has read or understood it.
+- Independently demonstrated/applied for this feature: none recorded. The student previously found abstract questions unclear; use concrete scenarios, one focused exercise at a time.
+- Deferred technical review: previous lab health labels and timeout claims exceed their evidence. Preserve original prerequisite material and carry corrections into application design.
 
-## Engineering evidence
+## Video state
 
-- Orientation inspected repository `main` at `324fbe0`; working tree was clean before this step. Existing tracked content consists of 18 prerequisite Markdown files.
-- Micro-step 1 engineering complete: root/application instructions and this snapshot created and read back for consistency and scope. Git lists exactly the three authorized additions, with no tracked-file changes. All 18 prerequisite file paths and SHA-256 hashes match the pre-edit baseline. No commit, dependency installation, or application implementation performed.
-- Housekeeping adds charter, roadmap, video plan, root/application README navigation, and scoped ignores. Shared rules now batch routine work, limit routine reports to 200 words, forbid unsolicited full-file dumps, and retain full learning/approval for meaningful engineering. Current Git additions total nine files including the three from Micro-Step 1; no original tracked files changed.
-- Housekeeping validation passed: exact nine-file scope, local Markdown links resolve, whitespace clean, six ignored-path and three visible-path cases pass; all 18 prerequisite paths/SHA-256 hashes match the pre-batch baseline. No commits, dependency installations, or deployment.
-- Lab 12 contains historical success, connection-refused, and recovery outputs. These were inspected, not rerun. Actual WSL script copies remain uninspected and unpreserved in Git; examples exist in the lab documents.
-- WSL again listed Debian and Ubuntu as stopped WSL2 distributions during housekeeping. Neither was started and no WSL configuration changed. Permission to start Debian is required before inspecting/preserving its original scripts; no reconstructed substitutes were created.
-- Read-only baseline commands report Python 3.14.6 and Git 2.55.0.windows.3. Application runtime/dependencies and Linux execution remain unverified; runtime setup belongs with the first approved feature.
-- Instruction discovery: Codex UNVERIFIED; Antigravity UNVERIFIED. File creation or explicit reading alone does not prove automatic discovery.
+- Documentation/lesson preparation: Not required; no new runtime demonstration.
+- First working inventory demo: assess after implementation and verification; no recording or publication performed here.
 
-## Learning evidence
+## Decisions and constraints
 
-- Explained in this session: stable instructions versus changing checkpoints; observation success versus overall health; historical evidence versus reproduction.
-- Independently demonstrated in this session: none recorded. Comprehension questions have not been answered; approval is not evidence of understanding.
-- Independently applied in this session: none recorded. Prior lab evaluations are historical reports, not fresh demonstrations or blanket mastery claims.
-- Deferred review: lab labels `healthy` and `unreachable` overstate observations; connection refusal does not demonstrate timeout expiration. Preserve prerequisite history unchanged and carry corrections forward.
-
-## Video checkpoint
-
-- Micro-step 1: Not required; documentation setup adds no working capability or independently demonstrated conceptual achievement worth recording.
-- Housekeeping video assessment: Not required; no meaningful runtime demonstration. First inventory demo is a candidate after implementation. No recording reviewed or publication performed.
-
-## Pending decisions and next action
-
-- Unknown: deadline, submission/demo format, rubric, weekly time budget, minimum node count, supported distributions, publication/IP permissions, deployment environment, and additional team members.
-- Development baseline, experimental source preservation, and separate agent canary tests remain pending. No backend/framework/database choice is approved by this step.
-- Next proposed action: first real feature, a local web page to register/list persistent node endpoints with Not checked observation state. Proposed FastAPI, SQLite inventory storage, plain HTML/JavaScript; none approved yet. Explain HTTP/validation/transactions and registration versus verified identity, check important understanding, then await feature approval. No additional setup phase is planned.
+- Prometheus/Grafana remain mandatory. Proposed FastAPI/SQLite/plain browser page choices are not accepted decisions.
+- ADR, architecture, and evidence directories will be created only when actual decisions or results justify them; conventions are in [the documentation map](README.md).
+- Unknowns remain in [the charter](PROJECT-CHARTER.md). Source preservation and agent discovery follow-ups do not block this lesson.

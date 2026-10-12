@@ -7,6 +7,8 @@ Planned workflow: onboarding → monitoring → investigation → controlled act
 No application feature has been implemented yet. First proposed feature: register and list node endpoints through a local web page, with persistent inventory and an honest "Not checked" observation state. Implementation awaits approval.
 
 - [Charter](docs/PROJECT-CHARTER.md): requirements, constraints, and unknowns.
+- [Documentation map](docs/README.md): learning guides, source material, and where decisions/evidence belong.
+- [Start learning node inventory](docs/learn/node-inventory/README.md): the first feature's request flow and exercise.
 - [Current checkpoint](docs/LEARNING-STATE.md): evidence and next action.
 - [Roadmap](docs/ROADMAP.md): small working increments and acceptance criteria.
 - [Video plan](docs/VIDEO-PLAN.md): meaningful demonstration checkpoints.

@@ -1,6 +1,8 @@
 # Working roadmap
 
-Updated 2026-10-09 by Codex. Sequence is proposed, not authorization or a deadline.
+Updated 2026-10-12 by Codex. Sequence is proposed, not authorization or a deadline.
+
+Current reading: [Node inventory, lesson 01: registration flow](learn/node-inventory/01-registration-flow.md). Read through section 7 and share the scenario explanation or the unclear step. For current approval and evidence status, use [the learning checkpoint](LEARNING-STATE.md).
 
 | Increment | Engineering acceptance | Learning evidence | Video checkpoint |
 | --- | --- | --- | --- |
