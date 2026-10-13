@@ -14,12 +14,13 @@ This starts official requirement 1, node onboarding and management, within the w
 
 Current series (reading through 04 reported complete on 2026-10-13):
 
-1. [Vision and first principles](../foundation/01-vision-and-first-principles.md)
-2. [Engineering pillars and portfolio](../foundation/02-engineering-pillars-and-portfolio.md)
-3. [Registration flow](03-registration-flow.md)
-4. [Input validation contract](04-input-validation-contract.md): agree the proposed example table, then attempt the function.
+1. [Document 01: Vision and first principles](../foundation/01-vision-and-first-principles.md)
+2. [Document 02: Engineering pillars and portfolio](../foundation/02-engineering-pillars-and-portfolio.md)
+3. [Document 03: Registration flow](03-registration-flow.md)
+4. [Document 04: Input validation contract](04-input-validation-contract.md)
+5. [Document 05: Database persistence](05-database-persistence.md)
 
-The older [registration walkthrough](01-registration-flow.md) is optional reference, not an extra prerequisite or a second Document 01 in this series. No need to reread it before coding.
+- Hands-on: [Practice 01: SSH Port Validator](practice/practice-01-port-review.md)
 
 You do not need to read all project documents or external references first. Stop where the explanation becomes unclear and bring that exact sentence or example to the conversation.
 
@@ -29,7 +30,7 @@ You do not need to read all project documents or external references first. Stop
 | --- | --- | --- |
 | Registration flow | Trace input from browser to backend/storage and back; agree on intended behavior | Reading complete per student; prior agent reports understanding, not independently rechecked |
 | Validation | Define allowed inputs; student writes a focused Python validation function | [Practice 01](practice/practice-01-port-review.md) reviewed; 15 core checks pass, strict input-policy gaps remain |
-| Persistence | Explain records, parameterized queries, commit, and duplicate handling; save/list records | Pending |
+| Persistence | Explain records, parameterized queries, commit, and duplicate handling; save/list records | Document 05 available; practice pending |
 | Browser integration | Connect the page to the backend and handle responses honestly | Pending |
 | Verification | Check invalid inputs, duplicates, restart persistence, and relevant failures | Pending implementation |
 

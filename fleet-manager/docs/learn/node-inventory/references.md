@@ -1,6 +1,6 @@
 # Node inventory: references and supplied material
 
-Curated by Codex, 2026-10-12. This page records external sources separately from the [AI-drafted lesson](01-registration-flow.md). Reading a source does not demonstrate student understanding or prove application behavior.
+Curated by Codex, 2026-10-12. This page records external sources separately from the [AI-drafted lesson](03-registration-flow.md). Reading a source does not demonstrate student understanding or prove application behavior.
 
 ## Primary documentation and standards
 
@@ -14,7 +14,7 @@ MDN is web-platform reference/teaching documentation, not the normative HTTP sta
 
 ## Community material
 
-No community article is required for lesson 01. Add material when it helps answer a specific question; record its author, link, relevant claim, and any limitations. Do not treat community claims as approved design decisions.
+No community article is required for Document 03. Add material when it helps answer a specific question; record its author, link, relevant claim, and any limitations. Do not treat community claims as approved design decisions.
 
 ## Student-supplied material
 
@@ -22,7 +22,7 @@ None supplied for this topic yet. When adding an article, video, or notes, recor
 
 ## Code and runtime verification
 
-No application code or terminal output is presented as verified evidence in lesson 01. Request data is illustrative. Framework and database references will be added when their respective lessons and decisions are needed.
+No application code or terminal output is presented as verified evidence in Document 03. Request data is illustrative. Database references below support Document 05; framework choice remains pending.
 
 ## Review sources for Documents 03-04 (Codex, 2026-10-13)
 
@@ -31,3 +31,11 @@ No application code or terminal output is presented as verified evidence in less
 - [SQLite atomic commit](https://www.sqlite.org/atomiccommit.html): transaction completion and assumptions about storage behavior; atomicity is not request idempotency.
 
 These references support review corrections, not stack approval or runtime verification.
+
+## Document 05 review sources (Codex, 2026-10-13)
+
+- [Appropriate uses for SQLite](https://www.sqlite.org/whentouse.html): embedded deployment and one writer per database; suitability depends on workload.
+- [Python sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html): placeholders, transaction control, and the single-statement `execute()` interface.
+- [SQLite atomic commit](https://www.sqlite.org/atomiccommit.html): journaling and filesystem/hardware assumptions behind durability.
+
+No persistence exercise was run during this documentation review.

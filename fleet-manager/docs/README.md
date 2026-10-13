@@ -7,6 +7,7 @@ Start each working session with [the current checkpoint](LEARNING-STATE.md), the
 | Project requirements, scope, and unknowns | [Project charter](PROJECT-CHARTER.md) |
 | Sequence of working features and acceptance criteria | [Roadmap](ROADMAP.md) |
 | Current work, evidence, and exact next action | [Learning state](LEARNING-STATE.md) |
+| Master learning curriculum (Documents 01-05) | [Learning curriculum index](learn/README.md) |
 | First feature's explanations and exercises | [Node inventory learning guide](learn/node-inventory/README.md) |
 | Recording plans and review expectations | [Video plan](VIDEO-PLAN.md) |
 
