@@ -5,28 +5,28 @@ Author/environment: executing Codex agent, Windows PowerShell in C:/Users/adars/
 
 ## Current work and approval
 
-- Mode: LEARN. Student reports reading completed through [Document 04](learn/node-inventory/04-input-validation-contract.md), and requested content review and commit preparation.
-- Reviewed root/nested AGENTS.md, charter, roadmap, learning documents, Git changes, and primary references. Scope: documentation corrections, navigation, checkpoint, and staging; no application implementation authorized.
-- Preserve the previous session's preference for short 10-15 minute chunks and sequential Documents 01-04. Avoid another foundation-reading gate.
-- Exact next action: student agrees or adjusts Document 04's proposed input/output table, then writes `validate_ssh_port(value)` and checks the examples. The stricter table is a new proposal, not an accepted contract.
+- Mode: LEARN. Topic: Feature 1 — Code Practice & Review Organization.
+- Student proposed keeping hands-on code practice and reviews in a dedicated `practice/` subfolder with independent numbering and bidirectional linking to parent lessons. Approved and implemented.
+- Reorganized student code to `learn/node-inventory/practice/validate_port.py` and review guide to `learn/node-inventory/practice/practice-01-port-review.md`.
+- Next action: reconcile the permissive `int()` conversion with Document 04's proposed strict input policy; then proceed to Document 05: persistence, records, and a first save/read exercise.
 
 ## Engineering state and review
 
-- No application implementation or runtime evidence found. Reading completion does not complete node inventory.
-- Corrected overstatements about host identity, connectivity, commit durability, portfolio scale, and test coverage; distinguished atomicity from idempotency.
-- Document 03 overlaps the original registration walkthrough. Kept the original as optional reference; updated navigation to the current series.
-- Proposed FastAPI/SQLite/browser stack remains unapproved. Prometheus/Grafana remain mandatory.
-- Prerequisites and existing repository preserved. Previous charter additions retain their reported/unverified instructor-feedback attribution.
+- Created `learn/node-inventory/practice/` subfolder.
+- Moved `validate_port.py` into `practice/`.
+- Created `learn/node-inventory/practice/practice-01-port-review.md` (Practice 01 Review) with bidirectional links to `learn/node-inventory/04-input-validation-contract.md` (Parent Document 04).
+- Application code and dependencies remain unapproved.
 
-## Learning evidence and uncertainty
-
-- Student directly reports Documents 01-04 complete; independent implementation remains pending.
-- Previous Antigravity checkpoint reports student explanations of timeout uncertainty, idempotency/atomicity, bypassable frontend validation, and shared public IPs. Original answers were not available for this review; these are inherited reports, not independently verified demonstrations.
-- Prior lab health labels/timeout claims remain a deferred review item; original prerequisite material was not changed.
-- Main learning risk: repeating explanations without applying them. Next increment should produce student-written code after contract agreement.
+- Student updated `validate_port.py` with `(bool, float)` guard, EAFP parsing, boundary check, and `__main__` entrypoint.
+- Inherited session check results (no saved test suite):
+  - Valid: `22` -> `22`, `'22'` -> `22`.
+  - Rejections: `True`, `False`, `22.5`, `0`, `-5`, `70000`, `'abc'`, `None` all raised expected `ValueError`.
+- Codex recheck on 2026-10-13: 15 core cases passed (five valid inputs and ten invalid inputs). Five policy gaps reproduced: whitespace, leading plus, underscores, non-ASCII decimal digits, and bytes are accepted. The first diagnostic hit a console Unicode encoding error; rerunning with ASCII-safe output confirmed all five results.
+- Result: basic conversion/range practice works; full strict-contract compliance is not demonstrated. Corrected the practice review: conversion alone is not production-grade, and `isdigit()` does not enforce ASCII-only input. Student implementation behavior preserved.
+- Next topic: Document 05 / Database Persistence: records and tables, then parameterized save/read, transactions, and duplicate constraints. SQLite remains a proposed teaching/application choice, not an approved implementation.
 
 ## Video and handoff
 
 - No recording, upload, publication, or runtime demonstration performed. Assess a video after a verified working inventory increment.
-- Commit preparation is documentation-only. Staging/check results are reported in the session; no application tests apply.
+- Student authorized commit preparation and commit creation. Scope: practice script, its historical review and verified limitations, lesson navigation, and checkpoint. No application feature implementation. Removed trailing whitespace without changing script behavior.
 - Resume with the single next action above. Remaining project unknowns are in [the charter](PROJECT-CHARTER.md).

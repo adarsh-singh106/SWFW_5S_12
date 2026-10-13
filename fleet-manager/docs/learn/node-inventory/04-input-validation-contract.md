@@ -98,3 +98,10 @@ Use a helpful error explaining type/format or range. No network, database, or fi
 > 2. **Endpoint vs Identity:** IP badal sakta hai; trusted SSH host-key verification authenticates the server; an unverified key is not enough.
 > 3. **Validation Rule:** Frontend check = UX; Backend check = Security & Data Integrity.
 > 4. **Port Boundaries:** 1 to 65535 for our SSH destination contract.
+
+---
+
+## 🛠️ Hands-on Practice & Review
+
+👉 **[Go to Practice 01: SSH Port Validator & Code Review](practice/practice-01-port-review.md)**\
+*(Student practice code and step-by-step code review reside in the `practice/` subfolder)*

@@ -28,7 +28,7 @@ You do not need to read all project documents or external references first. Stop
 | Part | What we will understand and do | State |
 | --- | --- | --- |
 | Registration flow | Trace input from browser to backend/storage and back; agree on intended behavior | Reading complete per student; prior agent reports understanding, not independently rechecked |
-| Validation | Define allowed inputs; student writes a focused Python validation function | Document 04 read; exact contract proposal awaiting agreement; no code found |
+| Validation | Define allowed inputs; student writes a focused Python validation function | [Practice 01](practice/practice-01-port-review.md) reviewed; 15 core checks pass, strict input-policy gaps remain |
 | Persistence | Explain records, parameterized queries, commit, and duplicate handling; save/list records | Pending |
 | Browser integration | Connect the page to the backend and handle responses honestly | Pending |
 | Verification | Check invalid inputs, duplicates, restart persistence, and relevant failures | Pending implementation |
