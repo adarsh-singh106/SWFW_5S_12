@@ -1,6 +1,6 @@
 # Project charter
 
-Updated 2026-10-09 by executing Codex agent.
+Updated 2026-10-12 by executing Codex agent.
 
 ## Official scope (user-supplied paraphrase)
 
@@ -16,6 +16,8 @@ Updated 2026-10-09 by executing Codex agent.
 Correctness, system design, observability, and Linux understanding take priority over aesthetics. No authenticated assignment material is copied here; official publication/IP permissions are unverified.
 
 ## Product and learning direction
+
+Zoho's requirements are the acceptance baseline. The broader goal is a flagship portfolio product demonstrating independent software engineering ability through useful operator workflows, defensible decisions, and reproducible evidence. Develop beyond the assignment in validated increments; feature count or additional technologies alone do not establish quality.
 
 **Fleet Manager: Know what's wrong before you act.** Intended users: small Linux teams, homelabs, and college labs. Workflow: onboarding → monitoring → investigation → controlled action → verification.
 
@@ -33,4 +35,18 @@ Success includes independent implementation/debugging/explanation, reproducible 
 
 ## Known unknowns
 
-Official deadline, submission/demo format, evaluation rubric, weekly time budget, minimum node count, supported Linux distributions, publication/IP restrictions, deployment environment, and additional team members. Ask when an answer affects an upcoming decision.
+Official deadline, submission/demo format, detailed evaluation rubric, weekly time budget, precise node-count constraint, supported Linux distributions, publication/IP restrictions, deployment environment, and additional team members. Ask when an answer affects an upcoming decision.
+
+## Instructor feedback reported by the user (2026-10-12)
+
+Source: the user's pasted session transcript, summary, and account of the instructor's answer. The recording has not been inspected; these are reported clarifications, not independently verified assignment text.
+
+- Onboarding is manual but should require minimal necessary steps, with configuration automated where applicable.
+- Automatic retries and automatic recovery are expected. Define their scope and safe retry conditions before implementation; an unknown operation outcome must not imply that repeating it is safe.
+- The instructor reportedly permits any language if the student can defend each technology and design choice. Python scripting was explicitly described as acceptable; no application stack is approved by this report.
+- The reported demonstration scope is three nodes. Whether this means exactly three, a maximum, or a required test configuration remains unresolved; it does not establish a permanent product limit.
+- Configuration was transcribed as automatic via "Command ID". Verify the wording and meaning before designing around it.
+- Evaluation emphasis was transcribed as "architecture and volumetric", alongside an industry-standard architectural and product expectation. The exact workload criteria and meaning of "volumetric" remain unresolved.
+- Clarify recovery boundaries: restoring observation after connectivity returns, reconciling interrupted work, repairing services, and recovering a failed host are different responsibilities.
+
+Earlier assistant stack lists and architecture sketches remain suggestions, not accepted decisions. The portfolio ambition does not by itself justify a language switch or additional infrastructure.

@@ -23,3 +23,11 @@ None supplied for this topic yet. When adding an article, video, or notes, recor
 ## Code and runtime verification
 
 No application code or terminal output is presented as verified evidence in lesson 01. Request data is illustrative. Framework and database references will be added when their respective lessons and decisions are needed.
+
+## Review sources for Documents 03-04 (Codex, 2026-10-13)
+
+- [Python built-in functions](https://docs.python.org/3/library/functions.html): `int()` conversion accepts more than the proposed port grammar; `bool` subclasses `int`.
+- [OpenSSH ssh manual](https://man.openbsd.org/ssh.1): host authentication and trusted host-key records. Machine metadata is not a replacement for authenticating the SSH server.
+- [SQLite atomic commit](https://www.sqlite.org/atomiccommit.html): transaction completion and assumptions about storage behavior; atomicity is not request idempotency.
+
+These references support review corrections, not stack approval or runtime verification.
