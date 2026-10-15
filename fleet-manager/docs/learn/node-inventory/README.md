@@ -19,8 +19,11 @@ Current series (reading through 04 reported complete on 2026-10-13):
 3. [Document 03: Registration flow](03-registration-flow.md)
 4. [Document 04: Input validation contract](04-input-validation-contract.md)
 5. [Document 05: Database persistence](05-database-persistence.md)
+6. [Document 06: Service layer integration](06-service-layer-integration.md)
 
 - Hands-on: [Practice 01: SSH Port Validator](practice/practice-01-port-review.md)
+- Hands-on: [Practice 02: SQLite Storage & Create/Read](practice/practice-02-sqlite-storage.md)
+- Hands-on: [Practice 03: Service Layer Integration](practice/practice-03-service-layer.md)
 
 You do not need to read all project documents or external references first. Stop where the explanation becomes unclear and bring that exact sentence or example to the conversation.
 
@@ -30,7 +33,7 @@ You do not need to read all project documents or external references first. Stop
 | --- | --- | --- |
 | Registration flow | Trace input from browser to backend/storage and back; agree on intended behavior | Reading complete per student; prior agent reports understanding, not independently rechecked |
 | Validation | Define allowed inputs; student writes a focused Python validation function | [Practice 01](practice/practice-01-port-review.md) reviewed; 15 core checks pass, strict input-policy gaps remain |
-| Persistence | Explain records, parameterized queries, commit, and duplicate handling; save/list records | Document 05 available; practice pending |
+| Persistence | Explain records, parameterized queries, commit, and duplicate handling; save/list records | Practice 02 core create/read verified; cleanup and error-contract gaps remain |
 | Browser integration | Connect the page to the backend and handle responses honestly | Pending |
 | Verification | Check invalid inputs, duplicates, restart persistence, and relevant failures | Pending implementation |
 

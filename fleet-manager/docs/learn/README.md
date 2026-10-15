@@ -21,6 +21,8 @@ A first-principles, zero-burnout guide to building an industry-grade Linux Fleet
   *Public vs Private IP (college Wi-Fi doubt), why frontend validation is bypassable, TCP port boundaries.*
 * 📄 **[Document 05: Database Persistence & The Storage Engine](node-inventory/05-database-persistence.md)**\
   *RAM vs Disk, SQLite trade-offs, schema design, transactions, commit durability, SQL injection defense.*
+* 📄 **[Document 06: Service Layer Integration & Unified Registration Flow](node-inventory/06-service-layer-integration.md)**\
+  *Logical layers, validation + storage coordination, domain logic, and HTTP error mapping.*
 
 ---
 
@@ -28,3 +30,7 @@ A first-principles, zero-burnout guide to building an industry-grade Linux Fleet
 
 * 💻 **[Practice 01: SSH Port Validator & Code Review](node-inventory/practice/practice-01-port-review.md)**\
   *Student-written validator in [`validate_port.py`](node-inventory/practice/validate_port.py), 5 tricky Python edge cases, `{value!r}` explanation, and `isinstance()` vs `type()` history.*
+* 💻 **[Practice 02: SQLite Storage & Create/Read Operations](node-inventory/practice/practice-02-sqlite-storage.md)**\
+  *Hands-on SQLite table creation, parameterized insertion, duplicate prevention, and disk persistence verification.*
+* 💻 **[Practice 03: Service Layer Integration](node-inventory/practice/practice-03-service-layer.md)**\
+  *Writing `node_service.py` to combine input validation and persistence into a single unified onboarding workflow.*
