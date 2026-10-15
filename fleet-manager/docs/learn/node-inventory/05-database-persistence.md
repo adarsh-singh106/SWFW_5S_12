@@ -107,6 +107,9 @@ Yahan `?` placeholders hain. SQLite library user input ko strictly **data** maan
 > 4. **Commit:** Commit finalizes a transaction; durability depends on configuration and storage assumptions.
 > 5. **Security:** Hamesha parameterized queries (`?`) use karo, kabhi f-strings se SQL mat banao.
 
-## Next focused exercise (proposed)
+---
 
-Explain what successful commit proves if the browser never receives the response. Then agree a small student-written save/read exercise: insert one validated node with parameters, close and reopen storage, and retrieve it. A database choice and implementation scope still need agreement; no full CRUD feature is authorized by this lesson.
+## 🛠️ Hands-on Practice & Exercise
+
+👉 **[Go to Practice 02: Hands-on SQLite Storage & Create/Read Operations](practice/practice-02-sqlite-storage.md)**\
+*(Write `db_storage.py` to create the table, insert nodes, prevent duplicates, and query rows)*

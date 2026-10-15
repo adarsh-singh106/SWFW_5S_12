@@ -32,3 +32,7 @@ id_ed25519
 # OS metadata
 .DS_Store
 Thumbs.db
+
+# Generated SQLite practice data (keep locally)
+/fleet-manager/docs/learn/node-inventory/practice/*.db
+/fleet-manager/docs/learn/node-inventory/practice/*.db-*
