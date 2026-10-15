@@ -36,3 +36,7 @@ Thumbs.db
 # Generated SQLite practice data (keep locally)
 /fleet-manager/docs/learn/node-inventory/practice/*.db
 /fleet-manager/docs/learn/node-inventory/practice/*.db-*
+
+# Default database when practice scripts run from the repository root
+/inventory.db
+/inventory.db-*
