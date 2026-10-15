@@ -96,7 +96,7 @@ Remaining issues to address in a student follow-up:
 
 - `with sqlite3.connect(...) as conn` commits/rolls back transactions but does not close the connection. Explicit deterministic cleanup is still needed.
 - Every `IntegrityError` is reported as a duplicate. A `None` name reproduced a NOT NULL failure incorrectly labeled "already exists".
-- `add_node()` returns `None`, not an inserted ID. A service returning a real record ID needs a revised storage contract.
+- Follow-up verified by Codex on 2026-10-15: `add_node()` now returns the inserted `lastrowid` after successful transaction exit. The return-ID gap is resolved; the cleanup and error-classification gaps remain.
 - Name/address normalization and port constraints remain incomplete; this layer does not itself validate those values.
 - No concurrency, lock contention, power-loss, or full recovery testing was performed. WAL and row factories are optional design choices, not a production-readiness checklist.
 

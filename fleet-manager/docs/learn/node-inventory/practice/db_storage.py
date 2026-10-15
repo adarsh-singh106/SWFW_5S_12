@@ -19,20 +19,22 @@ def init_db(db_path="inventory.db"):
 
 
 def add_node(name, address, port=22, db_path="inventory.db"):
-    """Insert a node and raise ValueError if its address and port already exist."""
+    """Insert a node and return its ID after commit; map integrity errors to ValueError."""
     try:
         with sqlite3.connect(db_path) as conn:
-            conn.execute(
+            cursor = conn.execute(
                 """
                 INSERT INTO nodes (name, address, ssh_port)
                 VALUES (?, ?, ?)
                 """,
                 (name, address, port)
             )
+        return cursor.lastrowid
     except sqlite3.IntegrityError as exc:
         raise ValueError(
             "Node with this address and port already exists"
         ) from exc
+
 
 
 def list_nodes(db_path="inventory.db"):
