@@ -153,9 +153,32 @@ Notice what Level 2 gives us for monitoring:
 
 ---
 
-## 5. Network Failure Modes: The Exact Linux Error Codes
+## 5. TCP Mechanics & Failure Modes: What Happens on the Wire
 
-When a TCP/SSH probe fails, an enterprise engineer does not say *"it didn't work"*. We inspect the exact network failure mode reported by the OS:
+### The TCP 3-Way Handshake
+Internet transport relies on TCP to provide reliable, ordered byte streams over unreliable IP networks. Before any SSH banner can be read, a 3-way handshake must complete:
+
+```
+[ Fleet Manager (Client) ]                     [ Remote Linux Node (Server) ]
+             │                                                │
+             │ ─── 1. SYN (Can I connect on Port 22?) ──────> │
+             │                                                │
+             │ <── 2. SYN-ACK (Port 22 is open, connection OK!)─│  (Handshake Established)
+             │                                                │
+             │ ─── 3. ACK (Acknowledged! Ready for data) ───> │
+```
+
+### What Happens When Things Go Wrong? (RST vs. Silent Drop)
+1. **The Machine is Alive, but SSH is Stopped (`ECONNREFUSED`):**
+   * Fleet Manager sends `SYN` to port 22.
+   * The remote Linux kernel receives the packet, but notices that no userspace process has bound a socket to port 22.
+   * The Linux kernel immediately sends back an explicit **`TCP RST` (Reset)** packet: *"Nobody home on this port!"*
+   * Result: Python receives this in **1 to 2 milliseconds** and raises `ConnectionRefusedError`.
+2. **The Firewall Drops Packets / Machine Powered Off (`ETIMEDOUT`):**
+   * Fleet Manager sends `SYN` to port 22.
+   * An intermediate firewall (or the remote host's `iptables`) silently discards the packet without replying (`-j DROP`).
+   * *(Relatable Analogy: You are sending messages to your crush, but her best friend (the firewall) is secretly deleting your messages before she ever sees them).*
+   * Fleet Manager receives **zero response**. Python waits until the socket timeout window expires, then raises `TimeoutError`.
 
 ```
                           ┌───────────────────────────┐
