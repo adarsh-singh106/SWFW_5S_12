@@ -12,6 +12,8 @@ This starts official requirement 1, node onboarding and management, within the w
 
 ## Start here
 
+For Milestone Video 1 preparation and integrated revision, use [the first-principles story and demonstration guide](milestone-01-story-and-revision.md). It connects Documents 01–06 to Fleet Manager's intended operator workflow and distinguishes the local practice milestone from the future web feature.
+
 Current series (reading through 04 reported complete on 2026-10-13):
 
 1. [Document 01: Vision and first principles](../foundation/01-vision-and-first-principles.md)
@@ -20,10 +22,12 @@ Current series (reading through 04 reported complete on 2026-10-13):
 4. [Document 04: Input validation contract](04-input-validation-contract.md)
 5. [Document 05: Database persistence](05-database-persistence.md)
 6. [Document 06: Service layer integration](06-service-layer-integration.md)
+7. [Document 07: The HTTP API layer](07-http-api-layer.md)
 
 - Hands-on: [Practice 01: SSH Port Validator](practice/practice-01-port-review.md)
 - Hands-on: [Practice 02: SQLite Storage & Create/Read](practice/practice-02-sqlite-storage.md)
 - Hands-on: [Practice 03: Service Layer Integration](practice/practice-03-service-layer.md)
+- Hands-on: [Practice 04: HTTP API Layer](practice/practice-04-http-api.md)
 
 You do not need to read all project documents or external references first. Stop where the explanation becomes unclear and bring that exact sentence or example to the conversation.
 
