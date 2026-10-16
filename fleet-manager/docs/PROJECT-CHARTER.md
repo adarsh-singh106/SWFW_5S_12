@@ -33,9 +33,20 @@ Success includes independent implementation/debugging/explanation, reproducible 
 - Proposed, not approved: Python/FastAPI plus SQLite for node inventory and a plain browser page. SQLite would store inventory, not monitoring time series.
 - Do not add heavy infrastructure without a demonstrated need.
 
+## Official submission guidelines & timeline (SETU 2026, confirmed 2026-10-15)
+
+Source: Official SETU 2026 project submission guidelines received by the student.
+
+- **Submission Window:** 2 November 2026 (10:00 AM) to 5 November 2026 (5:00 PM).
+- **Submission Format:** Single file upload (1 file only, PDF or ZIP).
+  - PDF: `<STUDENT_NAME>_SWFW_5S_12.pdf`
+  - ZIP (recommended for codebase + report): `<STUDENT_NAME>_SWFW_5S_12_PROJECT-FILES.zip` containing the PDF report and project files.
+- **Mandatory Additional Requirement for SWFW_5S_12:** **Flow Diagram** included directly inside the PDF report along with screenshots and build steps.
+- **Reporting Rule:** All diagrams, screenshots, build steps must be embedded in the same PDF.
+
 ## Known unknowns
 
-Official deadline, submission/demo format, detailed evaluation rubric, weekly time budget, precise node-count constraint, supported Linux distributions, publication/IP restrictions, deployment environment, and additional team members. Ask when an answer affects an upcoming decision.
+Detailed evaluation rubric, weekly time budget, precise node-count constraint (beyond 3-node reported demo), supported Linux distributions, publication/IP restrictions, deployment environment, and additional team members. Ask when an answer affects an upcoming decision.
 
 ## Instructor feedback reported by the user (2026-10-12)
 
