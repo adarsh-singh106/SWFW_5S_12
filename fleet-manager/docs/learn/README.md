@@ -23,6 +23,14 @@ A first-principles, zero-burnout guide to building an industry-grade Linux Fleet
   *RAM vs Disk, SQLite trade-offs, schema design, transactions, commit durability, SQL injection defense.*
 * 📄 **[Document 06: Service Layer Integration & Unified Registration Flow](node-inventory/06-service-layer-integration.md)**\
   *Logical layers, validation + storage coordination, domain logic, and HTTP error mapping.*
+* 📄 **[Document 07: The HTTP API Layer — Connecting the Web to the Service](node-inventory/07-http-api-layer.md)**\
+  *Why browsers cannot call Python RAM, TCP socket listeners, HTTP request/response raw bytes, status codes (201/400/409/500), and FastAPI integration.*
+
+---
+
+### Phase 3: Feature 2 — Node Availability & Probing
+* 📄 **[Document 08: Linux Connectivity Probing & The SSH Handshake](connectivity-probing/08-linux-probing-and-handshakes.md)**\
+  *The 4 levels of probing (ICMP vs TCP vs SSH Banner vs Full Auth), RFC 4253 banner exchange, network failure taxonomy (ECONNREFUSED vs ETIMEDOUT), socket timeout traps, and the state transition machine.*
 
 ---
 
@@ -34,3 +42,7 @@ A first-principles, zero-burnout guide to building an industry-grade Linux Fleet
   *Hands-on SQLite table creation, parameterized insertion, duplicate prevention, and disk persistence verification.*
 * 💻 **[Practice 03: Service Layer Integration](node-inventory/practice/practice-03-service-layer.md)**\
   *Writing `node_service.py` to combine input validation and persistence into a single unified onboarding workflow.*
+* 💻 **[Practice 04: HTTP API Layer & Endpoint Verification](node-inventory/practice/practice-04-http-api.md)**\
+  *Building `app.py`, launching FastAPI on port 8000, and testing live HTTP requests with `curl` and interactive docs.*
+* 💻 **[Practice 05: The SSH Banner Probe Engine](connectivity-probing/practice/practice-05-probe-engine.md)**\
+  *Building a non-blocking network socket probe, extracting RFC 4253 SSH banners, and differentiating connection refusal from timeouts.*

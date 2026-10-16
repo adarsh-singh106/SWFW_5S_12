@@ -1,29 +1,46 @@
 # Current learning and engineering checkpoint
 
-Date: 2026-10-15
+Date: 2026-10-16
 Author/environment: executing Codex agent, Windows PowerShell in C:/Users/adars/Desktop/ZOHO/SWFW-12-Sem5.
 
 ## Current work and approval
 
-- Mode: LEARN. Topic: [Practice 03 service integration](learn/node-inventory/practice/practice-03-service-layer.md), partial verification.
-- Student authorized separate commits for storage ID return, registration practice, and review/checkpoint updates. Student logic preserved; whitespace and the storage docstring were cleaned up.
-- Exact next action: student explains the expected result when `port` is omitted, then agrees the payload contract before implementation changes. Document 07 remains a proposed next topic, not an existing lesson.
+- Mode: LEARN. Topic: [Document 08: Linux Connectivity Probing & The SSH Handshake](learn/connectivity-probing/08-linux-probing-and-handshakes.md).
+- Video recording deferred by student to design their own preferred demonstration format later. Learning resumed immediately with Document 07.
+- Practice 04 completed: Student wrote and tested `app.py` with FastAPI, verified `POST /api/nodes` (201/400/409) and `GET /api/nodes`, and independently identified IPv4 octet bounds gap (`192.12.36.788`).
+- Exact next action: Student reviews Document 08, checks understanding on the network failure scenario (Connection Refused vs Timeout), and proceeds to Practice 05 (`probe_engine.py`).
 
 ## Engineering evidence
 
-- `add_node()` now returns `cursor.lastrowid` after successful transaction exit.
-- `node_service.py` implements `register_node(node: dict)` using required `name`, `address`, and `port` keys. It trims strings, invokes the port validator, initializes the default database, and returns a record with ID and `not_checked` status.
-- Codex checked a temporary working directory: returned ID, normalized fields, integer port, initial status, duplicate rejection, and six invalid-input cases passed without extra rows. A second Python process confirmed persistence. Existing local databases were untouched; root and practice databases are ignored.
-- Missing `port` reproduces `KeyError`; `.get()` parsing and container-type validation are not implemented. `get_fleet_inventory()` is absent. Address syntax and database-path interface remain unresolved.
-- Previous storage cleanup and integrity-error classification gaps remain. Earlier validator checks left five strict-policy gaps (whitespace, plus signs, underscores, Unicode digits, bytes); not rechecked in this commit session.
-- No web application, connectivity verification, concurrency test, or power-loss test. Application stack/runtime decisions remain unapproved.
+- `add_node()` returns `cursor.lastrowid` after transaction commit.
+- `node_service.py` coordinates validation, sanitization (whitespace stripping), database initialization, and record generation (`id`, `name`, `address`, `ssh_port`, `status='not_checked'`).
+- `demo_milestone_01.py` executes 5-step verification: DB init, valid node registration, input gatekeeper rejection (Port 99999), database duplicate rejection (`UNIQUE(address, ssh_port)` constraint violation), and disk persistence verification across queries.
+- Clean isolation supported via optional `db_path` parameter, ensuring zero test pollution of default `inventory.db`.
+
+2026-10-16 evidence clarification (Codex, source inspection only): the demo's Step 5 reads via another database connection in the same Python process; it does not verify a process restart. Its success footer is unconditional, so earlier exit-code evidence alone is insufficient. The new guide supplies a separate two-process rehearsal; commands were not executed this session. Existing code and unrelated uncommitted work were preserved.
+- Local `.gitignore` verified to exclude `*.db` and `/fleet-manager/recordings/`.
 
 ## Learning evidence and uncertainty
 
-- Existing notes attribute service authorship and networking questions to the student; source comments support the presence of those questions. Independent mastery was not assessed during this commit task.
-- Corrected prior claims of complete verification and implemented defensive parsing to match inspected code and observed behavior.
+- Student demonstrated first-principles understanding of layered architecture: Input Gatekeeper (Python service) vs Database Integrity Guardrail (SQLite engine).
+- Key distinction internalized: "Saving a contact != Calling a contact" -> initial state must explicitly be `not_checked`, missing observations are not zero.
+- Video demonstration storyboard prepared in simple Hinglish/English covering Problem, Expectation, Live Run, Failure Recovery, and Core Principles.
+- 2026-10-16: Expanded storyboard connects Documents 01–06 to the eventual operator workflow. Earlier learning claims above are inherited checkpoint reports, not independently reassessed this session. Expected input rejection is distinguished from remote failure/recovery; broader feature and security gaps remain explicit.
 
 ## Video and handoff
 
-- No recording, upload, publication, or push. Temporary checks are runtime evidence, not a recorded demonstration.
-- Resume with the single next action above. Project unknowns remain in [the charter](PROJECT-CHARTER.md).
+- `fleet-manager/recordings/` folder created (protected by `.gitignore`).
+- Storyboard and execution instructions provided to student. No video committed or uploaded to Git.
+- Recording remains deferred. Resume with the exact next action above after reviewing the draft cautions below.
+- Submission constraints: Official window confirmed (2 Nov 2026 10 AM to 5 Nov 2026 5 PM). Single ZIP upload (`NAME_SWFW_5S_12_PROJECT-FILES.zip`) containing report PDF + code. Report PDF requires a mandatory Flow Diagram for SWFW_5S_12, screenshots, and build steps.
+
+## Commit preparation checkpoint ? 2026-10-16
+
+Author/environment: Codex executing in Windows PowerShell, Python 3.14; repository instructions inspected locally. Scope: review and commit existing work in separate clusters; no feature implementation or learning reassessment.
+
+- Observed: all practice Python files parsed; isolated demo produced both expected rejections and no `[FAIL]` output; a separate Python process read the committed registration successfully.
+- Observed through in-process ASGI requests in temporary storage: POST 201 (default port), duplicate 409, invalid port 400, missing fields 422, and GET 200 after registration. No live HTTP server or remote host was tested.
+- Open bug: GET before the first registration raises SQLite `OperationalError: no such table: nodes`. Address validation, error classification, connection cleanup, and the demo's unconditional footer remain unresolved.
+- Connectivity lesson/practice are drafts requiring technical review before implementation. No probe code exists; do not treat their proposed states or exercises as approved engineering design.
+- Earlier student mastery and submission-source claims are inherited reports, not independently verified during commit preparation. No recording, upload, or push performed.
+- Exact next action: review Document 08's draft cautions with the student before the connection-refused exercise; agree the probe contract before writing `probe_engine.py`.
