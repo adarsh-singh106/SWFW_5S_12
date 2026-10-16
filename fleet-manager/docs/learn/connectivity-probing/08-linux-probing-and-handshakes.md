@@ -76,6 +76,31 @@ To build an industry-grade Fleet Manager, we must understand the 4 progressive l
      │ (Layer 7: Crypto key-exchange, public-key auth, PTY shell execution. Heavy & slow)
 ```
 
+### What is "Probing" and What Are We Actually Trying to Discover?
+
+Probing means sending a lightweight network stimulus to a target and observing the response to infer system health.
+
+In production fleet management, there are **3 fundamentally different questions** that beginners often confuse into one:
+1. **Question 1: Is the physical machine powered ON and connected to the network?** (Hardware / Kernel alive)
+2. **Question 2: Is the SSH daemon running and ready to communicate?** (Service readiness in userspace)
+3. **Question 3: Do we possess authorized cryptographic keys to execute commands?** (Administrative control)
+
+The 4 levels correspond directly to these 3 questions:
+
+```
+[ Level 0: Ping (ICMP) ]
+     │ Answers Question 1 only (unreliably, because firewalls drop it).
+     ▼
+[ Level 1: TCP Handshake ]
+     │ Answers: "Kernel is processing IP packets and port 22 has an open listener."
+     ▼
+[ Level 2: SSH Banner Exchange (The Fleet Manager Probe) ]
+     │ Answers BOTH Question 1 and Question 2 with 99.9% certainty!
+     ▼
+[ Level 3: Full Auth & Remote Command ]
+     │ Answers Question 3 (Requires credentials; reserved for actual command execution).
+```
+
 Let's use an everyday analogy to understand these levels:
 
 ### 🏠 The Relatable Analogy: Visiting a Secure Building
@@ -93,15 +118,30 @@ Imagine you need to know if your friend **Alex (the SSH Daemon)** is inside his 
 
 ## 4. The Engineering Sweet Spot: RFC 4253 SSH Banner Exchange
 
-Why is **Level 2 (SSH Banner Exchange)** the crown jewel of fleet management probing?
+### What is an RFC?
+The Internet is not owned by any single company. Internet protocols (TCP, IP, HTTP, SSH) are defined by the **IETF (Internet Engineering Task Force)** in official specification documents called **RFCs (Request for Comments)**. **RFC 4253** is the official specification for the SSH Transport Layer.
 
-According to **RFC 4253 (The Secure Shell Transport Layer Protocol)**, Section 4.2:
+According to **RFC 4253 Section 4.2**:
 > *"When the connection has been established, both the server and the client MUST send an identification string of the form: `SSH-protoversion-softwareversion comments` terminated by a Carriage Return (CR) and Line Feed (LF)."*
 
-Notice what this means:
-1. **Zero Credentials Required:** The Linux server transmits its identification string **immediately** after the TCP 3-way handshake completes, **before** requesting passwords, private keys, or certificates!
+### Why are NO passwords or credentials needed for the banner?
+Before two computers can encrypt data or verify passwords, they must first agree on **what protocol version and cipher suite they both speak**!
+1. If two humans meet, before whispering a secret password, they must first agree: *"Are we speaking English or Hindi?"*
+2. In SSH, before any Diffie-Hellman cryptographic key exchange begins, both sides must declare their version (`SSH-2.0-`).
+3. Because this identification happens **pre-authentication**, we can read the server's identity string without needing any private keys, passwords, or certificates!
+
+### Can a hacker fake or intercept this banner?
+**YES, absolutely!**
+A malicious actor could write a 5-line Python script that binds to port 22 and sends `SSH-2.0-OpenSSH_8.9p1 Ubuntu\r\n`.
+
+**This reveals a critical First Principle of System Design:**
+* **Availability Monitoring (Feature 2):** Level 2 (Banner Exchange) is the perfect tool. We only want to verify that an SSH daemon is listening and responsive, without burning server CPU or exposing private keys across the network.
+* **Controlled Execution (Feature 4):** When we actually send commands (like `reboot` or `apt update`), we **NEVER** trust the banner alone. We use **Level 3 Cryptographic Host Key Verification**, where the remote server must mathematically prove its identity using its private host key!
+
+Notice what Level 2 gives us for monitoring:
+1. **Zero Credentials Required:** Security risk during routine probing = 0.
 2. **Userspace Execution Proven:** The Linux kernel cannot fake this string. For the string to be sent, the actual `sshd` process in Linux userspace must accept the socket, read its buffers, and write the string back.
-3. **OS & Software Intelligence:** The banner contains real diagnostic data:
+3. **Free OS Intelligence:** The banner contains real diagnostic data:
    ```text
    SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.6
    ```
