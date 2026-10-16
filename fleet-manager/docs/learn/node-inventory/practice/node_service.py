@@ -2,11 +2,11 @@ from validate_port import validate_ssh_port
 from db_storage import  init_db, add_node
 
 
-def register_node(node:dict):
+def register_node(node: dict, db_path: str = "inventory.db"):
     "a dict or json object would be input and we have to verify the items in it and insert them in DB if makes sense"
     name, address, port = node['name'], node['address'], node['port']
     # check if name & address are of Dtype str:
-    if not isinstance(name, str) or not isinstance(address,str):
+    if not isinstance(name, str) or not isinstance(address, str):
         raise ValueError("Name and address must be strings")
 
     clean_name = name.strip()
@@ -23,9 +23,9 @@ def register_node(node:dict):
     validated_port = validate_ssh_port(port)
 
     # init DB
-    init_db()
+    init_db(db_path)
     # now save to DB
-    node_id = add_node(clean_name, clean_address, validated_port)
+    node_id = add_node(clean_name, clean_address, validated_port, db_path=db_path)
 
     return {
     "id": node_id,
