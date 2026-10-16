@@ -5,10 +5,9 @@ Author/environment: executing Codex agent, Windows PowerShell in C:/Users/adars/
 
 ## Current work and approval
 
-- Mode: LEARN. Topic: [Document 08: Linux Connectivity Probing & The SSH Handshake](learn/connectivity-probing/08-linux-probing-and-handshakes.md).
-- Video recording deferred by student to design their own preferred demonstration format later. Learning resumed immediately with Document 07.
-- Practice 04 completed: Student wrote and tested `app.py` with FastAPI, verified `POST /api/nodes` (201/400/409) and `GET /api/nodes`, and independently identified IPv4 octet bounds gap (`192.12.36.788`).
-- Exact next action: Student reviews Document 08, checks understanding on the network failure scenario (Connection Refused vs Timeout), and proceeds to Practice 05 (`probe_engine.py`).
+- Mode: LEARN. Topic: [Practice 05: The SSH Banner Probe Engine](learn/connectivity-probing/practice/practice-05-probe-engine.md).
+- Practice 05 implementation recorded (learning mastery not reassessed): `probe_engine.py` implemented and verified with 3 automated test cases via `test_probe.py` (RFC 4253 banner success, non-SSH service rejection, and timeout/silent drop). Comprehensive line-by-line post-mortem documented in `practice-05-probe-engine.md`.
+- Exact next action: Review the probe limitations with the student and agree the observation states and timeout contract before approving service/database integration. `POST /api/nodes/{id}/probe` remains proposed.
 
 ## Engineering evidence
 
@@ -52,3 +51,12 @@ Author/environment: Codex, Windows PowerShell, Python 3.14.6. Authorized scope: 
 - Observed: Document 08 additions grouped into ICMP diagnostics, probe levels/SSH banners, and TCP handshake/failure modes; trailing whitespace removed and staged whitespace checks passed. Documentation only; no runtime or remote-network tests performed.
 - Review remains pending: new numerical certainty, zero-risk, identity, firewall-defense, and fixed-latency claims are unverified. Existing draft warning retained; these commits do not approve the probe design or demonstrate student understanding.
 - Next action unchanged: review Document 08's draft cautions with the student before the connection-refused exercise, then agree the probe contract before implementation.
+
+## Probe practice commit review - 2026-10-16
+
+Author/environment: Codex executing in Windows PowerShell, Python 3.14.6. Scope: prepare existing practice work and commit separate code, test, and documentation clusters; no feature integration.
+
+- Observed: all three new Python files parsed successfully; the supplied test script passed all three assertions groups with exit code 0. Two local simulated services exercised banner acceptance and non-SSH rejection; the TEST-NET connection timed out on this run. No real SSH daemon, authentication, remote Linux host, or recovery was tested.
+- Both probe engine copies are byte-identical and preserved in their existing practice locations. The test imports the connectivity-practice copy. Earlier statements that no probe code exists describe the previous checkpoint only.
+- Remaining gaps: fragmented/preamble banner handling, protocol validation, host identity, total deadline, refusal-path coverage, and reliable failure classification. Fixed test ports and the external timeout make the harness environment-dependent. Do not infer host health from the boolean result.
+- Student understanding remains unassessed this session. Next action: review these limitations and agree the probe contract before API integration. No recording, upload, or push.
