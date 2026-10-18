@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Manager | Real-Time Node Monitor</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent-blue: #58a6ff;
+            --badge-green-bg: rgba(46, 160, 67, 0.15);
+            --badge-green-text: #3fb950;
+            --badge-red-bg: rgba(248, 81, 73, 0.15);
+            --badge-red-text: #f85149;
+            --badge-gray-bg: rgba(110, 118, 129, 0.2);
+            --badge-gray-text: #8b949e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 30px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .title-group h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .title-group p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--badge-green-text);
+            box-shadow: 0 0 8px var(--badge-green-text);
+        }
+
+        /* Card Layout */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .card h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 15px;
+        }
+
+        /* Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 9px 12px;
+            background: #0d1117;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .btn {
+            background-color: #238636;
+            color: #ffffff;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+            padding: 9px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            height: 38px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background-color: #2ea043;
+        }
+
+        .btn-secondary {
+            background-color: #21262d;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 12px;
+            padding: 4px 10px;
+            height: auto;
+        }
+
+        .btn-secondary:hover {
+            background-color: #30363d;
+        }
+
+        /* Alert Notification */
+        .alert {
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .alert-error {
+            background-color: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.4);
+            color: #ff7b72;
+        }
+
+        .alert-success {
+            background-color: rgba(46, 160, 67, 0.1);
+            border: 1px solid rgba(46, 160, 67, 0.4);
+            color: #56d364;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-reachable {
+            background: var(--badge-green-bg);
+            color: var(--badge-green-text);
+            border: 1px solid rgba(63, 185, 80, 0.3);
+        }
+
+        .badge-unreachable {
+            background: var(--badge-red-bg);
+            color: var(--badge-red-text);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+        }
+
+        .badge-not_checked {
+            background: var(--badge-gray-bg);
+            color: var(--badge-gray-text);
+            border: 1px solid var(--border-color);
+        }
+
+        .code-pill {
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+            background: #0d1117;
+            padding: 3px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            font-size: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="title-group">
+            <h1>Distributed Linux Fleet Manager</h1>
+            <p>Real-Time Node Inventory & Availability Prober (RFC 4253 SSH Handshake)</p>
+        </div>
+        <div class="live-indicator">
+            <div class="pulse-dot"></div>
+            <span>Auto-Probing Active (15s)</span>
+        </div>
+    </header>
+
+    <div id="alertBox" class="alert"></div>
+
+    <!-- Onboard Form -->
+    <div class="card">
+        <h2>Onboard Remote Linux Node</h2>
+        <form id="addNodeForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name">Node Name</label>
+                    <input type="text" id="name" placeholder="e.g. Lab Ubuntu 1" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">IP Address or Hostname</label>
+                    <input type="text" id="address" placeholder="e.g. 192.168.1.50" required>
+                </div>
+                <div class="form-group">
+                    <label for="port">SSH Port</label>
+                    <input type="number" id="port" value="22" min="1" max="65535" required>
+                </div>
+                <button type="submit" class="btn">+ Add to Fleet</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Inventory Table -->
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2>Fleet Inventory (<span id="nodeCount">0</span>)</h2>
+            <button class="btn btn-secondary" onclick="loadFleetNodes()">↻ Refresh</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Node</th>
+                    <th>Endpoint</th>
+                    <th>Status</th>
+                    <th>SSH Banner / Diagnostic</th>
+                    <th>Last Probe</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="fleetTableBody">
+                <tr><td colspan="7" class="empty-state">Loading fleet inventory...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const alertBox = document.getElementById("alertBox");
+    const addNodeForm = document.getElementById("addNodeForm");
+    const fleetTableBody = document.getElementById("fleetTableBody");
+    const nodeCountSpan = document.getElementById("nodeCount");
+
+    function showAlert(message, isError = false) {
+        alertBox.textContent = message;
+        alertBox.className = `alert ${isError ? 'alert-error' : 'alert-success'}`;
+        alertBox.style.display = "block";
+        setTimeout(() => { alertBox.style.display = "none"; }, 5000);
+    }
+
+    async function loadFleetNodes() {
+        try {
+            const res = await fetch("/api/nodes");
+            const data = await res.json();
+            const nodes = data.nodes || [];
+            nodeCountSpan.textContent = nodes.length;
+
+            if (nodes.length === 0) {
+                fleetTableBody.innerHTML = `<tr><td colspan="7" class="empty-state">No nodes registered yet. Add one above!</td></tr>`;
+                return;
+            }
+
+            fleetTableBody.innerHTML = nodes.map(node => {
+                let badgeClass = "badge-not_checked";
+                let statusLabel = "Not checked";
+                let detailSnippet = "-";
+
+                if (node.status === "reachable") {
+                    badgeClass = "badge-reachable";
+                    statusLabel = `Reachable (${node.latency_ms}ms)`;
+                    detailSnippet = `<span class="code-pill">${escapeHtml(node.banner || 'SSH-2.0')}</span>`;
+                } else if (node.status === "unreachable") {
+                    badgeClass = "badge-unreachable";
+                    statusLabel = "Unreachable";
+                    detailSnippet = `<span style="color:#ff7b72; font-size:11px;">${escapeHtml(node.last_error || 'Network error')}</span>`;
+                }
+
+                return `
+                    <tr>
+                        <td>#${node.id}</td>
+                        <td><strong>${escapeHtml(node.name)}</strong></td>
+                        <td><span class="code-pill">${escapeHtml(node.address)}:${node.ssh_port}</span></td>
+                        <td><span class="badge ${badgeClass}">${statusLabel}</span></td>
+                        <td>${detailSnippet}</td>
+                        <td style="color:#8b949e; font-size:11px;">${node.last_seen ? escapeHtml(node.last_seen) : 'Never'}</td>
+                        <td>
+                            <button class="btn btn-secondary" onclick="probeNode(${node.id})">⚡ Probe</button>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        } catch (err) {
+            console.error("Failed to load fleet nodes:", err);
+        }
+    }
+
+    async function probeNode(nodeId) {
+        try {
+            const res = await fetch(`/api/nodes/${nodeId}/probe`, { method: "POST" });
+            const updated = await res.json();
+            if (res.ok) {
+                showAlert(`Node #${nodeId} probe completed: ${updated.status}`, updated.status === 'unreachable');
+                loadFleetNodes();
+            } else {
+                showAlert(updated.detail || "Probe failed", true);
+            }
+        } catch (err) {
+            showAlert("Failed to contact backend server", true);
+        }
+    }
+
+    addNodeForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const payload = {
+            name: document.getElementById("name").value.trim(),
+            address: document.getElementById("address").value.trim(),
+            port: parseInt(document.getElementById("port").value, 10)
+        };
+
+        try {
+            const res = await fetch("/api/nodes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                showAlert(`Node "${payload.name}" successfully registered! Initial state: not_checked.`);
+                addNodeForm.reset();
+                document.getElementById("port").value = 22;
+                loadFleetNodes();
+            } else {
+                showAlert(`Error (${res.status}): ${data.detail || "Validation failed"}`, true);
+            }
+        } catch (err) {
+            showAlert("Server unreachable", true);
+        }
+    });
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Initial load and periodic polling every 4 seconds
+    loadFleetNodes();
+    setInterval(loadFleetNodes, 4000);
+</script>
+
+</body>
+</html>
