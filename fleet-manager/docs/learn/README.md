@@ -31,6 +31,14 @@ A first-principles, zero-burnout guide to building an industry-grade Linux Fleet
 ### Phase 3: Feature 2 — Node Availability & Probing
 * 📄 **[Document 08: Linux Connectivity Probing & The SSH Handshake](connectivity-probing/08-linux-probing-and-handshakes.md)**\
   *The 4 levels of probing (ICMP vs TCP vs SSH Banner vs Full Auth), RFC 4253 banner exchange, network failure taxonomy (ECONNREFUSED vs ETIMEDOUT), socket timeout traps, and the state transition machine.*
+* 📄 **[Document 09: Background Health Probing & The Real-Time Dashboard](connectivity-probing/09-periodic-probing-and-dashboard.md)**\
+  *Continuous autonomous health monitoring, offloading blocking socket I/O via `asyncio.to_thread`, the FastAPI lifespan context manager, and the single-page HTML operator dashboard.*
+
+---
+
+### Phase 4: Feature 3 — Metrics & Observability (Prometheus & Grafana)
+* 📄 **[Document 10: Linux System Metrics Architecture & Node Exporter](metrics-observability/10-linux-metrics-and-node-exporter.md)**\
+  *The `/proc` virtual filesystem, raw CPU ticks (jiffies), `MemFree` vs `MemAvailable`, why relational SQLite explodes under telemetry load, TSDB compression, Node Exporter, and the Pull vs Push model.*
 
 ---
 
