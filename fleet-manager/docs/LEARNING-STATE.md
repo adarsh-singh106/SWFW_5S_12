@@ -1,13 +1,20 @@
 # Current learning and engineering checkpoint
 
-Date: 2026-10-16
+Date: 2026-10-18
 Author/environment: executing Codex agent, Windows PowerShell in C:/Users/adars/Desktop/ZOHO/SWFW-12-Sem5.
 
 ## Current work and approval
 
-- Mode: LEARN. Topic: [Practice 05: The SSH Banner Probe Engine](learn/connectivity-probing/practice/practice-05-probe-engine.md).
-- Practice 05 implementation recorded (learning mastery not reassessed): `probe_engine.py` implemented and verified with 3 automated test cases via `test_probe.py` (RFC 4253 banner success, non-SSH service rejection, and timeout/silent drop). Comprehensive line-by-line post-mortem documented in `practice-05-probe-engine.md`.
-- Exact next action: Review the probe limitations with the student and agree the observation states and timeout contract before approving service/database integration. `POST /api/nodes/{id}/probe` remains proposed.
+- Mode: LEARN. Topic: [Document 10: Linux System Metrics Architecture & Node Exporter](learn/metrics-observability/10-linux-metrics-and-node-exporter.md).
+- Entered Milestone 3: Official Requirement 2 — System Metrics Collection & Visualization with Prometheus & Grafana.
+- Key foundations established:
+  1. Linux `/proc` virtual filesystem architecture (in-RAM dynamic files, zero disk footprint).
+  2. Raw CPU ticks (jiffies) delta calculation vs fixed percentages.
+  3. Memory truth: `MemFree` vs `MemAvailable` and the Linux disk-cache eviction model.
+  4. Mathematics of telemetry scale: why relational SQLite fails under high-frequency writes (86.4M rows/day, lock contention) vs TSDB compressed storage.
+  5. Node Exporter daemon architecture (port 9100, `/metrics` endpoint, Prometheus text format).
+  6. Pull vs Push backpressure advantages and the fundamental rule: missing metrics $\neq$ 0.
+- Exact next action: Student reviews Document 10, answers the check-understanding scenario (`MemFree` vs `MemAvailable`), and proceeds to Document 11 (Prometheus scrape pipeline & Grafana dashboard integration).
 
 ## Engineering evidence
 
@@ -60,3 +67,14 @@ Author/environment: Codex executing in Windows PowerShell, Python 3.14.6. Scope:
 - Both probe engine copies are byte-identical and preserved in their existing practice locations. The test imports the connectivity-practice copy. Earlier statements that no probe code exists describe the previous checkpoint only.
 - Remaining gaps: fragmented/preamble banner handling, protocol validation, host identity, total deadline, refusal-path coverage, and reliable failure classification. Fixed test ports and the external timeout make the harness environment-dependent. Do not infer host health from the boolean result.
 - Student understanding remains unassessed this session. Next action: review these limitations and agree the probe contract before API integration. No recording, upload, or push.
+
+
+## Grouped commit preparation - 2026-10-18
+
+Author/environment: executing Codex agent, Windows PowerShell. Authorized scope: prepare and commit existing changes in related groups; no feature redesign or learning reassessment.
+
+- Observed: all six inventory-practice Python files parsed successfully. Temporary-database checks passed for empty inventory initialization, trimmed registration, duplicate rejection, lookup, and persistence of synthetic probe results. No remote sockets, live API, browser, background-worker lifecycle, or legacy schema migration were tested.
+- Code review limits: background exceptions are swallowed; probes run sequentially followed by a 15-second sleep; cancellation is not awaited. `last_seen` updates on failures as well as successes. Endpoint probe outcomes do not establish host health or identity. These remain practice changes, not production-readiness evidence.
+- Lessons 09 and 10 remain drafts requiring technical review. Absolute latency, database throughput, compression, memory-reclamation, and scrape-failure/host-health claims are unverified. Document 11 is referenced but absent. Earlier claims of established foundations are inherited reports, not demonstrated understanding in this session.
+- Removed two trailing-whitespace occurrences in database code and converted six Markdown hard breaks to explicit backslashes; staged whitespace checks passed. No recording, upload, push, or feature implementation performed.
+- Exact next action: review Document 10's technical claims and the student's MemFree/MemAvailable answer before proceeding to the proposed Document 11; agree any engineering fixes separately.
