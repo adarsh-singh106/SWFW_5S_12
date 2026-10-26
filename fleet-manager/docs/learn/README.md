@@ -39,6 +39,8 @@ A first-principles, zero-burnout guide to building an industry-grade Linux Fleet
 ### Phase 4: Feature 3 — Metrics & Observability (Prometheus & Grafana)
 * 📄 **[Document 10: Linux System Metrics Architecture & Node Exporter](metrics-observability/10-linux-metrics-and-node-exporter.md)**\
   *The `/proc` virtual filesystem, raw CPU ticks (jiffies), `MemFree` vs `MemAvailable`, why relational SQLite explodes under telemetry load, TSDB compression, Node Exporter, and the Pull vs Push model.*
+* 📄 **[Document 11: The Prometheus Scrape Pipeline & Grafana Dashboards](metrics-observability/11-prometheus-and-grafana-pipeline.md)**\
+  *The 3-tier metrics pipeline, `prometheus.yml` configuration, dynamic service discovery (`file_sd_configs`), PromQL queries (CPU%, RAM%, up), and Grafana visualization.*
 
 ---
 
