@@ -6,6 +6,7 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from node_service import register_node, probe_node
 from db_storage import list_nodes
+from command_dispatcher import execute_action, list_audit_logs, COMMAND_CATALOG
 
 STATIC_FILE_PATH = os.path.join(os.path.dirname(__file__), "static", "index.html")
 
@@ -47,6 +48,11 @@ class NodeRegistrationRequest(BaseModel):
     port: int = 22  # Default SSH port
 
 
+class ActionExecutionRequest(BaseModel):
+    action: str
+    params: dict | None = None
+
+
 @app.get("/", response_class=HTMLResponse)
 def serve_dashboard():
     """Serve the single-page HTML monitor dashboard."""
@@ -85,3 +91,38 @@ def probe_existing_node(node_id: int):
         if "does not exist" in error_msg:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=error_msg)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error_msg)
+
+
+@app.get("/api/actions", status_code=status.HTTP_200_OK)
+def get_action_catalog():
+    """Return the guarded action catalog for frontend selection."""
+    return {"catalog": COMMAND_CATALOG}
+
+
+@app.post("/api/nodes/{node_id}/execute", status_code=status.HTTP_200_OK)
+def run_node_action(node_id: int, payload: ActionExecutionRequest):
+    """Execute a guarded action against a registered node with audit logging."""
+    try:
+        result = execute_action(
+            node_id=node_id,
+            action_name=payload.action,
+            params=payload.params
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.get("/api/nodes/{node_id}/audit-logs", status_code=status.HTTP_200_OK)
+def get_node_audit_logs(node_id: int):
+    """Retrieve audit trail for a specific node."""
+    return {"audit_logs": list_audit_logs(node_id=node_id)}
+
+
+@app.get("/api/audit-logs", status_code=status.HTTP_200_OK)
+def get_all_audit_logs():
+    """Retrieve global fleet audit logs."""
+    return {"audit_logs": list_audit_logs()}
+

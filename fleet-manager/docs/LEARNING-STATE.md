@@ -5,10 +5,15 @@ Author/environment: executing Codex agent, Windows PowerShell in C:/Users/adars/
 
 ## Current work and approval
 
-- Mode: LEARN. Topic: [Document 12: Controlled Remote Command Execution & Enterprise Audit Pipeline](learn/remote-execution/12-controlled-remote-command-execution.md).
+- Mode: LEARN. Topic: [Milestone 4: Controlled Remote Execution Complete; Moving to Milestone 5: Submission Packaging](learn/remote-execution/practice/practice-07-command-dispatcher.md).
 - Milestone 4 Progress:
-  1. Document 12 created: Outlines the web-to-shell injection vulnerability (`os.system` / `subprocess.run(shell=True)` anti-patterns), the 5 Enterprise Principles of Controlled Execution (Command Allowlist Catalog, Ed25519 Key-based Auth, Bounded Subprocess Timeouts, POSIX Stream Isolation stdout vs stderr, and Immutable SQLite Audit Logging).
-- Exact next action: Student reviews Document 12, answers the 3 checkpoint security questions, and proceeds to Practice 07 (building the secure command dispatcher and audit engine).
+  1. Document 12 established: Why naive web-to-shell patterns fail (The Infinite Freeze, Typo of Death, and Ghost Reboot), the Airplane Cockpit guarded switches analogy, bounded 5s execution boundaries, and immutable SQLite audit logging.
+  2. Practice 07 implemented and verified:
+     - `command_dispatcher.py`: Guarded `COMMAND_CATALOG` allowlist, parameter sanitization regex (`^[a-zA-Z0-9_\-]+$`), bounded `subprocess.run(timeout=5.0)` timer, POSIX stream isolation (stdout, stderr, exit code), and SQLite `command_audit_log` insert.
+     - `test_command_dispatcher.py`: 5/5 tests passed (allowlist rejection, injection prevention, stream isolation, timeout enforcement exit code 124, and audit log persistence).
+     - `verify_milestone_04.py`: 5-step end-to-end execution script passed with exit code 0.
+     - `app.py` & `static/index.html`: Added `/api/actions`, `/api/nodes/{id}/execute`, `/api/audit-logs` endpoints, modal operation runner, and live audit trail table in dashboard.
+- Exact next action: Proceed to Milestone 5: Final Packaging & PDF Report (Document 13: End-to-end verification, mandatory SWFW_5S_12 Flow Diagram, PDF Report generation, and final submission archive).
 
 ## Engineering evidence
 

@@ -252,6 +252,63 @@
             padding: 40px 0;
             font-size: 14px;
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            padding: 24px;
+            color: var(--text-main);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            color: #ffffff;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .output-box {
+            background: #090d13;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 12px;
+        }
     </style>
 </head>
 <body>
@@ -315,6 +372,71 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Audit Trail Card -->
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2>Command Audit Trail (<span id="auditCount">0</span>)</h2>
+            <button class="btn btn-secondary" onclick="loadAuditLogs()">↻ Refresh Logs</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Audit ID</th>
+                    <th>Node</th>
+                    <th>Action</th>
+                    <th>Raw Command</th>
+                    <th>Status</th>
+                    <th>Exit</th>
+                    <th>Duration</th>
+                    <th>Executed At</th>
+                </tr>
+            </thead>
+            <tbody id="auditTableBody">
+                <tr><td colspan="8" class="empty-state">Loading audit logs...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal: Execute Guarded Action -->
+<div id="actionModal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Execute Guarded Operation: <span id="modalNodeName" style="color:var(--accent-blue);"></span></h3>
+            <button class="modal-close" onclick="closeActionModal()">&times;</button>
+        </div>
+        <form id="actionForm" onsubmit="submitAction(event)">
+            <input type="hidden" id="modalNodeId">
+            <div class="form-group" style="margin-bottom:15px;">
+                <label for="actionSelect">Select Guarded Catalog Action</label>
+                <select id="actionSelect" onchange="onActionChange()" style="width:100%; padding:10px; background:#0d1117; border:1px solid var(--border-color); color:#fff; border-radius:6px;">
+                    <option value="system.uptime">system.uptime (uptime -p)</option>
+                    <option value="system.disk_free">system.disk_free (df -h /)</option>
+                    <option value="system.memory">system.memory (free -m)</option>
+                    <option value="service.status">service.status (systemctl status &lt;service&gt;)</option>
+                    <option value="service.restart">service.restart (systemctl restart &lt;service&gt;)</option>
+                </select>
+            </div>
+            <div class="form-group" id="serviceParamGroup" style="margin-bottom:15px; display:none;">
+                <label for="serviceParam">Target Service (Allowlist Only)</label>
+                <select id="serviceParam" style="width:100%; padding:10px; background:#0d1117; border:1px solid var(--border-color); color:#fff; border-radius:6px;">
+                    <option value="nginx">nginx</option>
+                    <option value="node_exporter">node_exporter</option>
+                    <option value="ssh">ssh</option>
+                    <option value="docker">docker</option>
+                </select>
+            </div>
+            <button type="submit" id="btnRunAction" class="btn" style="width:100%;">▶ Dispatch Controlled Command (5s Max)</button>
+        </form>
+        <div id="actionOutputContainer" style="display:none; margin-top:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+                <span id="actionStatusBadge" class="badge">Status</span>
+                <span id="actionDuration" style="color:var(--text-muted);"></span>
+            </div>
+            <div id="actionOutputBox" class="output-box"></div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -367,6 +489,7 @@
                         <td style="color:#8b949e; font-size:11px;">${node.last_seen ? escapeHtml(node.last_seen) : 'Never'}</td>
                         <td>
                             <button class="btn btn-secondary" onclick="probeNode(${node.id})">⚡ Probe</button>
+                            <button class="btn btn-secondary" style="margin-left:4px;" onclick="openActionModal(${node.id}, '${escapeHtml(node.name)}')">⚙️ Execute</button>
                         </td>
                     </tr>
                 `;
@@ -426,9 +549,127 @@
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
+    // --- Action Modal & Audit Log Handlers ---
+    const auditTableBody = document.getElementById("auditTableBody");
+    const auditCountSpan = document.getElementById("auditCount");
+    const actionModal = document.getElementById("actionModal");
+    const modalNodeId = document.getElementById("modalNodeId");
+    const modalNodeName = document.getElementById("modalNodeName");
+    const actionSelect = document.getElementById("actionSelect");
+    const serviceParamGroup = document.getElementById("serviceParamGroup");
+    const serviceParam = document.getElementById("serviceParam");
+    const btnRunAction = document.getElementById("btnRunAction");
+    const actionOutputContainer = document.getElementById("actionOutputContainer");
+    const actionStatusBadge = document.getElementById("actionStatusBadge");
+    const actionDuration = document.getElementById("actionDuration");
+    const actionOutputBox = document.getElementById("actionOutputBox");
+
+    function openActionModal(nodeId, nodeName) {
+        modalNodeId.value = nodeId;
+        modalNodeName.textContent = nodeName;
+        actionOutputContainer.style.display = "none";
+        actionModal.style.display = "flex";
+        onActionChange();
+    }
+
+    function closeActionModal() {
+        actionModal.style.display = "none";
+    }
+
+    function onActionChange() {
+        const val = actionSelect.value;
+        if (val.startsWith("service.")) {
+            serviceParamGroup.style.display = "block";
+        } else {
+            serviceParamGroup.style.display = "none";
+        }
+    }
+
+    async function submitAction(e) {
+        e.preventDefault();
+        const nodeId = modalNodeId.value;
+        const action = actionSelect.value;
+        let params = null;
+        if (action.startsWith("service.")) {
+            params = { service: serviceParam.value };
+        }
+
+        btnRunAction.disabled = true;
+        btnRunAction.textContent = "⏳ Executing (bounded 5s)...";
+
+        try {
+            const res = await fetch(`/api/nodes/${nodeId}/execute`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: action, params: params })
+            });
+            const data = await res.json();
+
+            actionOutputContainer.style.display = "block";
+            actionDuration.textContent = `${data.duration_ms} ms`;
+
+            if (data.status === "success") {
+                actionStatusBadge.className = "badge badge-reachable";
+                actionStatusBadge.textContent = "SUCCESS (Exit 0)";
+                actionOutputBox.textContent = data.stdout || "(Clean execution, no stdout)";
+                actionOutputBox.style.color = "#c9d1d9";
+            } else if (data.status === "timed_out") {
+                actionStatusBadge.className = "badge badge-unreachable";
+                actionStatusBadge.textContent = "TIMED OUT (Exit 124)";
+                actionOutputBox.textContent = data.stderr;
+                actionOutputBox.style.color = "#f85149";
+            } else {
+                actionStatusBadge.className = "badge badge-unreachable";
+                actionStatusBadge.textContent = `FAILED (Exit ${data.exit_code})`;
+                actionOutputBox.textContent = data.stderr || data.stdout || "Error";
+                actionOutputBox.style.color = "#f85149";
+            }
+            loadAuditLogs();
+        } catch (err) {
+            showAlert("Failed to contact command dispatcher backend", true);
+        } finally {
+            btnRunAction.disabled = false;
+            btnRunAction.textContent = "▶ Dispatch Controlled Command (5s Max)";
+        }
+    }
+
+    async function loadAuditLogs() {
+        try {
+            const res = await fetch("/api/audit-logs");
+            const data = await res.json();
+            const logs = data.audit_logs || [];
+            auditCountSpan.textContent = logs.length;
+
+            if (logs.length === 0) {
+                auditTableBody.innerHTML = `<tr><td colspan="8" class="empty-state">No audit logs recorded yet.</td></tr>`;
+                return;
+            }
+
+            auditTableBody.innerHTML = logs.slice(0, 15).map(log => {
+                let badgeClass = log.status === "success" ? "badge-reachable" : "badge-unreachable";
+                return `
+                    <tr>
+                        <td>#${log.id}</td>
+                        <td>Node #${log.node_id}</td>
+                        <td><strong>${escapeHtml(log.action_name)}</strong></td>
+                        <td><span class="code-pill">${escapeHtml(log.raw_command)}</span></td>
+                        <td><span class="badge ${badgeClass}">${escapeHtml(log.status)}</span></td>
+                        <td>${log.exit_code !== null ? log.exit_code : '-'}</td>
+                        <td>${log.duration_ms}ms</td>
+                        <td style="color:#8b949e; font-size:11px;">${escapeHtml(log.executed_at)}</td>
+                    </tr>
+                `;
+            }).join("");
+        } catch (err) {
+            console.error("Failed to load audit logs:", err);
+        }
+    }
+
     // Initial load and periodic polling every 4 seconds
     loadFleetNodes();
+    loadAuditLogs();
     setInterval(loadFleetNodes, 4000);
+    setInterval(loadAuditLogs, 5000);
 </script>
 
 </body>
