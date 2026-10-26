@@ -1,0 +1,13 @@
+[
+  {
+    "targets": [
+      "192.168.1.50:9100"
+    ],
+    "labels": {
+      "node_id": "1",
+      "node_name": "Lab Ubuntu 1",
+      "job": "node_exporter",
+      "fleet": "production"
+    }
+  }
+]

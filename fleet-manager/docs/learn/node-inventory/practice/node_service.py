@@ -1,8 +1,10 @@
+import os
 import ipaddress
 import re
 from validate_port import validate_ssh_port
 from db_storage import init_db, add_node, get_node_by_id, update_node_probe_result, list_nodes
 from probe_engine import probe_ssh_endpoint
+from targets_generator import export_inventory_to_prometheus
 
 
 def validate_node_address(address: str) -> str:
@@ -45,6 +47,13 @@ def register_node(node: dict, db_path: str = "inventory.db") -> dict:
 
     init_db(db_path)
     node_id = add_node(clean_name, clean_address, validated_port, db_path=db_path)
+
+    # Sync Prometheus targets.json dynamically
+    try:
+        targets_file = os.path.join(os.path.dirname(os.path.abspath(db_path)), "targets.json")
+        export_inventory_to_prometheus(db_path=db_path, output_file=targets_file)
+    except Exception:
+        pass
 
     return {
         "id": node_id,
