@@ -44,6 +44,12 @@ A first-principles, zero-burnout guide to building an industry-grade Linux Fleet
 
 ---
 
+### Phase 5: Feature 4 — Controlled Remote Command Execution
+* 📄 **[Document 12: Controlled Remote Command Execution & Enterprise Audit Pipeline](remote-execution/12-controlled-remote-command-execution.md)**\
+  *Web-to-shell dangers, command allowlisting, bounded execution timeouts, POSIX stream isolation (stdout vs stderr), and immutable SQLite audit logging.*
+
+---
+
 ## 🛠️ Hands-on Practice Series
 
 * 💻 **[Practice 01: SSH Port Validator & Code Review](node-inventory/practice/practice-01-port-review.md)**\
@@ -58,3 +64,6 @@ A first-principles, zero-burnout guide to building an industry-grade Linux Fleet
   *Building a non-blocking network socket probe, extracting RFC 4253 SSH banners, and differentiating connection refusal from timeouts.*
 * 💻 **[Practice 06: Prometheus Targets Generator & Telemetry](metrics-observability/practice/practice-06-prometheus-integration.md)**\
   *Generating dynamic `targets.json` for Prometheus file-based service discovery and querying the Prometheus HTTP API for live dashboard gauges.*
+* 💻 **[Practice 07: The Secure Command Dispatcher & Audit Engine](remote-execution/practice/practice-07-command-dispatcher.md)**\
+  *Building an allowlist-enforced command runner with bounded timeouts, output separation, and database audit trail.*
+

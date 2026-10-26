@@ -1,20 +1,14 @@
 # Current learning and engineering checkpoint
 
-Date: 2026-10-18
+Date: 2026-10-26
 Author/environment: executing Codex agent, Windows PowerShell in C:/Users/adars/Desktop/ZOHO/SWFW-12-Sem5.
 
 ## Current work and approval
 
-- Mode: LEARN. Topic: [Document 10: Linux System Metrics Architecture & Node Exporter](learn/metrics-observability/10-linux-metrics-and-node-exporter.md).
-- Entered Milestone 3: Official Requirement 2 — System Metrics Collection & Visualization with Prometheus & Grafana.
-- Key foundations established:
-  1. Linux `/proc` virtual filesystem architecture (in-RAM dynamic files, zero disk footprint).
-  2. Raw CPU ticks (jiffies) delta calculation vs fixed percentages.
-  3. Memory truth: `MemFree` vs `MemAvailable` and the Linux disk-cache eviction model.
-  4. Mathematics of telemetry scale: why relational SQLite fails under high-frequency writes (86.4M rows/day, lock contention) vs TSDB compressed storage.
-  5. Node Exporter daemon architecture (port 9100, `/metrics` endpoint, Prometheus text format).
-  6. Pull vs Push backpressure advantages and the fundamental rule: missing metrics $\neq$ 0.
-- Exact next action: Student reviews Document 10, answers the check-understanding scenario (`MemFree` vs `MemAvailable`), and proceeds to Document 11 (Prometheus scrape pipeline & Grafana dashboard integration).
+- Mode: LEARN. Topic: [Document 12: Controlled Remote Command Execution & Enterprise Audit Pipeline](learn/remote-execution/12-controlled-remote-command-execution.md).
+- Milestone 4 Progress:
+  1. Document 12 created: Outlines the web-to-shell injection vulnerability (`os.system` / `subprocess.run(shell=True)` anti-patterns), the 5 Enterprise Principles of Controlled Execution (Command Allowlist Catalog, Ed25519 Key-based Auth, Bounded Subprocess Timeouts, POSIX Stream Isolation stdout vs stderr, and Immutable SQLite Audit Logging).
+- Exact next action: Student reviews Document 12, answers the 3 checkpoint security questions, and proceeds to Practice 07 (building the secure command dispatcher and audit engine).
 
 ## Engineering evidence
 
