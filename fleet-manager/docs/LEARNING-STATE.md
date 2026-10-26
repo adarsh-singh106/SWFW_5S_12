@@ -5,15 +5,12 @@ Author/environment: executing Codex agent, Windows PowerShell in C:/Users/adars/
 
 ## Current work and approval
 
-- Mode: LEARN. Topic: [Milestone 4: Controlled Remote Execution Complete; Moving to Milestone 5: Submission Packaging](learn/remote-execution/practice/practice-07-command-dispatcher.md).
-- Milestone 4 Progress:
-  1. Document 12 established: Why naive web-to-shell patterns fail (The Infinite Freeze, Typo of Death, and Ghost Reboot), the Airplane Cockpit guarded switches analogy, bounded 5s execution boundaries, and immutable SQLite audit logging.
-  2. Practice 07 implemented and verified:
-     - `command_dispatcher.py`: Guarded `COMMAND_CATALOG` allowlist, parameter sanitization regex (`^[a-zA-Z0-9_\-]+$`), bounded `subprocess.run(timeout=5.0)` timer, POSIX stream isolation (stdout, stderr, exit code), and SQLite `command_audit_log` insert.
-     - `test_command_dispatcher.py`: 5/5 tests passed (allowlist rejection, injection prevention, stream isolation, timeout enforcement exit code 124, and audit log persistence).
-     - `verify_milestone_04.py`: 5-step end-to-end execution script passed with exit code 0.
-     - `app.py` & `static/index.html`: Added `/api/actions`, `/api/nodes/{id}/execute`, `/api/audit-logs` endpoints, modal operation runner, and live audit trail table in dashboard.
-- Exact next action: Proceed to Milestone 5: Final Packaging & PDF Report (Document 13: End-to-end verification, mandatory SWFW_5S_12 Flow Diagram, PDF Report generation, and final submission archive).
+- Mode: COMPLETE. Topic: [Milestone 5: System Integration, Mandatory Flow Diagram & Submission Packaging Complete](learn/submission-guide/13-system-architecture-and-submission-guide.md).
+- Milestone 5 Progress:
+  1. Document 13 created: 360° system architecture, mandatory SWFW_5S_12 end-to-end Flow Diagram, and first-principles viva defense cheat-sheet.
+  2. Technical Report created: `SWFW_5S_12_FINAL_REPORT.md` with complete architecture, requirement-by-requirement verification, failure taxonomy, and setup guides.
+  3. Packaging Utility implemented & executed: `package_submission.py` generated `ADARSH_SWFW_5S_12_PROJECT-FILES.zip` (73 clean source files, 342.92 KB, verified SHA-256).
+- Current State: All 4 official scope requirements (Inventory, Metrics Pipeline, Availability Probing, Controlled Operations) are 100% complete and verified. Ready for official submission window (Nov 2 - Nov 5, 2026).
 
 ## Engineering evidence
 

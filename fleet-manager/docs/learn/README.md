@@ -50,6 +50,13 @@ A first-principles, zero-burnout guide to building an industry-grade Linux Fleet
 
 ---
 
+### Phase 6: System Integration & Submission Packaging
+* 📄 **[Document 13: End-to-End System Architecture, Mandatory Flow Diagram & Submission Guide](submission-guide/13-system-architecture-and-submission-guide.md)**\
+  *The 360° architecture, mandatory SWFW_5S_12 Flow Diagram, first-principles viva defense cheat-sheet, and final submission archive instructions.*
+
+
+---
+
 ## 🛠️ Hands-on Practice Series
 
 * 💻 **[Practice 01: SSH Port Validator & Code Review](node-inventory/practice/practice-01-port-review.md)**\

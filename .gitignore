@@ -40,3 +40,7 @@ Thumbs.db
 # Default database when practice scripts run from the repository root
 /inventory.db
 /inventory.db-*
+
+# Generated submission packages and archives
+*.zip
+
