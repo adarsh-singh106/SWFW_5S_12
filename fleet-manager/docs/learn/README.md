@@ -56,3 +56,5 @@ A first-principles, zero-burnout guide to building an industry-grade Linux Fleet
   *Building `app.py`, launching FastAPI on port 8000, and testing live HTTP requests with `curl` and interactive docs.*
 * 💻 **[Practice 05: The SSH Banner Probe Engine](connectivity-probing/practice/practice-05-probe-engine.md)**\
   *Building a non-blocking network socket probe, extracting RFC 4253 SSH banners, and differentiating connection refusal from timeouts.*
+* 💻 **[Practice 06: Prometheus Targets Generator & Telemetry](metrics-observability/practice/practice-06-prometheus-integration.md)**\
+  *Generating dynamic `targets.json` for Prometheus file-based service discovery and querying the Prometheus HTTP API for live dashboard gauges.*

@@ -1,0 +1,17 @@
+# Prometheus Declarative Scrape Configuration for Fleet Manager
+global:
+  scrape_interval: 10s       # Scrape metrics every 10 seconds
+  evaluation_interval: 10s   # Evaluate alerting rules every 10 seconds
+
+scrape_configs:
+  # Fleet Nodes: Dynamically discovered via targets.json
+  - job_name: "node_exporter"
+    file_sd_configs:
+      - files:
+          - "targets.json"
+        refresh_interval: 10s
+
+  # Central Prometheus Server Self-Monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
