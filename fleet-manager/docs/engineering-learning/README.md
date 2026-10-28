@@ -6,11 +6,12 @@ This handbook explains the reasons behind the code, the boundaries of each commi
 
 ## Reading order
 
-Start with Chunk 00. Follow later guides only when they exist and their corresponding chunks have been reviewed. If your working tree contains newer files, use the commit named in a guide to inspect its historical source.
+Start with Chunk 00, then study the existing Chunk 01 inventory implementation before its logical commit. A committed guide names its historical source; an uncommitted guide identifies the working-tree files it inspected. If your working tree contains newer files, use a guide's named commit when one is available.
 
 | Guide | Commit baseline | Focus |
 | --- | --- | --- |
 | [Chunk 00: Python Engineering Foundation](00-python-foundation.md) | `46e78ca7a3873c2e33c2cd5797c4dd4c35c048b5` | Python 3.12, environment isolation, package metadata, locking, build flow, and development tools. |
+| [Chunk 01: Inventory Domain and SQLite Persistence](01-inventory-persistence.md) | Working tree; commit pending review | Node values, validation, service boundaries, SQLite constraints, concurrency, and focused repository tests. |
 
 ## Choose a study path
 

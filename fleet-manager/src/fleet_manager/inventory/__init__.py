@@ -1,0 +1,1 @@
+"""Node inventory feature."""
