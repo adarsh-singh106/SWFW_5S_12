@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "swfw-fleet-manager"
+version = "0.1.0"
+description = "Distributed Linux Fleet Manager inventory and SSH observation API"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.162.0",
+    "paramiko>=5.1.0",
+    "uvicorn>=0.54.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fleet_manager"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src"]
+strict = true
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "mypy>=2.4.0",
+    "pytest>=9.1.1",
+    "ruff>=0.17.3",
+    "types-paramiko>=5.0.0.20261021",
+]
