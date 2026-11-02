@@ -1,0 +1,14 @@
+[Unit]
+Description=Daily Scheduled Backup for Distributed Linux Fleet Manager
+Documentation=https://github.com/example/fleet-manager
+
+[Timer]
+# Run daily at 02:00:00 UTC
+OnCalendar=*-*-* 02:00:00 UTC
+# Introduce a random delay up to 15 minutes to prevent synchronized I/O spikes
+RandomizedDelaySec=15m
+# Execute missed backup immediately if the system was powered down or rebooting at scheduled time
+Persistent=true
+
+[Install]
+WantedBy=timers.target

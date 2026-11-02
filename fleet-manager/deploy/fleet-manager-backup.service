@@ -1,0 +1,40 @@
+[Unit]
+Description=Distributed Linux Fleet Manager SQLite Database Backup
+Documentation=https://github.com/example/fleet-manager
+After=network.target
+
+[Service]
+Type=oneshot
+User=fleet-manager
+Group=fleet-manager
+WorkingDirectory=/opt/fleet-manager
+
+# Execute online SQLite backup via hardened python CLI
+# Backs up live database to a single atomic latest snapshot and sidecar manifest
+ExecStart=/opt/fleet-manager/.venv/bin/python /opt/fleet-manager/scripts/backup_restore.py backup /var/lib/fleet-manager/inventory.db /var/backups/fleet-manager/inventory_latest.db
+
+# Logging to systemd journal
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fleet-manager-backup
+
+# Security Sandboxing & Least-Privilege Isolation
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_UNIX
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+
+# Source database directory is strictly read-only (prevents accidental corruption or write locks)
+ReadOnlyPaths=/var/lib/fleet-manager
+
+# Writable paths strictly limited to the backup storage directory
+ReadWritePaths=/var/backups/fleet-manager

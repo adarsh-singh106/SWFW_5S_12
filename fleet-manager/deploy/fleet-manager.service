@@ -1,0 +1,58 @@
+[Unit]
+Description=Distributed Linux Fleet Manager Control Plane
+Documentation=https://github.com/example/fleet-manager
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+Type=simple
+User=fleet-manager
+Group=fleet-manager
+WorkingDirectory=/opt/fleet-manager
+
+# Load environment configuration (permissions 0600)
+EnvironmentFile=/etc/fleet-manager/fleet-manager.env
+
+# Run via Uvicorn bound strictly to loopback interface (single worker required for process admission)
+ExecStart=/opt/fleet-manager/.venv/bin/uvicorn fleet_manager.main:app --host 127.0.0.1 --port 8000 --workers 1
+
+# Process management & restart policy
+Restart=on-failure
+RestartSec=5s
+KillMode=mixed
+
+# TimeoutStopSec calculated from:
+# 15s operation timeout + 5s scheduler drain + 4s worker reaping + 6s framework teardown & kernel safety margin
+TimeoutStopSec=35s
+
+# Logging to systemd journal
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fleet-manager
+
+# Security Sandboxing & Least-Privilege Isolation
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+
+# MemoryDenyWriteExecute is intentionally omitted because CPython ctypes / libffi trampolines
+# (used by cryptography and paramiko dependencies) can require dynamic executable memory allocation.
+
+# Read-only configuration & cryptographic keys
+ReadOnlyPaths=/etc/fleet-manager
+
+# Writable paths strictly for SQLite database and WAL/SHM sidecars
+ReadWritePaths=/var/lib/fleet-manager
+
+[Install]
+WantedBy=multi-user.target
