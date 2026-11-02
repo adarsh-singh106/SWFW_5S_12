@@ -6,7 +6,7 @@ This handbook explains the reasons behind the code, the boundaries of each commi
 
 ## Reading order
 
-Start with the foundation and inventory chunks, then study configuration, authentication, SSH connectivity, and time-aware monitoring. A guide names its source checkpoint or the working-tree files it inspected. If your working tree contains newer files, use a guide's named commit when one is available.
+Start with the foundation and inventory chunks, then study configuration, authentication, SSH connectivity, time-aware monitoring, and controlled remote operations. A guide names its source checkpoint or the working-tree files it inspected. If your working tree contains newer files, use a guide's named commit when one is available.
 
 | Guide | Commit baseline | Focus |
 | --- | --- | --- |
@@ -15,6 +15,7 @@ Start with the foundation and inventory chunks, then study configuration, authen
 | [Chunk 02: Configuration and Authentication](02-configuration-authentication.md) | Chunk 02 source checkpoint | Environment settings, fail-closed startup, bearer-token guard, and standalone unit tests. |
 | [Chunk 03: Verified SSH Connectivity](03-ssh-connectivity.md) | Chunk 03 source checkpoint | Pinned host keys, private-key authentication, bounded child processes, and classified SSH outcomes. |
 | [Chunk 04: Health Monitoring and Scheduling](04-health-monitoring-scheduling.md) | Chunk 04 source checkpoint | Durable SSH observations, conservative freshness states, and bounded periodic scheduling. |
+| [Chunk 05: Controlled Remote Operations](05-controlled-remote-operations.md) | Chunk 04 commit `0c97ef1bf5c127767e67eeb22586ed0f200ba107` | Allowlisted diagnostics, verified SSH execution, bounded child processes, and durable outcomes. |
 
 ## Choose a study path
 
