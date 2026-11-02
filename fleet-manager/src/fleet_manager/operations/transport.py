@@ -176,6 +176,16 @@ class ParamikoOperationTransport:
                 stdout_text = b"".join(stdout_chunks).decode("utf-8", errors="replace")
                 stderr_text = b"".join(stderr_chunks).decode("utf-8", errors="replace")
 
+                if exit_code == -1 and (transport is None or not transport.is_active()):
+                    return OperationExecutionResult(
+                        outcome=OperationOutcome.UNCERTAIN,
+                        failure_category=OperationFailureCategory.TRANSPORT_ERROR,
+                        exit_code=None,
+                        stdout=stdout_text,
+                        stderr="Transport disconnected before exit status was received",
+                        output_truncated=truncated,
+                    )
+
                 if exit_code == 0:
                     return OperationExecutionResult(
                         outcome=OperationOutcome.SUCCESS,
@@ -275,7 +285,7 @@ class ParamikoOperationTransport:
                 stderr="SSH transport is unavailable",
                 output_truncated=False,
             )
-        except paramiko.SSHException:
+        except (EOFError, paramiko.SSHException):
             if command_sent:
                 return OperationExecutionResult(
                     outcome=OperationOutcome.UNCERTAIN,
