@@ -17,6 +17,7 @@ Start with the foundation and inventory chunks, then study configuration, authen
 | [Chunk 04: Health Monitoring and Scheduling](04-health-monitoring-scheduling.md) | Chunk 04 source checkpoint | Durable SSH observations, conservative freshness states, and bounded periodic scheduling. |
 | [Chunk 05: Controlled Remote Operations](05-controlled-remote-operations.md) | Chunk 04 commit `0c97ef1bf5c127767e67eeb22586ed0f200ba107` | Allowlisted diagnostics, verified SSH execution, bounded child processes, and durable outcomes. |
 | [Chunk 06: Prometheus and Grafana Observability](06-observability-prometheus-grafana.md) | Chunk 05 commit `6c8dd6f68200f64964a3630879f79b1881a91984` | Control-plane Telemetry, collector self-monitoring, operation metrics, Prometheus scraping, and Grafana dashboard provisioning. |
+| [Chunk 07: Application Composition and HTTP API Integration](07-application-composition-http-api.md) | Chunk 06 commit `e9b4a641095caf0bcd94a28e1e28d656082d61e0` | FastAPI composition, dependency injection, shared storage, crash recovery, health probes, bearer authentication, and operations dashboard. |
 
 ## Choose a study path
 
