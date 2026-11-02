@@ -94,6 +94,12 @@ def test_success_uses_explicit_trust_key_and_deadlines_without_command(
             ConnectivityOutcome.CONNECTION_REFUSED,
         ),
         (TimeoutError("deadline"), ConnectivityOutcome.TIMEOUT),
+        (
+            paramiko.ssh_exception.NoValidConnectionsError(
+                {("127.0.0.1", 2222): TimeoutError("connect deadline")}
+            ),
+            ConnectivityOutcome.CONNECTION_TIMEOUT,
+        ),
         (socket.gaierror(socket.EAI_NONAME, "not found"), ConnectivityOutcome.DNS_ERROR),
         (paramiko.SSHException("bad handshake"), ConnectivityOutcome.UNKNOWN_ERROR),
     ],

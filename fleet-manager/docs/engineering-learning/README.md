@@ -6,7 +6,7 @@ This handbook explains the reasons behind the code, the boundaries of each commi
 
 ## Reading order
 
-Start with the foundation and inventory chunks, then study configuration, authentication, and verified SSH connectivity. A guide names its source checkpoint or the working-tree files it inspected. If your working tree contains newer files, use a guide's named commit when one is available.
+Start with the foundation and inventory chunks, then study configuration, authentication, SSH connectivity, and time-aware monitoring. A guide names its source checkpoint or the working-tree files it inspected. If your working tree contains newer files, use a guide's named commit when one is available.
 
 | Guide | Commit baseline | Focus |
 | --- | --- | --- |
@@ -14,6 +14,7 @@ Start with the foundation and inventory chunks, then study configuration, authen
 | [Chunk 01: Inventory Domain and SQLite Persistence](01-inventory-persistence.md) | `de4241cdff035be6f3818897d814af8b084b87d3` | Node values, validation, service boundaries, SQLite constraints, concurrency, and focused repository tests. |
 | [Chunk 02: Configuration and Authentication](02-configuration-authentication.md) | Chunk 02 source checkpoint | Environment settings, fail-closed startup, bearer-token guard, and standalone unit tests. |
 | [Chunk 03: Verified SSH Connectivity](03-ssh-connectivity.md) | Chunk 03 source checkpoint | Pinned host keys, private-key authentication, bounded child processes, and classified SSH outcomes. |
+| [Chunk 04: Health Monitoring and Scheduling](04-health-monitoring-scheduling.md) | Chunk 04 source checkpoint | Durable SSH observations, conservative freshness states, and bounded periodic scheduling. |
 
 ## Choose a study path
 

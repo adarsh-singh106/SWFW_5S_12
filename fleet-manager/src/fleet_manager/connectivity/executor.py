@@ -111,7 +111,7 @@ class ProcessSSHExecutor:
                 with self._lock:
                     if self._closed:
                         raise ConnectivityUnavailable from None
-                return ConnectivityOutcome.TIMEOUT
+                return ConnectivityOutcome.EXECUTION_TIMEOUT
             except (OSError, ValueError) as exc:
                 if process.poll() is None:
                     try:

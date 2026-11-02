@@ -23,12 +23,18 @@ class _RejectUnknownHostKey(paramiko.MissingHostKeyPolicy):
         raise UnknownHostKeyError
 
 
-def _socket_outcome(errors: Iterable[OSError]) -> ConnectivityOutcome:
+def _socket_outcome(
+    errors: Iterable[OSError], *, connection_attempt: bool = False
+) -> ConnectivityOutcome:
     found = list(errors)
     if any(isinstance(error, socket.gaierror) for error in found):
         return ConnectivityOutcome.DNS_ERROR
     if any(isinstance(error, TimeoutError) for error in found):
-        return ConnectivityOutcome.TIMEOUT
+        return (
+            ConnectivityOutcome.CONNECTION_TIMEOUT
+            if connection_attempt
+            else ConnectivityOutcome.TIMEOUT
+        )
     if found and all(error.errno == errno.ECONNREFUSED for error in found):
         return ConnectivityOutcome.CONNECTION_REFUSED
     return ConnectivityOutcome.UNKNOWN_ERROR
@@ -75,7 +81,8 @@ class ParamikoSSHTransport:
             return ConnectivityOutcome.AUTH_FAILED
         except paramiko.ssh_exception.NoValidConnectionsError as exc:
             return _socket_outcome(
-                error for error in exc.errors.values() if isinstance(error, OSError)
+                (error for error in exc.errors.values() if isinstance(error, OSError)),
+                connection_attempt=True,
             )
         except socket.gaierror:
             return ConnectivityOutcome.DNS_ERROR

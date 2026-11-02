@@ -79,7 +79,7 @@ def test_total_deadline_kills_blocked_dns_or_multiple_attempts(
     executor = _executor(tmp_path, 1, 0.25)
     try:
         start = time.monotonic()
-        assert executor.run(_node(1, delay), ssh_settings) is ConnectivityOutcome.TIMEOUT
+        assert executor.run(_node(1, delay), ssh_settings) is ConnectivityOutcome.EXECUTION_TIMEOUT
         assert time.monotonic() - start < 1.5
         time.sleep(0.4)
         assert not (tmp_path / "1.done").exists()
