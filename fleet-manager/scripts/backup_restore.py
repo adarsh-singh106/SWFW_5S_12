@@ -59,6 +59,109 @@ def _atomic_replace(source: Path, target: Path) -> None:
     _set_private_permissions(target)
 
 
+def _wal_checkpoint_truncate(db_path: Path) -> int:
+    """Execute PRAGMA wal_checkpoint(TRUNCATE) and return busy status (0 = success)."""
+    conn = sqlite3.connect(f"file:{db_path.resolve()}", uri=True)
+    try:
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA wal_checkpoint(TRUNCATE);")
+        row = cursor.fetchone()
+        return int(row[0]) if row is not None else 0
+    finally:
+        conn.close()
+
+
+def _is_valid_manifest_pair(db_file: Path, m_file: Path) -> bool:
+    """Check if database file and manifest exist, checksums match, and integrity passes."""
+    if not db_file.exists() or not db_file.is_file() or db_file.stat().st_size == 0:
+        return False
+    if not m_file.exists() or not m_file.is_file() or m_file.stat().st_size == 0:
+        return False
+    try:
+        data = json.loads(m_file.read_text(encoding="utf-8"))
+        expected_sha = data.get("sha256")
+        if not expected_sha or calculate_sha256(db_file) != expected_sha:
+            return False
+        expected_size = data.get("backup_size_bytes")
+        if expected_size is not None and db_file.stat().st_size != expected_size:
+            return False
+        is_ok, _, _ = check_integrity(db_file)
+        return is_ok
+    except Exception:
+        return False
+
+
+def recover_backup_generation(backup_path: Path) -> None:
+    """Recover and reconcile backup files after a crash or interrupted publication.
+
+    Guarantees:
+      1. If the active database and manifest form a valid, matching generation, any
+         stranded temporary, staged, or previous generation files are safely unlinked.
+      2. If active database was promoted but the manifest was not, and a matching
+         staged manifest exists, completes the publication forward.
+      3. If forward completion is impossible and previous generation files exist,
+         rolls back to the previous known-good database and manifest.
+      4. If staged database and manifest form a complete generation and active does not exist,
+         promotes the staged pair to active.
+      5. Cleans up stranded .tmp files.
+    """
+    backup_dest = backup_path
+    manifest_path = backup_dest.with_suffix(backup_dest.suffix + ".manifest.json")
+    staged_backup = backup_dest.with_suffix(backup_dest.suffix + ".staged")
+    staged_manifest = manifest_path.with_suffix(manifest_path.suffix + ".staged")
+    prev_backup = backup_dest.with_suffix(backup_dest.suffix + ".prev")
+    prev_manifest = manifest_path.with_suffix(manifest_path.suffix + ".prev")
+    prev_tmp_b = backup_dest.with_suffix(backup_dest.suffix + ".prev.tmp")
+    prev_tmp_m = manifest_path.with_suffix(manifest_path.suffix + ".prev.tmp")
+    temp_backup = backup_dest.with_suffix(backup_dest.suffix + ".tmp")
+    temp_manifest = manifest_path.with_suffix(manifest_path.suffix + ".tmp")
+
+    # Reconcile legacy or temporary prev naming (.prev.tmp -> .prev)
+    if prev_tmp_b.exists() and not prev_backup.exists():
+        _atomic_replace(prev_tmp_b, prev_backup)
+    if prev_tmp_m.exists() and not prev_manifest.exists():
+        _atomic_replace(prev_tmp_m, prev_manifest)
+
+    # Clean up transient write files
+    temp_backup.unlink(missing_ok=True)
+    temp_manifest.unlink(missing_ok=True)
+
+    # 1. Active generation check: is (backup_dest, manifest_path) already valid?
+    if _is_valid_manifest_pair(backup_dest, manifest_path):
+        staged_backup.unlink(missing_ok=True)
+        staged_manifest.unlink(missing_ok=True)
+        prev_backup.unlink(missing_ok=True)
+        prev_manifest.unlink(missing_ok=True)
+        return
+
+    # 2. Rollback to previous generation if prev_backup exists
+    if prev_backup.exists():
+        _atomic_replace(prev_backup, backup_dest)
+        if prev_manifest.exists():
+            _atomic_replace(prev_manifest, manifest_path)
+        elif manifest_path.exists() and not _is_valid_manifest_pair(backup_dest, manifest_path):
+            manifest_path.unlink(missing_ok=True)
+        staged_backup.unlink(missing_ok=True)
+        staged_manifest.unlink(missing_ok=True)
+        return
+
+    # 3. Forward completion: if no prev_backup, but active backup_dest matches staged_manifest
+    if backup_dest.exists() and _is_valid_manifest_pair(backup_dest, staged_manifest):
+        _atomic_replace(staged_manifest, manifest_path)
+        staged_backup.unlink(missing_ok=True)
+        return
+
+    # 4. Forward promotion: staged pair is valid and active does not exist
+    if not backup_dest.exists() and _is_valid_manifest_pair(staged_backup, staged_manifest):
+        _atomic_replace(staged_backup, backup_dest)
+        _atomic_replace(staged_manifest, manifest_path)
+        return
+
+    # 5. Clean up any invalid staged files
+    staged_backup.unlink(missing_ok=True)
+    staged_manifest.unlink(missing_ok=True)
+
+
 def check_integrity(db_path: Path) -> tuple[bool, str, int]:
     """Verify database integrity, foreign keys, and extract schema user_version."""
     if not db_path.exists() or not db_path.is_file() or db_path.stat().st_size == 0:
@@ -120,6 +223,9 @@ def get_table_counts(db_path: Path) -> dict[str, int]:
 
 def perform_backup(source_db: Path, backup_dest: Path) -> dict[str, Any]:
     """Perform a safe online backup from source_db to backup_dest."""
+    # 0. Reconcile any prior crashed backup generation
+    recover_backup_generation(backup_dest)
+
     if not source_db.exists() or not source_db.is_file():
         raise FileNotFoundError(f"Source database {source_db} does not exist or is not a file")
 
@@ -184,34 +290,31 @@ def perform_backup(source_db: Path, backup_dest: Path) -> dict[str, Any]:
     temp_manifest.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     _set_private_permissions(temp_manifest)
 
-    # Atomic publication of both backup and manifest with rollback guarantee
-    prev_backup: Path | None = None
-    prev_manifest: Path | None = None
-    if backup_dest.exists():
-        prev_backup = backup_dest.with_suffix(backup_dest.suffix + ".prev.tmp")
-        backup_dest.replace(prev_backup)
-    if manifest_path.exists():
-        prev_manifest = manifest_path.with_suffix(manifest_path.suffix + ".prev.tmp")
-        manifest_path.replace(prev_manifest)
+    # Stage both new files
+    staged_backup = backup_dest.with_suffix(backup_dest.suffix + ".staged")
+    staged_manifest = manifest_path.with_suffix(manifest_path.suffix + ".staged")
+    _atomic_replace(temp_backup, staged_backup)
+    _atomic_replace(temp_manifest, staged_manifest)
+
+    # Crash-recoverable publication protocol with previous generation preservation
+    prev_backup = backup_dest.with_suffix(backup_dest.suffix + ".prev")
+    prev_manifest = manifest_path.with_suffix(manifest_path.suffix + ".prev")
 
     try:
-        _atomic_replace(temp_backup, backup_dest)
-        _atomic_replace(temp_manifest, manifest_path)
+        if backup_dest.exists():
+            _atomic_replace(backup_dest, prev_backup)
+        if manifest_path.exists():
+            _atomic_replace(manifest_path, prev_manifest)
+
+        _atomic_replace(staged_backup, backup_dest)
+        _atomic_replace(staged_manifest, manifest_path)
     except Exception:
-        # Revert to previous backup and manifest if publication fails
-        if prev_backup and prev_backup.exists():
-            _atomic_replace(prev_backup, backup_dest)
-        if prev_manifest and prev_manifest.exists():
-            _atomic_replace(prev_manifest, manifest_path)
-        if temp_backup.exists():
-            temp_backup.unlink(missing_ok=True)
-        if temp_manifest.exists():
-            temp_manifest.unlink(missing_ok=True)
+        recover_backup_generation(backup_dest)
         raise
     finally:
-        if prev_backup and prev_backup.exists():
+        if prev_backup.exists():
             prev_backup.unlink(missing_ok=True)
-        if prev_manifest and prev_manifest.exists():
+        if prev_manifest.exists():
             prev_manifest.unlink(missing_ok=True)
 
     print(f"[+] Backup completed successfully in {manifest['duration_seconds']}s")
@@ -224,8 +327,15 @@ def perform_backup(source_db: Path, backup_dest: Path) -> dict[str, Any]:
     return manifest
 
 
-def perform_restore(backup_file: Path, target_db: Path) -> dict[str, Any]:
+def perform_restore(
+    backup_file: Path,
+    target_db: Path,
+    *,
+    allow_missing_manifest: bool = False,
+) -> dict[str, Any]:
     """Safely restore backup_file into target_db after pre-flight integrity check."""
+    recover_backup_generation(backup_file)
+
     if not backup_file.exists() or not backup_file.is_file():
         raise FileNotFoundError(f"Backup file {backup_file} does not exist or is not a file")
 
@@ -237,27 +347,36 @@ def perform_restore(backup_file: Path, target_db: Path) -> dict[str, Any]:
     if not is_ok:
         raise RuntimeError(f"Cannot restore corrupt backup: {check_msg}")
 
-    # Check sidecar manifest if present
+    # Check sidecar manifest
     manifest_path = backup_file.with_suffix(backup_file.suffix + ".manifest.json")
-    if manifest_path.exists():
+    if not manifest_path.exists():
+        if not allow_missing_manifest:
+            raise RuntimeError(
+                f"Backup manifest {manifest_path} is missing. Restore rejected because "
+                "manifest verification is required by default "
+                "(use allow_missing_manifest=True to override)."
+            )
+    else:
         try:
             manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))
-            expected_checksum = manifest_data.get("sha256")
-            if expected_checksum:
-                actual_checksum = calculate_sha256(backup_file)
-                if actual_checksum != expected_checksum:
-                    raise RuntimeError(
-                        f"Backup checksum mismatch: manifest expected {expected_checksum}, "
-                        f"computed {actual_checksum}"
-                    )
-            expected_size = manifest_data.get("backup_size_bytes")
-            if expected_size is not None and backup_file.stat().st_size != expected_size:
-                raise RuntimeError(
-                    f"Backup size mismatch: manifest expected {expected_size}, "
-                    f"actual {backup_file.stat().st_size}"
-                )
         except json.JSONDecodeError as exc:
             raise RuntimeError(f"Corrupt manifest file {manifest_path}: {exc}") from exc
+
+        expected_checksum = manifest_data.get("sha256")
+        if not expected_checksum:
+            raise RuntimeError(f"Backup manifest {manifest_path} missing required 'sha256' field")
+        actual_checksum = calculate_sha256(backup_file)
+        if actual_checksum != expected_checksum:
+            raise RuntimeError(
+                f"Backup checksum mismatch: manifest expected {expected_checksum}, "
+                f"computed {actual_checksum}"
+            )
+        expected_size = manifest_data.get("backup_size_bytes")
+        if expected_size is not None and backup_file.stat().st_size != expected_size:
+            raise RuntimeError(
+                f"Backup size mismatch: manifest expected {expected_size}, "
+                f"actual {backup_file.stat().st_size}"
+            )
 
     target_db.parent.mkdir(parents=True, exist_ok=True)
 
@@ -269,13 +388,14 @@ def perform_restore(backup_file: Path, target_db: Path) -> dict[str, Any]:
     if target_db.exists() and target_db.stat().st_size > 0:
         # Flush uncheckpointed WAL frames into target_db so safety snapshot has complete state
         try:
-            ck_conn = sqlite3.connect(f"file:{target_db.resolve()}", uri=True)
-            try:
-                ck_conn.execute("PRAGMA wal_checkpoint(TRUNCATE);")
-            finally:
-                ck_conn.close()
-        except sqlite3.Error:
-            pass  # Safe no-op if DB was not in WAL mode
+            busy = _wal_checkpoint_truncate(target_db)
+            if busy != 0:
+                raise RuntimeError(
+                    f"Target database WAL checkpoint reported busy (code {busy}); "
+                    "cannot safely restore"
+                )
+        except sqlite3.Error as exc:
+            raise RuntimeError(f"Failed to checkpoint target database WAL: {exc}") from exc
 
         safety_snapshot = target_db.with_suffix(target_db.suffix + ".pre_restore.bak")
         src_target = sqlite3.connect(f"file:{target_db.resolve()}?mode=ro", uri=True)
@@ -310,12 +430,20 @@ def perform_restore(backup_file: Path, target_db: Path) -> dict[str, Any]:
             temp_restore.unlink(missing_ok=True)
             raise RuntimeError(f"Restored file failed integrity check: {res_msg}")
 
-        # Clean up obsolete sidecars prior to atomic replacement to eliminate the crash window
-        # where old WAL frames could replay into the restored database
-        if target_wal.exists():
-            target_wal.unlink(missing_ok=True)
-        if target_shm.exists():
-            target_shm.unlink(missing_ok=True)
+        # Assert WAL checkpoint is not busy before any sidecar is unlinked
+        if target_wal.exists() or target_shm.exists():
+            if target_db.exists() and target_db.stat().st_size > 0:
+                busy = _wal_checkpoint_truncate(target_db)
+                if busy != 0:
+                    raise RuntimeError(
+                        f"Target database WAL checkpoint reported busy (code {busy}); "
+                        "aborting restore before sidecar removal"
+                    )
+
+            if target_wal.exists():
+                target_wal.unlink(missing_ok=True)
+            if target_shm.exists():
+                target_shm.unlink(missing_ok=True)
 
         # Atomically replace target database
         _atomic_replace(temp_restore, target_db)
@@ -460,6 +588,19 @@ if __name__ == "__main__":
     r_parser = subparsers.add_parser("restore", help="Restore SQLite database from backup")
     r_parser.add_argument("backup", type=Path, help="Path to backup file")
     r_parser.add_argument("target", type=Path, help="Path to target database destination")
+    r_parser.add_argument(
+        "--allow-missing-manifest",
+        action="store_true",
+        default=False,
+        help="Allow restoring backup even if sidecar manifest is missing",
+    )
+
+    # Recover command
+    rec_parser = subparsers.add_parser(
+        "recover",
+        help="Recover and reconcile an interrupted backup directory generation",
+    )
+    rec_parser.add_argument("backup", type=Path, help="Path to backup database")
 
     # Verify command
     v_parser = subparsers.add_parser("verify", help="Run end-to-end backup/restore self-test")
@@ -474,6 +615,12 @@ if __name__ == "__main__":
     if args.command == "backup":
         perform_backup(args.source, args.destination)
     elif args.command == "restore":
-        perform_restore(args.backup, args.target)
+        perform_restore(
+            args.backup,
+            args.target,
+            allow_missing_manifest=args.allow_missing_manifest,
+        )
+    elif args.command == "recover":
+        recover_backup_generation(args.backup)
     elif args.command == "verify":
         self_verify(args.tmp_dir)

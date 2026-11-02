@@ -14,6 +14,7 @@ from scripts.backup_restore import (
     check_integrity,
     perform_backup,
     perform_restore,
+    recover_backup_generation,
 )
 
 from fleet_manager.connectivity.models import ConnectivityOutcome
@@ -489,3 +490,213 @@ def test_posix_permissions_0600(tmp_path: Path, seeded_db: SeededDB) -> None:
         for p in (backup_file, manifest_file, restored_db):
             assert p.exists()
             assert p.stat().st_size > 0
+
+
+def test_manifest_required_by_default(tmp_path: Path, seeded_db: SeededDB) -> None:
+    """Missing manifest is rejected by default and allowed only with explicit flag."""
+    source_db, _, _, _ = seeded_db
+    backup_file = tmp_path / "req_manifest_backup.db"
+    target_db = tmp_path / "req_manifest_target.db"
+
+    perform_backup(source_db, backup_file)
+    manifest_file = backup_file.with_suffix(backup_file.suffix + ".manifest.json")
+    assert manifest_file.exists()
+
+    # Remove the manifest
+    manifest_file.unlink()
+
+    # Default restore must fail
+    with pytest.raises(RuntimeError, match="Backup manifest .* is missing"):
+        perform_restore(backup_file, target_db)
+    assert not target_db.exists()
+
+    # Restore with allow_missing_manifest=True must succeed
+    res = perform_restore(backup_file, target_db, allow_missing_manifest=True)
+    assert target_db.exists()
+    assert res["schema_user_version"] == 3
+
+
+def test_wal_checkpoint_busy_aborts_restore_before_sidecar_removal(
+    tmp_path: Path,
+    seeded_db: SeededDB,
+) -> None:
+    """If target WAL checkpoint reports busy, restore aborts without unlinking sidecars."""
+    source_db, _, _, _ = seeded_db
+    backup_file = tmp_path / "busy_backup.db"
+    perform_backup(source_db, backup_file)
+
+    target_db = tmp_path / "busy_target.db"
+    target_repo = SQLiteNodeRepository(target_db)
+    target_repo.initialize()
+    target_repo.add_node(NewNode("initial-busy-node", "10.0.0.99", 22))
+
+    target_wal = target_db.with_name(target_db.name + "-wal")
+    target_shm = target_db.with_name(target_db.name + "-shm")
+    target_wal.write_bytes(b"wal content before restore attempt")
+    target_shm.write_bytes(b"shm content before restore attempt")
+
+    # Patch _wal_checkpoint_truncate to simulate a concurrent transaction holding the WAL lock
+    with patch("scripts.backup_restore._wal_checkpoint_truncate", return_value=1):
+        with pytest.raises(RuntimeError, match="WAL checkpoint reported busy"):
+            perform_restore(backup_file, target_db)
+
+    # Assert sidecars are untouched and original node remains intact
+    assert target_wal.exists()
+    assert target_shm.exists()
+    with sqlite3.connect(target_db) as conn:
+        names = [r[0] for r in conn.execute("SELECT name FROM nodes;").fetchall()]
+        assert "initial-busy-node" in names
+
+
+def test_crash_recovery_before_staging_prev(tmp_path: Path, seeded_db: SeededDB) -> None:
+    """Interruption before staging previous files leaves active pair intact and cleans tmp."""
+    source_db, inv_repo, _, _ = seeded_db
+    backup_file = tmp_path / "crash_before_staging.db"
+    manifest_file = backup_file.with_suffix(backup_file.suffix + ".manifest.json")
+
+    init_manifest = perform_backup(source_db, backup_file)
+    init_sha = init_manifest["sha256"]
+
+    # Leave stranded staged files simulating crash right before staging prev
+    inv_repo.add_node(NewNode("node-pre-stage", "10.0.0.77", 22))
+    staged_backup = backup_file.with_suffix(backup_file.suffix + ".staged")
+    staged_manifest = manifest_file.with_suffix(manifest_file.suffix + ".staged")
+    staged_backup.write_bytes(b"stranded staged db")
+    staged_manifest.write_text("{}", encoding="utf-8")
+
+    recover_backup_generation(backup_file)
+
+    assert backup_file.exists()
+    assert calculate_sha256(backup_file) == init_sha
+    assert not staged_backup.exists()
+    assert not staged_manifest.exists()
+
+
+def test_crash_recovery_after_prev_db_staged(tmp_path: Path, seeded_db: SeededDB) -> None:
+    """Crash after prev DB was staged rolls back to restore active pair."""
+    source_db, _, _, _ = seeded_db
+    backup_file = tmp_path / "crash_after_prev_db.db"
+    manifest_file = backup_file.with_suffix(backup_file.suffix + ".manifest.json")
+
+    init_manifest = perform_backup(source_db, backup_file)
+    init_sha = init_manifest["sha256"]
+
+    # Simulate crash: backup_file renamed to .prev, manifest_file still active
+    prev_backup = backup_file.with_suffix(backup_file.suffix + ".prev")
+    backup_file.replace(prev_backup)
+    assert not backup_file.exists()
+    assert prev_backup.exists()
+
+    recover_backup_generation(backup_file)
+
+    assert backup_file.exists()
+    assert manifest_file.exists()
+    assert calculate_sha256(backup_file) == init_sha
+    assert not prev_backup.exists()
+
+
+def test_crash_recovery_after_prev_manifest_staged(tmp_path: Path, seeded_db: SeededDB) -> None:
+    """Crash after both DB and manifest were moved to .prev rolls back to prev pair."""
+    source_db, _, _, _ = seeded_db
+    backup_file = tmp_path / "crash_after_prev_m.db"
+    manifest_file = backup_file.with_suffix(backup_file.suffix + ".manifest.json")
+
+    init_manifest = perform_backup(source_db, backup_file)
+    init_sha = init_manifest["sha256"]
+
+    prev_backup = backup_file.with_suffix(backup_file.suffix + ".prev")
+    prev_manifest = manifest_file.with_suffix(manifest_file.suffix + ".prev")
+    backup_file.replace(prev_backup)
+    manifest_file.replace(prev_manifest)
+
+    assert not backup_file.exists()
+    assert not manifest_file.exists()
+
+    recover_backup_generation(backup_file)
+
+    assert backup_file.exists()
+    assert manifest_file.exists()
+    assert calculate_sha256(backup_file) == init_sha
+    assert not prev_backup.exists()
+    assert not prev_manifest.exists()
+
+
+def test_crash_recovery_after_new_backup_published(tmp_path: Path, seeded_db: SeededDB) -> None:
+    """Crash after new DB published but before manifest rolls back safely to prev generation."""
+    source_db, inv_repo, _, _ = seeded_db
+    backup_file = tmp_path / "crash_after_new_db.db"
+    manifest_file = backup_file.with_suffix(backup_file.suffix + ".manifest.json")
+
+    init_manifest = perform_backup(source_db, backup_file)
+    init_sha = init_manifest["sha256"]
+
+    # Stage prev files
+    prev_backup = backup_file.with_suffix(backup_file.suffix + ".prev")
+    prev_manifest = manifest_file.with_suffix(manifest_file.suffix + ".prev")
+    backup_file.replace(prev_backup)
+    manifest_file.replace(prev_manifest)
+
+    # Publish half of new generation: new DB written, but manifest still missing
+    backup_file.write_bytes(b"new half-published database without manifest")
+
+    recover_backup_generation(backup_file)
+
+    # Reconciles to previous known-good pair
+    assert backup_file.exists()
+    assert manifest_file.exists()
+    assert calculate_sha256(backup_file) == init_sha
+    assert not prev_backup.exists()
+    assert not prev_manifest.exists()
+
+
+def test_crash_recovery_after_new_manifest_published_cleans_prev(
+    tmp_path: Path,
+    seeded_db: SeededDB,
+) -> None:
+    """Crash after both new files published unlinks stranded .prev artifacts."""
+    source_db, _, _, _ = seeded_db
+    backup_file = tmp_path / "crash_after_all_pub.db"
+    manifest_file = backup_file.with_suffix(backup_file.suffix + ".manifest.json")
+
+    init_manifest = perform_backup(source_db, backup_file)
+
+    # Leave stranded .prev files as if cleanup was killed
+    prev_backup = backup_file.with_suffix(backup_file.suffix + ".prev")
+    prev_manifest = manifest_file.with_suffix(manifest_file.suffix + ".prev")
+    prev_backup.write_bytes(b"old backup")
+    prev_manifest.write_text("{}", encoding="utf-8")
+
+    recover_backup_generation(backup_file)
+
+    assert backup_file.exists()
+    assert manifest_file.exists()
+    assert calculate_sha256(backup_file) == init_manifest["sha256"]
+    assert not prev_backup.exists()
+    assert not prev_manifest.exists()
+
+
+def test_crash_recovery_idempotent_and_cleans_tmp(
+    tmp_path: Path,
+    seeded_db: SeededDB,
+) -> None:
+    """Calling recover_backup_generation repeatedly is idempotent and cleans tmp files."""
+    source_db, _, _, _ = seeded_db
+    backup_file = tmp_path / "idempotent_backup.db"
+    manifest_file = backup_file.with_suffix(backup_file.suffix + ".manifest.json")
+
+    init_manifest = perform_backup(source_db, backup_file)
+
+    temp_backup = backup_file.with_suffix(backup_file.suffix + ".tmp")
+    temp_manifest = manifest_file.with_suffix(manifest_file.suffix + ".tmp")
+    temp_backup.write_bytes(b"garbage tmp")
+    temp_manifest.write_text("garbage tmp", encoding="utf-8")
+
+    # First recovery cleans tmp
+    recover_backup_generation(backup_file)
+    assert not temp_backup.exists()
+    assert not temp_manifest.exists()
+    assert calculate_sha256(backup_file) == init_manifest["sha256"]
+
+    # Second recovery is a clean no-op
+    recover_backup_generation(backup_file)
+    assert calculate_sha256(backup_file) == init_manifest["sha256"]
