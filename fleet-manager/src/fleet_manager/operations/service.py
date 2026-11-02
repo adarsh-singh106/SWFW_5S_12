@@ -1,8 +1,10 @@
 """Application service coordinating node operation authorization, execution, and persistence."""
 
+import time
 import uuid
+from collections.abc import Callable
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from fleet_manager.config import SSHSettings, load_ssh_settings
 from fleet_manager.errors import ConnectivityConfigurationError, NodeNotFound
@@ -17,6 +19,9 @@ from fleet_manager.operations.models import (
 )
 from fleet_manager.operations.repository import SQLiteOperationsRepository
 
+if TYPE_CHECKING:
+    from fleet_manager.metrics.telemetry import Telemetry
+
 
 class OperationService:
     """Coordinates allowlisted action validation, admission, remote execution, and audit trail."""
@@ -27,11 +32,16 @@ class OperationService:
         operations_repository: SQLiteOperationsRepository,
         executor: OperationExecutor,
         ssh_settings: SSHSettings | None = None,
+        telemetry: "Telemetry | None" = None,
+        *,
+        monotonic_clock: Callable[[], float] = time.monotonic,
     ) -> None:
         self.inventory_repository = inventory_repository
         self.operations_repository = operations_repository
         self.executor = executor
         self.ssh_settings = ssh_settings
+        self.telemetry = telemetry
+        self._monotonic_clock = monotonic_clock
 
     def execute(
         self,
@@ -61,9 +71,11 @@ class OperationService:
         }
 
         started_at: datetime | None = None
+        admitted = False
+        start_mono: float | None = None
 
         def on_start() -> None:
-            nonlocal started_at
+            nonlocal started_at, admitted, start_mono
             start_time = datetime.now(UTC)
             initial_record = OperationRecord(
                 id=operation_id,
@@ -83,45 +95,98 @@ class OperationService:
             )
             self.operations_repository.create(initial_record)
             started_at = start_time
+            start_mono = self._monotonic_clock()
+            if self.telemetry is not None:
+                self.telemetry.operations_active.inc(labels={"action": validated.action})
+                admitted = True
 
         try:
-            result = self.executor.run(
-                node=node,
-                command=validated.remote_command,
-                settings=settings,
-                on_start=on_start,
+            try:
+                result = self.executor.run(
+                    node=node,
+                    command=validated.remote_command,
+                    settings=settings,
+                    on_start=on_start,
+                )
+            except Exception as exc:
+                if started_at is not None:
+                    # The worker may have dispatched the command before failing. Do not
+                    # leave a durable RUNNING row or claim the command never ran.
+                    configuration_failure = isinstance(exc, ConnectivityConfigurationError)
+                    terminal_outcome = (
+                        OperationOutcome.FAILURE
+                        if configuration_failure
+                        else OperationOutcome.UNCERTAIN
+                    )
+                    try:
+                        self.operations_repository.update_completion(
+                            operation_id=operation_id,
+                            started_at=started_at,
+                            completed_at=datetime.now(UTC),
+                            result=OperationExecutionResult(
+                                outcome=terminal_outcome,
+                                failure_category=OperationFailureCategory.UNAVAILABLE,
+                                exit_code=None,
+                                stdout=None,
+                                stderr="Operation worker failed before a confirmed result",
+                                output_truncated=False,
+                            ),
+                        )
+                    except Exception:
+                        pass
+
+                    if self.telemetry is not None and start_mono is not None:
+                        duration = max(0.0, self._monotonic_clock() - start_mono)
+                        self.telemetry.operations_total.inc(
+                            labels={"action": validated.action, "outcome": terminal_outcome.value}
+                        )
+                        self.telemetry.operation_duration_seconds.observe(
+                            duration,
+                            labels={"action": validated.action, "outcome": terminal_outcome.value},
+                        )
+                raise
+
+            completed_at = datetime.now(UTC)
+            duration = (
+                max(0.0, self._monotonic_clock() - start_mono) if start_mono is not None else 0.0
             )
-        except Exception as exc:
-            if started_at is not None:
-                # The worker may have dispatched the command before failing. Do not
-                # leave a durable RUNNING row or claim the command never ran.
-                configuration_failure = isinstance(exc, ConnectivityConfigurationError)
-                self.operations_repository.update_completion(
+            try:
+                record = self.operations_repository.update_completion(
                     operation_id=operation_id,
                     started_at=started_at,
-                    completed_at=datetime.now(UTC),
-                    result=OperationExecutionResult(
-                        outcome=(
-                            OperationOutcome.FAILURE
-                            if configuration_failure
-                            else OperationOutcome.UNCERTAIN
-                        ),
-                        failure_category=OperationFailureCategory.UNAVAILABLE,
-                        exit_code=None,
-                        stdout=None,
-                        stderr="Operation worker failed before a confirmed result",
-                        output_truncated=False,
-                    ),
+                    completed_at=completed_at,
+                    result=result,
                 )
-            raise
+            except Exception:
+                if self.telemetry is not None:
+                    # Remote execution finished, but storage failed.
+                    self.telemetry.operations_total.inc(
+                        labels={
+                            "action": validated.action,
+                            "outcome": OperationOutcome.UNCERTAIN.value,
+                        }
+                    )
+                    self.telemetry.operation_duration_seconds.observe(
+                        duration,
+                        labels={
+                            "action": validated.action,
+                            "outcome": OperationOutcome.UNCERTAIN.value,
+                        },
+                    )
+                raise
 
-        completed_at = datetime.now(UTC)
-        return self.operations_repository.update_completion(
-            operation_id=operation_id,
-            started_at=started_at,
-            completed_at=completed_at,
-            result=result,
-        )
+            if self.telemetry is not None:
+                self.telemetry.operations_total.inc(
+                    labels={"action": validated.action, "outcome": record.outcome.value}
+                )
+                self.telemetry.operation_duration_seconds.observe(
+                    duration,
+                    labels={"action": validated.action, "outcome": record.outcome.value},
+                )
+            return record
+        finally:
+            if admitted and self.telemetry is not None:
+                self.telemetry.operations_active.dec(labels={"action": validated.action})
 
     def get_operation(self, operation_id: str) -> OperationRecord | None:
         return self.operations_repository.get(operation_id)

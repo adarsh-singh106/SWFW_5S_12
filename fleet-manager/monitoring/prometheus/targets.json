@@ -1,0 +1,11 @@
+[
+  {
+    "targets": ["127.0.0.1:9100"],
+    "labels": {
+      "node_id": "1",
+      "node_name": "debian-wsl2",
+      "job": "node_exporter",
+      "fleet": "local"
+    }
+  }
+]

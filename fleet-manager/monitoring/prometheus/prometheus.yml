@@ -1,0 +1,27 @@
+# Prometheus Scrape Configuration for Linux Fleet Manager
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+  scrape_timeout: 4s
+
+scrape_configs:
+  # 1. Prometheus Server self-monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # 2. Fleet Manager Control Plane Metrics
+  - job_name: "fleet-manager"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["127.0.0.1:8000"]
+        labels:
+          service: "fleet-control-plane"
+          environment: "local"
+
+  # 3. Dynamic Node Exporter Targets via File Service Discovery
+  - job_name: "node_exporter"
+    file_sd_configs:
+      - files:
+          - "/etc/prometheus/targets.json"
+        refresh_interval: 5s
