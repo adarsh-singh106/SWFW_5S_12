@@ -67,6 +67,14 @@ class SQLiteNodeRepository:
         except (OSError, sqlite3.Error) as exc:
             raise StorageError("Could not initialize inventory storage") from exc
 
+    def check_ready(self) -> None:
+        """Verify storage accessibility and table presence without modifying state."""
+        try:
+            with closing(self._connect()) as connection:
+                connection.execute("SELECT 1 FROM nodes LIMIT 1").fetchone()
+        except (OSError, sqlite3.Error) as exc:
+            raise StorageError("Inventory storage is not ready") from exc
+
     def add_node(self, node: NewNode) -> Node:
         try:
             with closing(self._connect()) as connection:

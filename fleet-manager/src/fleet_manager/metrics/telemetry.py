@@ -103,6 +103,7 @@ class Telemetry:
 
         self.connectivity_active_checks.set(0.0)
         self.scheduler_running.set(0.0)
+        self.scheduler_cycles_total.inc(0.0)
 
         # 6. Remote operations metrics
         self.operations_total: Final[Counter] = self.registry.counter(

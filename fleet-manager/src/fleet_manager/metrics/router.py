@@ -12,7 +12,8 @@ router = APIRouter()
 @router.get(
     "/metrics",
     response_class=Response,
-    include_in_schema=False,
+    summary="Prometheus metrics scrape endpoint",
+    tags=["metrics"],
 )
 def metrics(request: Request) -> Response:
     """Expose control plane metrics in Prometheus text format.
