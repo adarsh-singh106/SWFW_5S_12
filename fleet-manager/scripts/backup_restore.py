@@ -25,6 +25,14 @@ from pathlib import Path
 from typing import Any
 
 
+class PreRestoreSnapshotExistsError(RuntimeError):
+    """Raised when an existing pre-restore safety snapshot (.pre_restore.bak) is present.
+
+    Restore is aborted to prevent data loss. Operator inspection and recovery
+    or archival are required before proceeding.
+    """
+
+
 def _set_private_permissions(path: Path) -> None:
     """Set 0600 permissions on POSIX systems; safe no-op on non-POSIX."""
     if os.name == "posix":
@@ -380,32 +388,65 @@ def perform_restore(
 
     target_db.parent.mkdir(parents=True, exist_ok=True)
 
+    # Pre-flight check: Refuse restore if pre-restore safety snapshot already exists.
+    # Must detect regular files, directories, and symlinks before any mutation.
+    expected_snapshot = target_db.with_suffix(target_db.suffix + ".pre_restore.bak")
+    if os.path.lexists(expected_snapshot) or expected_snapshot.is_symlink():
+        raise PreRestoreSnapshotExistsError(
+            f"Pre-restore safety snapshot already exists at '{expected_snapshot}'. "
+            "Restore aborted to prevent data loss. Operator inspection and recovery "
+            "or archival are required before proceeding."
+        )
+
     # If target exists, create a safety rollback snapshot
     safety_snapshot: Path | None = None
     target_wal = target_db.with_name(target_db.name + "-wal")
     target_shm = target_db.with_name(target_db.name + "-shm")
 
     if target_db.exists() and target_db.stat().st_size > 0:
+        # Exclusively reserve the safety snapshot file on disk to guard against concurrent races
+        try:
+            fd = os.open(
+                expected_snapshot,
+                os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+                0o600,
+            )
+            os.close(fd)
+        except FileExistsError as exc:
+            raise PreRestoreSnapshotExistsError(
+                f"Pre-restore safety snapshot already exists at '{expected_snapshot}'. "
+                "Restore aborted to prevent data loss. Operator inspection and recovery "
+                "or archival are required before proceeding."
+            ) from exc
+
         # Flush uncheckpointed WAL frames into target_db so safety snapshot has complete state
         try:
             busy = _wal_checkpoint_truncate(target_db)
             if busy != 0:
+                expected_snapshot.unlink(missing_ok=True)
                 raise RuntimeError(
                     f"Target database WAL checkpoint reported busy (code {busy}); "
                     "cannot safely restore"
                 )
-        except sqlite3.Error as exc:
-            raise RuntimeError(f"Failed to checkpoint target database WAL: {exc}") from exc
+        except Exception:
+            expected_snapshot.unlink(missing_ok=True)
+            raise
 
-        safety_snapshot = target_db.with_suffix(target_db.suffix + ".pre_restore.bak")
         src_target = sqlite3.connect(f"file:{target_db.resolve()}?mode=ro", uri=True)
-        dst_safety = sqlite3.connect(safety_snapshot)
+        dst_safety = sqlite3.connect(expected_snapshot)
         try:
             _copy_database_pages(src_target, dst_safety, pages=100, sleep=0.01)
+        except Exception:
+            dst_safety.close()
+            src_target.close()
+            expected_snapshot.unlink(missing_ok=True)
+            raise
         finally:
             dst_safety.close()
             src_target.close()
-        _set_private_permissions(safety_snapshot)
+
+        _set_private_permissions(expected_snapshot)
+        safety_snapshot = expected_snapshot
         print(f"[+] Created pre-restore safety snapshot: {safety_snapshot}")
 
     temp_restore = target_db.with_suffix(target_db.suffix + ".restoring.tmp")

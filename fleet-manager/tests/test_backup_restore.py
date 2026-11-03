@@ -10,6 +10,7 @@ from unittest.mock import patch
 import pytest
 from scripts import backup_restore
 from scripts.backup_restore import (
+    PreRestoreSnapshotExistsError,
     calculate_sha256,
     check_integrity,
     perform_backup,
@@ -700,3 +701,337 @@ def test_crash_recovery_idempotent_and_cleans_tmp(
     # Second recovery is a clean no-op
     recover_backup_generation(backup_file)
     assert calculate_sha256(backup_file) == init_manifest["sha256"]
+
+
+def test_normal_restore_succeeds_when_no_previous_snapshot_exists(
+    tmp_path: Path,
+    seeded_db: SeededDB,
+) -> None:
+    """Normal restore succeeds and creates safety snapshot when no previous snapshot exists."""
+    source_db, _, _, _ = seeded_db
+    backup_file = tmp_path / "normal_backup.db"
+    perform_backup(source_db, backup_file)
+
+    target_db = tmp_path / "normal_target.db"
+    target_repo = SQLiteNodeRepository(target_db)
+    target_repo.initialize()
+    target_repo.add_node(NewNode("initial-srv", "192.168.1.10", 22))
+
+    safety_snapshot = target_db.with_suffix(target_db.suffix + ".pre_restore.bak")
+    assert not safety_snapshot.exists()
+
+    res_info = perform_restore(backup_file, target_db)
+    assert res_info["schema_user_version"] == 3
+
+    # Safety snapshot was created and holds initial node
+    assert safety_snapshot.exists()
+    with sqlite3.connect(safety_snapshot) as conn:
+        names = [r[0] for r in conn.execute("SELECT name FROM nodes;").fetchall()]
+        assert names == ["initial-srv"]
+
+    # Target contains restored nodes
+    with sqlite3.connect(target_db) as conn:
+        names = [r[0] for r in conn.execute("SELECT name FROM nodes;").fetchall()]
+        assert "web-01" in names
+        assert "db-01" in names
+
+
+def test_existing_safety_snapshot_causes_restore_to_fail_safely_and_preserves_hashes(
+    tmp_path: Path,
+    seeded_db: SeededDB,
+) -> None:
+    """Existing safety snapshot causes restore refusal, preserving snapshot and active DB hashes."""
+    source_db, _, _, _ = seeded_db
+    backup_file = tmp_path / "safety_test_backup.db"
+    perform_backup(source_db, backup_file)
+
+    target_db = tmp_path / "safety_test_target.db"
+    target_repo = SQLiteNodeRepository(target_db)
+    target_repo.initialize()
+    target_repo.add_node(NewNode("active-target-srv", "192.168.1.100", 22))
+
+    # Existing safety snapshot on disk
+    safety_snapshot = target_db.with_suffix(target_db.suffix + ".pre_restore.bak")
+    snap_repo = SQLiteNodeRepository(safety_snapshot)
+    snap_repo.initialize()
+    snap_repo.add_node(NewNode("prior-snapshot-srv", "192.168.1.200", 22))
+
+    # Hashes before attempted restore
+    active_sha_before = calculate_sha256(target_db)
+    snap_sha_before = calculate_sha256(safety_snapshot)
+
+    # Restore must fail closed
+    with pytest.raises(PreRestoreSnapshotExistsError) as exc_info:
+        perform_restore(backup_file, target_db)
+
+    err_msg = str(exc_info.value)
+    assert "pre-restore safety snapshot already exists" in err_msg.lower()
+    assert "operator inspection and recovery" in err_msg.lower()
+
+    # 1. Existing snapshot SHA-256 remains unchanged
+    assert calculate_sha256(safety_snapshot) == snap_sha_before
+
+    # 2. Active database SHA-256 remains unchanged
+    assert calculate_sha256(target_db) == active_sha_before
+
+    # 3. No partial restore staging files remain
+    staging_file = target_db.with_suffix(target_db.suffix + ".restoring.tmp")
+    assert not staging_file.exists()
+    assert list(target_db.parent.glob("*.restoring.tmp")) == []
+
+    # 4. Data records verified intact
+    with sqlite3.connect(safety_snapshot) as conn:
+        assert [r[0] for r in conn.execute("SELECT name FROM nodes;").fetchall()] == [
+            "prior-snapshot-srv"
+        ]
+
+    with sqlite3.connect(target_db) as conn:
+        assert [r[0] for r in conn.execute("SELECT name FROM nodes;").fetchall()] == [
+            "active-target-srv"
+        ]
+
+
+def test_existing_snapshot_corrupt_empty_or_directory_detected_and_preserved(
+    tmp_path: Path,
+    seeded_db: SeededDB,
+) -> None:
+    """Pre-existing snapshot is preserved even if empty, corrupt, or directory."""
+    source_db, _, _, _ = seeded_db
+    backup_file = tmp_path / "corrupt_snap_backup.db"
+    perform_backup(source_db, backup_file)
+
+    # 1. Zero-byte snapshot file
+    target_db1 = tmp_path / "zero_target.db"
+    SQLiteNodeRepository(target_db1).initialize()
+    snap1 = target_db1.with_suffix(target_db1.suffix + ".pre_restore.bak")
+    snap1.touch()
+    assert snap1.exists() and snap1.stat().st_size == 0
+    with pytest.raises(PreRestoreSnapshotExistsError):
+        perform_restore(backup_file, target_db1)
+    assert snap1.exists() and snap1.stat().st_size == 0
+
+    # 2. Corrupt/garbage snapshot file
+    target_db2 = tmp_path / "corrupt_target.db"
+    SQLiteNodeRepository(target_db2).initialize()
+    snap2 = target_db2.with_suffix(target_db2.suffix + ".pre_restore.bak")
+    snap2.write_bytes(b"NON_SQLITE_GARBAGE_PAYLOAD")
+    sha_snap2 = calculate_sha256(snap2)
+    with pytest.raises(PreRestoreSnapshotExistsError):
+        perform_restore(backup_file, target_db2)
+    assert snap2.exists()
+    assert calculate_sha256(snap2) == sha_snap2
+
+    # 3. Directory at snapshot path
+    target_db3 = tmp_path / "dir_target.db"
+    SQLiteNodeRepository(target_db3).initialize()
+    snap3 = target_db3.with_suffix(target_db3.suffix + ".pre_restore.bak")
+    snap3.mkdir()
+    assert snap3.is_dir()
+    with pytest.raises(PreRestoreSnapshotExistsError):
+        perform_restore(backup_file, target_db3)
+    assert snap3.is_dir()
+
+
+def test_existing_snapshot_symlink_detected_and_preserved(
+    tmp_path: Path,
+    seeded_db: SeededDB,
+) -> None:
+    """A valid or broken symlink at .pre_restore.bak is detected and prevents restore."""
+    source_db, _, _, _ = seeded_db
+    backup_file = tmp_path / "sym_src_backup.db"
+    perform_backup(source_db, backup_file)
+
+    target_db = tmp_path / "sym_target.db"
+    repo = SQLiteNodeRepository(target_db)
+    repo.initialize()
+    repo.add_node(NewNode("sym-node", "10.0.0.1", 22))
+
+    safety_snapshot = target_db.with_suffix(target_db.suffix + ".pre_restore.bak")
+
+    # Try creating a real broken symlink; if OS privileges disallow, mock is_symlink/lexists
+    can_symlink = False
+    try:
+        os.symlink(tmp_path / "nonexistent_target", safety_snapshot)
+        can_symlink = True
+    except OSError:
+        pass
+
+    if can_symlink:
+        assert safety_snapshot.is_symlink()
+        assert not safety_snapshot.exists()  # Broken symlink exists on disk but does not resolve
+        with pytest.raises(PreRestoreSnapshotExistsError):
+            perform_restore(backup_file, target_db)
+        assert safety_snapshot.is_symlink()
+    else:
+        orig_lexists = os.path.lexists
+
+        def mock_lexists(path: str | Path | os.PathLike[str]) -> bool:
+            if str(path) == str(safety_snapshot):
+                return True
+            return orig_lexists(path)
+
+        with (
+            patch("os.path.lexists", side_effect=mock_lexists),
+            patch.object(Path, "is_symlink", return_value=True),
+        ):
+            with pytest.raises(PreRestoreSnapshotExistsError):
+                perform_restore(backup_file, target_db)
+
+
+def test_refusal_happens_before_wal_checkpoint_or_mutation(
+    tmp_path: Path,
+    seeded_db: SeededDB,
+) -> None:
+    """Refusal on existing snapshot happens before WAL checkpointing or active DB modification."""
+    source_db, _, _, _ = seeded_db
+    backup_file = tmp_path / "wal_refusal_backup.db"
+    perform_backup(source_db, backup_file)
+
+    target_db = tmp_path / "wal_refusal_target.db"
+    repo = SQLiteNodeRepository(target_db)
+    repo.initialize()
+
+    # Enable WAL mode and add node
+    with sqlite3.connect(target_db) as conn:
+        conn.execute("PRAGMA journal_mode = WAL;")
+        conn.execute(
+            "INSERT INTO nodes (name, address, ssh_port) VALUES ('wal-live-node', '127.0.0.1', 22);"
+        )
+        conn.commit()
+
+    target_wal = target_db.with_name(target_db.name + "-wal")
+    assert target_wal.exists()
+    assert target_wal.stat().st_size > 0
+
+    safety_snapshot = target_db.with_suffix(target_db.suffix + ".pre_restore.bak")
+    safety_snapshot.write_bytes(b"existing-safety-snapshot-bytes")
+
+    active_sha_before = calculate_sha256(target_db)
+    wal_sha_before = calculate_sha256(target_wal)
+    snap_sha_before = calculate_sha256(safety_snapshot)
+
+    # Patch _wal_checkpoint_truncate to ensure it is never called
+    with patch(
+        "scripts.backup_restore._wal_checkpoint_truncate",
+        side_effect=AssertionError("WAL checkpoint must not be called when snapshot exists!"),
+    ):
+        with pytest.raises(PreRestoreSnapshotExistsError):
+            perform_restore(backup_file, target_db)
+
+    # Hashes must remain 100% identical
+    assert calculate_sha256(target_db) == active_sha_before
+    assert calculate_sha256(target_wal) == wal_sha_before
+    assert calculate_sha256(safety_snapshot) == snap_sha_before
+
+
+def test_concurrent_restore_atomic_reservation_fails_second_caller(
+    tmp_path: Path,
+    seeded_db: SeededDB,
+) -> None:
+    """Atomic exclusive reservation fails safely if another restore races to create snapshot."""
+    source_db, _, _, _ = seeded_db
+    backup_file = tmp_path / "race_backup.db"
+    perform_backup(source_db, backup_file)
+
+    target_db = tmp_path / "race_target.db"
+    repo = SQLiteNodeRepository(target_db)
+    repo.initialize()
+    repo.add_node(NewNode("race-target-node", "10.0.0.1", 22))
+
+    safety_snapshot = target_db.with_suffix(target_db.suffix + ".pre_restore.bak")
+    assert not safety_snapshot.exists()
+
+    # Simulate race: os.open fails with FileExistsError during atomic exclusive creation
+    orig_open = os.open
+
+    def fail_on_snapshot_reserve(
+        path: os.PathLike[str] | str | bytes,
+        flags: int,
+        *args: object,
+        **kwargs: object,
+    ) -> int:
+        if str(path) == str(safety_snapshot) and (flags & os.O_CREAT) and (flags & os.O_EXCL):
+            raise FileExistsError(f"Simulated concurrent race: {safety_snapshot} already reserved")
+        return orig_open(path, flags, *args, **kwargs)
+
+    with patch("os.open", side_effect=fail_on_snapshot_reserve):
+        with pytest.raises(PreRestoreSnapshotExistsError, match="already exists"):
+            perform_restore(backup_file, target_db)
+
+    # Active DB was not modified
+    with sqlite3.connect(target_db) as conn:
+        names = [r[0] for r in conn.execute("SELECT name FROM nodes;").fetchall()]
+        assert names == ["race-target-node"]
+
+
+def test_subsequent_restore_succeeds_after_operator_archives_snapshot(
+    tmp_path: Path,
+    seeded_db: SeededDB,
+) -> None:
+    """Subsequent restore is refused until operator archives snapshot, then succeeds."""
+    source_db, _, _, _ = seeded_db
+    backup_file_1 = tmp_path / "backup_1.db"
+    perform_backup(source_db, backup_file_1)
+
+    # Create a 2nd backup with different data
+    db2 = tmp_path / "source2.db"
+    repo2 = SQLiteNodeRepository(db2)
+    repo2.initialize()
+    repo2.add_node(NewNode("node-v2", "192.168.2.1", 22))
+    backup_file_2 = tmp_path / "backup_2.db"
+    perform_backup(db2, backup_file_2)
+
+    # Target starts with original node-0
+    target_db = tmp_path / "lifecycle_target.db"
+    target_repo = SQLiteNodeRepository(target_db)
+    target_repo.initialize()
+    target_repo.add_node(NewNode("node-0", "192.168.0.1", 22))
+
+    safety_snapshot = target_db.with_suffix(target_db.suffix + ".pre_restore.bak")
+
+    # 1. First restore succeeds, creating safety snapshot containing node-0
+    perform_restore(backup_file_1, target_db)
+    assert safety_snapshot.exists()
+    conn1 = sqlite3.connect(safety_snapshot)
+    try:
+        assert [r[0] for r in conn1.execute("SELECT name FROM nodes;").fetchall()] == ["node-0"]
+    finally:
+        conn1.close()
+
+    # 2. Second restore attempt is refused because safety_snapshot exists
+    with pytest.raises(PreRestoreSnapshotExistsError):
+        perform_restore(backup_file_2, target_db)
+
+    # 3. Operator archives the previous safety snapshot
+    archive_dir = tmp_path / "snapshot_archives"
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    archived_path = archive_dir / "target_db.pre_restore.bak.archived"
+    safety_snapshot.rename(archived_path)
+    assert not safety_snapshot.exists()
+    assert archived_path.exists()
+
+    # 4. Now the subsequent restore succeeds
+    perform_restore(backup_file_2, target_db)
+
+    # Target now has node-v2 from backup_2
+    conn2 = sqlite3.connect(target_db)
+    try:
+        assert [r[0] for r in conn2.execute("SELECT name FROM nodes;").fetchall()] == ["node-v2"]
+    finally:
+        conn2.close()
+
+    # A new safety snapshot was created, capturing the state from before 2nd restore
+    assert safety_snapshot.exists()
+    conn3 = sqlite3.connect(safety_snapshot)
+    try:
+        names = [r[0] for r in conn3.execute("SELECT name FROM nodes;").fetchall()]
+        assert "web-01" in names
+    finally:
+        conn3.close()
+
+    # The archived snapshot remains pristine with node-0
+    conn4 = sqlite3.connect(archived_path)
+    try:
+        assert [r[0] for r in conn4.execute("SELECT name FROM nodes;").fetchall()] == ["node-0"]
+    finally:
+        conn4.close()
