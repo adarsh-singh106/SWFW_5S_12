@@ -277,6 +277,34 @@ sudo -u fleet-manager rm -f /var/lib/fleet-manager/inventory.db-wal /var/lib/fle
 sudo systemctl start fleet-manager
 ```
 
+### Step 8: Pre-Restore Safety Snapshot Collision Resolution (.pre_restore.bak)
+
+If a prior restore was interrupted or an existing safety snapshot is already present on disk, `backup_restore.py` strictly fails closed with `PreRestoreSnapshotExistsError` before touching the active database or issuing WAL checkpoints. To resolve this collision safely without risk of data loss:
+
+1. **Restore Refusal**: The restore procedure intentionally refuses to proceed or overwrite an existing snapshot when `/var/lib/fleet-manager/inventory.db.pre_restore.bak` already exists.
+2. **Stop and Inspect**: Do not immediately retry or force the restore command. Stop and inspect both the current active database (`/var/lib/fleet-manager/inventory.db`) and the pre-existing safety snapshot (`/var/lib/fleet-manager/inventory.db.pre_restore.bak`) to identify their origins and contents.
+3. **Preserve Both Files**: Keep both database files intact throughout the investigation. Never configure automated scripts or procedures to silently delete `.pre_restore.bak`.
+4. **Record SHA-256 Checksums**: Compute and document cryptographic SHA-256 checksums for both files to establish immutable provenance:
+   ```bash
+   sha256sum /var/lib/fleet-manager/inventory.db /var/lib/fleet-manager/inventory.db.pre_restore.bak
+   ```
+5. **Validate Database Integrity and Foreign Keys**: Run SQLite integrity and foreign-key checks on all candidate recovery copies to assess database page consistency and constraint validity:
+   ```bash
+   sqlite3 /var/lib/fleet-manager/inventory.db "PRAGMA integrity_check; PRAGMA foreign_key_check;"
+   sqlite3 /var/lib/fleet-manager/inventory.db.pre_restore.bak "PRAGMA integrity_check; PRAGMA foreign_key_check;"
+   ```
+6. **Retain an Independent Copy Before Archiving**: Create an independent, timestamped archival copy in a designated backup directory before moving the safety snapshot out of the operational path:
+   ```bash
+   sudo -u fleet-manager mkdir -p /var/backups/fleet-manager/archived_snapshots
+   # Retain independent copy
+   sudo -u fleet-manager cp -p /var/lib/fleet-manager/inventory.db.pre_restore.bak \
+     /var/backups/fleet-manager/archived_snapshots/inventory.db.pre_restore.$(date +%Y%m%d_%H%M%S).bak
+   # Manually archive the existing snapshot away from the operational database directory
+   sudo -u fleet-manager mv /var/lib/fleet-manager/inventory.db.pre_restore.bak \
+     /var/backups/fleet-manager/archived_snapshots/resolved_collision.bak
+   ```
+7. **Retry Restore Only After Explicit Resolution**: Only re-attempt the offline restore operation (Step 4) after the operator has explicitly inspected, validated, and archived the colliding snapshot.
+
 ---
 
 ## 10. Post-Deployment Smoke Verification
