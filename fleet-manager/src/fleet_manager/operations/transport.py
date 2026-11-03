@@ -258,6 +258,25 @@ class ParamikoOperationTransport:
                 stderr="Connection refused by remote host",
                 output_truncated=False,
             )
+        except paramiko.ssh_exception.NoValidConnectionsError as exc:
+            errors = list(exc.errors.values())
+            if any(isinstance(err, TimeoutError) for err in errors):
+                return OperationExecutionResult(
+                    outcome=OperationOutcome.TIMEOUT,
+                    failure_category=OperationFailureCategory.TIMEOUT,
+                    exit_code=None,
+                    stdout=None,
+                    stderr="Connection timed out",
+                    output_truncated=False,
+                )
+            return OperationExecutionResult(
+                outcome=OperationOutcome.FAILURE,
+                failure_category=OperationFailureCategory.CONNECTION_REFUSED,
+                exit_code=None,
+                stdout=None,
+                stderr="Connection refused by remote host",
+                output_truncated=False,
+            )
         except OSError as exc:
             if exc.errno == errno.ECONNREFUSED:
                 return OperationExecutionResult(
