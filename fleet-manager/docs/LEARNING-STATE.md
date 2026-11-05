@@ -1,5 +1,33 @@
 # Current learning and engineering checkpoint
 
+## Acceptance correction - 2026-11-05
+
+Author/environment: executing Codex agent, Windows PowerShell, repository `.venv/Scripts/python.exe`.
+Authorized scope: focused acceptance/runbook correction, local verification only; no GCE operations,
+no live fault injection, no commits/pushes. Earlier entries below are preserved historical reports;
+the previous ?14/14 mock passes? did not establish real fault-scenario or GCE evidence.
+
+- Removed automatic trust enrollment: test 03 is an explicit independent-fingerprint manual gate.
+- SSH probes originate from the controller API; actual inventory IDs are resolved by endpoint.
+- Read-only operations require nine SUCCESS results with real output shapes and matching audit records.
+- Prometheus checks the controller plus all three exact exporter instances at up=1; Grafana checks
+  datasource configuration, proxied Prometheus results and provisioned dashboard panel contracts.
+- Tests 08-13 stay SKIPPED/NOT IMPLEMENTED even when the compatibility opt-in flag is supplied.
+  Offline mode reports 2 local passes and 12 skips; exit 2 means incomplete, never full acceptance.
+- Tunnel now forwards 8000/3000/9090 on explicit loopback with ExitOnForwardFailure.
+  Runbook section 15 supplies exact manual procedures and evidence limits for all four requirements.
+- Observed local verification: Python 458 passed (one Starlette/httpx deprecation warning);
+  frontend ES modules 12 passed; isolated Chrome/CDP runner exit 0, cleanup true, report at
+  `.local/browser-qa/20261105T073619-b92a36af/`; Ruff lint and format passed (89 files);
+  Mypy passed (42 source files). Tunnel Bash syntax and dry-run passed without invoking gcloud.
+- Evidence limit: local mocked transport/browser behavior is not live SSH, GCE, Prometheus or
+  Grafana evidence. All four official requirements still await live acceptance. Student understanding
+  was not assessed; no independent learning demonstration or video completion is claimed.
+- Exact next action: review runbook section 15, then obtain a separate authorized live session to
+  independently verify all three host fingerprints before explicit enrollment. Fault tests need a
+  separately authorized maintenance window and restoration plan; do not infer approval here.
+
+
 ## Final Milestone: GCE One-Shot Deployment Package & Acceptance Test Automation - 2026-11-05
 
 Author/environment: executing Antigravity agent, Windows PowerShell, Python 3.12.8 from `.venv/Scripts/python.exe`, Node v24.18.0. User-authorized scope: GCE one-shot deployment package and acceptance testing automation; stop at delivery.

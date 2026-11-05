@@ -1,6 +1,6 @@
 # Project charter
 
-Updated 2026-10-27 by executing Codex agent. Official scope and reported instructor feedback below remain as originally recorded; current implementation evidence is in the learning checkpoint.
+Updated 2026-11-05 by executing Codex agent (Windows PowerShell); local source inspection only, no GCE execution. Official scope and reported instructor feedback below remain as originally recorded; current implementation evidence is in the learning checkpoint.
 
 ## Official scope (user-supplied paraphrase)
 
@@ -8,10 +8,15 @@ Updated 2026-10-27 by executing Codex agent. Official scope and reported instruc
 
 | Enumerated requirement | Planned evidence | Current state |
 | --- | --- | --- |
-| 1. Node onboarding and management | Register/list nodes; later verify identity and connectivity | Token-protected inventory and explicit SSH identity/authentication observation verified with a disposable loopback target; real managed nodes, web UI, operator identity/RBAC, and full onboarding pending |
-| 2. Collect, store, visualize system metrics using Prometheus and Grafana | Real scrape, stored series, Grafana display | Pending |
-| 3. Detect availability and handle failures gracefully | Isolated failure/recovery experiments and honest observation states | Pending |
-| 4. Controlled remote command execution | Authorized structured operation, audit trail, outcome verification | Pending |
+| 1. Node onboarding and management | Register/list three real nodes; independently verify fingerprints and explicit enrollment | Implemented: inventory API, guided onboarding and browser UI. Actual three-node GCE identity/onboarding evidence PENDING; operator RBAC not implemented |
+| 2. Collect, store, visualize system metrics using Prometheus and Grafana | Four expected up=1 targets, stored time-range samples, rendered Grafana panels | Implemented: metrics export, Prometheus configuration, Grafana datasource/dashboard provisioning. Actual GCE scrape/storage/visualization evidence PENDING |
+| 3. Detect availability and handle failures gracefully | Fresh observations, isolated outage, bounded failure, unaffected peers and automatic recovery | Implemented: periodic SSH checks, classification/freshness and recovery observation. Actual GCE failure/recovery evidence PENDING; acceptance scenarios 08-13 NOT IMPLEMENTED/SKIPPED |
+| 4. Controlled remote command execution | SUCCESS and meaningful output for three read-only actions on each node, matching audit history and catalog rejection | Implemented: allowlisted operations and SQLite audit records. Actual GCE outputs/audit/rejection evidence PENDING |
+
+All four requirements remain **awaiting live acceptance**, not complete. Local tests establish
+local contracts, not deployment success. The [runbook section 15](DEPLOYMENT-RUNBOOK.md#15-exact-manual-acceptance-procedures-for-the-four-official-requirements)
+defines the manual evidence. The acceptance runner does not silently enroll keys, treat
+FAILURE/UNCERTAIN as success, or report unexecuted scenarios as passed.
 
 Correctness, system design, observability, and Linux understanding take priority over aesthetics. No authenticated assignment material is copied here; official publication/IP permissions are unverified.
 
@@ -30,7 +35,7 @@ Success includes independent implementation/debugging/explanation, reproducible 
 - Mandatory: Prometheus and Grafana; use Prometheus for time-series storage unless another need is demonstrated.
 - Approved organization: one Git repository, application under `fleet-manager/`, prerequisite history preserved.
 - Follow shared learning/approval rules and nested security/monitoring constraints. Do not treat WSL distributions sharing a kernel as independent failure domains.
-- Approved and implemented for the first inventory API slice: Python 3.12, FastAPI, and SQLite. SQLite stores inventory, not monitoring time series. A browser page remains proposed and unimplemented; see [ADR 0001](decisions/0001-inventory-backend.md).
+- Approved and implemented for the first inventory API slice: Python 3.12, FastAPI, and SQLite. SQLite stores inventory, not monitoring time series. The browser dashboard is now implemented; the first-slice decision remains recorded in [ADR 0001](decisions/0001-inventory-backend.md).
 - Approved local access boundary: a single shared bearer token from the environment, with startup failure when missing; see [ADR 0002](decisions/0002-local-inventory-authentication.md). It is not operator identity or RBAC.
 - Approved one-node SSH check: pinned host key, explicit non-root key credential, bounded connection/banner/auth phases, and a separate observation history; see [ADR 0003](decisions/0003-verified-ssh-observations.md). This does not establish overall node health or remote command execution.
 - Do not add heavy infrastructure without a demonstrated need.

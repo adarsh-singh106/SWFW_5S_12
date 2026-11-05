@@ -1,6 +1,6 @@
 # Debian 12 & Ubuntu 26.04 Linux Deployment Runbook
 
-This runbook defines the authoritative operational procedure to deploy, harden, monitor, back up, and restore the Distributed Linux Fleet Manager control plane reproducibly on clean Debian 12 (Bookworm) and Ubuntu 26.04 LTS systems, with verified procedures for Google Cloud Platform (GCE) multi-node topology.
+This runbook defines the authoritative operational procedure to deploy, harden, monitor, back up, and restore the Distributed Linux Fleet Manager control plane reproducibly on clean Debian 12 (Bookworm) and Ubuntu 26.04 LTS systems, with proposed procedures for Google Cloud Platform (GCE) multi-node topology. Live acceptance evidence is pending; commands below are instructions, not an execution record.
 
 ---
 
@@ -275,7 +275,7 @@ All VMs are deployed without public IP addresses, with ingress strictly gated th
 
 #### Secure Loopback Invariant & Access Method
 - **Loopback Enforcement**: Fleet Manager binds strictly to `127.0.0.1:8000` and Grafana binds to `127.0.0.1:3000`. Neither port is exposed to the VPC or the public internet.
-- **Port Forwarding via IAP SSH (Recommended & Verified)**:
+- **Port Forwarding via IAP SSH (Recommended; Live Verification Pending)**:
   Because the existing GCP firewall allows IAP on SSH port 22, forward loopback ports directly through the authenticated IAP SSH channel without requiring any additional firewall rules:
 
 ```bash
@@ -284,13 +284,14 @@ gcloud compute ssh fleet-controller \
   --project="project-3682976b-7d4a-465a-933" \
   --zone="asia-south1-a" \
   --tunnel-through-iap \
-  -- -N -L 8000:127.0.0.1:8000 -L 3000:127.0.0.1:3000
+  -- -N -o ExitOnForwardFailure=yes -L 127.0.0.1:8000:127.0.0.1:8000 -L 127.0.0.1:3000:127.0.0.1:3000 -L 127.0.0.1:9090:127.0.0.1:9090
 ```
 
 Once the tunnel is active, access local forwarded endpoints in your browser:
 - **Fleet Manager Dashboard**: `http://127.0.0.1:8000/dashboard`
 - **Fleet Manager Metrics**: `http://127.0.0.1:8000/metrics`
 - **Grafana Operational Dashboard**: `http://127.0.0.1:3000`
+- **Prometheus Query UI**: `http://127.0.0.1:9090`
 
 *(Note: Standalone `gcloud compute start-iap-tunnel fleet-controller 8000` is intentionally avoided because packets from `35.235.240.0/20` hit `eth0` rather than `127.0.0.1`, which would require binding to `0.0.0.0` or adding VPC ingress firewall rules. SSH port forwarding keeps services strictly on loopback).*
 
@@ -309,36 +310,17 @@ gcloud compute scp ~/.ssh/fleet-bootstrap fleet-controller:/tmp/fleet-bootstrap 
   --zone=asia-south1-a --tunnel-through-iap
 ```
 
-### 7.2 Safe Reversible Host-Key Mismatch Failure Injection
-To safely verify detection of host-key tampering or changes (`HOST_KEY_MISMATCH` / `CHECK_ERROR`), **never use `ssh-keygen -A`** (which skips existing keys). Use this explicit, fully reversible test procedure on one managed node (e.g. `fleet-node-c`):
+### 7.2 Failure testing boundary
 
-```bash
-# Connect to fleet-node-c via IAP:
-gcloud compute ssh fleet-node-c --zone=asia-south1-a --tunnel-through-iap
-
-# Step 1: Back up the verified host public and private keys
-sudo cp -p /etc/ssh/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key.bak
-sudo cp -p /etc/ssh/ssh_host_ed25519_key.pub /etc/ssh/ssh_host_ed25519_key.pub.bak
-
-# Step 2: Overwrite with a newly generated disposable host key
-sudo ssh-keygen -t ed25519 -N "" -f /etc/ssh/ssh_host_ed25519_key <<< y
-sudo systemctl restart ssh
-
-# Step 3: Trigger check from Controller / Web UI
-# Observed Outcome: Connectivity check fails with HOST_KEY_MISMATCH.
-# The UI displays a warning that the server identity has changed and refuses auto-reconnection.
-
-# Step 4: Restore the authentic host key and verify recovery
-sudo mv /etc/ssh/ssh_host_ed25519_key.bak /etc/ssh/ssh_host_ed25519_key
-sudo mv /etc/ssh/ssh_host_ed25519_key.pub.bak /etc/ssh/ssh_host_ed25519_key.pub
-sudo systemctl restart ssh
-
-# Step 5: Retest connectivity from Controller / Web UI -> Node returns to REACHABLE.
-```
+Live fault scenarios 08-13 are **NOT IMPLEMENTED** by the acceptance runner. The flag
+`--allow-fault-injection` does not execute them. Do not rotate production SSH host keys
+for this check. Requirement 3's separately authorized disposable-node outage/recovery
+procedure is in section 15. Additional credential, key-mismatch, timeout and controller
+crash scenarios remain live gates; local unit tests do not close them.
 
 ---
 
-## 7. Operational Commands
+## 7.3 Operational Commands
 
 | Action | Command |
 |---|---|
@@ -368,7 +350,7 @@ The `fleet-manager-backup.timer` triggers daily at `02:00:00 UTC` (with a random
 
 ### 8.2 Retention Semantics
 - **Single Latest Snapshot**: The automated backup schedule retains **exactly one** validated point-in-time snapshot (`inventory_latest.db`) and its companion manifest (`inventory_latest.db.manifest.json`).
-- Each run copies pages into a temporary file, verifies `PRAGMA integrity_check`, `PRAGMA foreign_key_check`, and `user_version = 3`, and atomically replaces `inventory_latest.db`.
+- Each run copies pages into a temporary file, verifies `PRAGMA integrity_check`, `PRAGMA foreign_key_check`, and a supported `user_version` (3, 4 or 5), and atomically replaces `inventory_latest.db`.
 - **Historical Multi-Generation Retention**: If multi-day or archival retention is required, operators must configure an external rotation tool (such as `logrotate`, `restic`, or an enterprise backup agent) targeting `/var/backups/fleet-manager/`. The systemd backup service intentionally maintains only the single verified latest baseline.
 
 ### 8.3 Manual On-Demand Online Backup
@@ -427,7 +409,7 @@ sudo -u fleet-manager /opt/fleet-manager/.venv/bin/python /opt/fleet-manager/scr
 
 #### What Happens Internally:
 1. **Safety Snapshot**: If `/var/lib/fleet-manager/inventory.db` exists, it is automatically backed up to `/var/lib/fleet-manager/inventory.db.pre_restore.bak` before any file modifications take place.
-2. **Pre-flight & Post-flight Checks**: The backup file is verified for valid SQLite B-tree pages, foreign keys, and schema user_version 3.
+2. **Pre-flight & Post-flight Checks**: The backup file is verified for valid SQLite B-tree pages, foreign keys, and a supported schema user_version (currently 3, 4 or 5).
 3. **Atomic Swap**: The restored database is written to a temporary staging file and atomically renamed to `inventory.db`.
 4. **Stale Sidecar Cleanup**: Any leftover `/var/lib/fleet-manager/inventory.db-wal` or `/var/lib/fleet-manager/inventory.db-shm` sidecars are unlinked immediately after replacement to prevent replaying stale WAL log entries into the new database.
 5. **Fail-Safe Rollback**: If replacement or verification fails, the target is automatically rolled back to the `.pre_restore.bak` snapshot.
@@ -446,7 +428,7 @@ curl -fsS http://127.0.0.1:8000/healthz
 curl -fsS http://127.0.0.1:8000/readyz
 
 # 3. Authenticated Inventory & Operations Probe
-OPERATOR_TOKEN=$(grep FLEET_MANAGER_API_TOKEN /etc/fleet-manager/fleet-manager.env | cut -d '=' -f2)
+OPERATOR_TOKEN=$(sudo sed -n 's/^FLEET_MANAGER_API_TOKEN=//p' /etc/fleet-manager/fleet-manager.env)
 curl -fsS -H "Authorization: Bearer ${OPERATOR_TOKEN}" http://127.0.0.1:8000/api/nodes
 # Note: Operations history is scoped per node:
 curl -fsS -H "Authorization: Bearer ${OPERATOR_TOKEN}" http://127.0.0.1:8000/api/nodes/1/operations
@@ -550,7 +532,7 @@ The repository includes a reproducible, modular deployment suite under `fleet-ma
 | `03-setup-controller.sh` | Installs base packages, `uv`, Python 3.12, Prometheus, Grafana | Installs hermetic Python 3.12 in `/opt/fleet-manager/python` |
 | `04-deploy-app.sh` | Deploys verified source bundle, syncs dependencies, enables systemd | Verifies SHA-256 before extraction; generates 32-byte crypto token |
 | `05-transfer-keys.sh` | Transfers `~/.ssh/fleet-bootstrap` and inits `known_hosts` | Restricts key to 0600 `fleet-manager:fleet-manager` |
-| `06-start-tunnel.sh` | Starts secure IAP SSH port forwarding tunnel | Forwards 8000 & 3000 to local workstation |
+| `06-start-tunnel.sh` | Starts secure IAP SSH port forwarding tunnel | Forwards 8000, 3000 & 9090 to local loopback; fails on bind conflicts |
 | `07-cleanup-vms.sh` | Stops all 4 VMs, confirms TERMINATED, reports disk costs | Preserves persistent disks and firewall rules intact |
 | `deploy-all.sh` | Master orchestrator running steps 1 through 6 sequentially | Defaults to `--dry-run`; requires `--execute` and confirm |
 
@@ -621,47 +603,234 @@ bash deploy/gce/deploy-all.sh --execute
 
 ## 14. Automated Acceptance Testing (`scripts/gce_acceptance_test.py`)
 
-A comprehensive verification suite covering 14 distinct system checks divided into non-destructive baseline and opt-in failure-injection tiers.
-
-### Running Acceptance Tests
+Run from the checked-out `fleet-manager/` directory in **Cloud Shell or a workstation**
+with Python 3.12 and `uv sync --locked` (the runner needs the dev dependencies httpx
+and TestClient). Do not install these into the production service virtualenv.
+The tunnel must run in the **same machine/network namespace** as the runner.
+Cloud Shell's localhost is not the workstation's localhost. Use the controller shell
+for private-IP diagnostics; the runner uses the controller API to execute SSH checks.
 
 ```bash
-# 1. Offline Verification (Mocks cloud and SSH without network or running VMs):
-python scripts/gce_acceptance_test.py --mock
+# Offline only: executes authentication and temporary SQLite backup/restore.
+uv run --no-sync python scripts/gce_acceptance_test.py --mock
+# Expected exit 2: 2 local passes, 12 skips; no GCE acceptance established.
 
-# 2. Live Cloud Baseline Acceptance (Non-destructive, safe to run anytime):
-OPERATOR_TOKEN=$(gcloud compute ssh fleet-controller --zone=asia-south1-a --tunnel-through-iap -- \
-  "sudo grep FLEET_MANAGER_API_TOKEN /etc/fleet-manager/fleet-manager.env | cut -d '=' -f2")
-python scripts/gce_acceptance_test.py --host 127.0.0.1 --port 8000 --token "${OPERATOR_TOKEN}"
+# FUTURE authorized live session: terminal 1, same host as acceptance runner:
+bash deploy/gce/06-start-tunnel.sh --execute
+# Keep this terminal open; forwards 8000, 3000, 9090 to controller loopback.
 
-# 3. Full Acceptance with Opt-In Fault-Injection (Includes failure recovery):
-# NOTE: --allow-fault-injection is passed directly as a Python CLI argument (single line):
-python scripts/gce_acceptance_test.py --host 127.0.0.1 --port 8000 --token "${OPERATOR_TOKEN}" --allow-fault-injection
+# Terminal 2: enter the configured operator token and Grafana credentials privately.
+read -rsp 'Fleet Manager token: ' FLEET_MANAGER_API_TOKEN; printf '\n'
+export FLEET_MANAGER_API_TOKEN
+read -rp 'Grafana user: ' GRAFANA_USER
+read -rsp 'Grafana password: ' GRAFANA_PASSWORD; printf '\n'
+export GRAFANA_USER GRAFANA_PASSWORD
+uv run --no-sync python scripts/gce_acceptance_test.py --host 127.0.0.1 --port 8000 --grafana-port 3000 --prometheus-port 9090
+unset FLEET_MANAGER_API_TOKEN GRAFANA_USER GRAFANA_PASSWORD
 ```
 
----
+Retrieve the token privately through the authorized controller console from
+`/etc/fleet-manager/fleet-manager.env`; do not paste it into logs or command arguments.
+The actual config key is `FLEET_MANAGER_API_TOKEN`; the runner uses `--host` and `--port`.
+`--token` remains a compatibility option but puts a secret in the process arguments.
+Do not use Python `-O`/`PYTHONOPTIMIZE`: the runner requires assertions and rejects it.
 
-## 15. Manual Acceptance Checklist
+Manually onboard all three expected endpoints before running the baseline. Registration
+and trust are never automatic. Baseline checks add connectivity observations and nine
+read-only command audit records (three actions on each node). Admission errors 409/429,
+FAILURE, UNCERTAIN, bad output and absent audit evidence fail; commands are not retried.
+The HTTP timeout is 75 seconds, above the application's allowed 60-second operation budget.
 
-| # | Test Area | Command / Action | Expected Output | Reversible Restoration |
-|---|---|---|---|---|
-| **M1** | VM Status | `gcloud compute instances list --filter="name ~ fleet-"` | All 4 VMs report status `RUNNING` | `07-cleanup-vms.sh` halts VMs |
-| **M2** | Node SSH Reachability | `nc -zv 10.160.0.5 22` (from controller) | `Connection to 10.160.0.5 22 port [tcp/ssh] succeeded!` | N/A (Read-only probe) |
-| **M3** | API Security Barrier | `curl -i http://127.0.0.1:8000/api/nodes` | `HTTP/1.1 401 Unauthorized` | N/A (Read-only probe) |
-| **M4** | Fresh Initial Inventory | `curl -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8000/api/nodes` | `HTTP/1.1 200 OK`, `{"nodes": []}` (empty initial state on clean deployment) | N/A (Read-only probe) |
-| **M5** | Node Registration | Register `fleet-node-a` (`10.160.0.5`), `fleet-node-b` (`10.160.0.3`), `fleet-node-c` (`10.160.0.4`) via UI or `POST /api/nodes` | HTTP 201 Created; IDs 1, 2, 3 assigned with state `NOT_CHECKED` | Inventory records persisted |
-| **M6** | Host-Key Scan & Fingerprint | Web UI -> Click "Scan & Verify Host Key" on Node A | Presented ED25519 SHA-256 fingerprint displayed with `UNTRUSTED` badge | Confirmation required to enroll |
-| **M7** | Host-Key Trust Enrollment | Click "Trust & Enroll Key" in modal | Badge updates to `TRUSTED`; key pinned in `/var/lib/fleet-manager/known_hosts` | Atomic write to disk |
-| **M8** | SSH Connectivity Check | `curl -X POST -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8000/api/nodes/1/connectivity-check` | Outcome `CONNECTED`, derived display status `REACHABLE` | N/A (Read-only probe) |
-| **M9** | Controlled Remote Operation: Uptime | Web UI -> Select `system.uptime` -> Run | Exit code 0, standard Linux `uptime` output | N/A (Read-only command) |
-| **M10** | Controlled Remote Operation: Memory | Web UI -> Select `system.memory` -> Run | Exit code 0, `/proc/meminfo` kernel memory counters | N/A (Read-only command) |
-| **M11** | Controlled Remote Operation: Disk | Web UI -> Select `system.disk` (`path: /`) -> Run | Exit code 0, POSIX `df -h /` disk utilization | N/A (Read-only command) |
-| **M12** | Prometheus Scrapes | `curl -s http://127.0.0.1:9090/api/v1/query?query=up` | `up{job="fleet-manager"} == 1` and `up{job="node_exporter"} == 1` for nodes | N/A (Read-only probe) |
-| **M13** | Grafana Dashboard | Open `http://127.0.0.1:3000` -> Fleet Management Dashboard | 9 operational panels rendering live Prometheus time-series | N/A (Read-only display) |
-| **M14** | Host-Key Mismatch Rejection | Temporarily rotate host key on Node C ([Runbook Sec 7.2](#72-safe-reversible-host-key-mismatch-failure-injection)) | Outcome `HOST_KEY_MISMATCH`, status `CHECK_ERROR` | Restore `.bak` key & restart ssh ([Runbook 7.2](#72-safe-reversible-host-key-mismatch-failure-injection)) |
-| **M15** | Unreachable Node Timeout | Register non-routable address (`192.0.2.1`) & probe | Outcome `TIMEOUT`, status `UNREACHABLE` within 12s | Safe failure handling |
-| **M16** | Disaster Recovery Backup | Run `backup_restore.py backup` | Creates verified `inventory_latest.db` and SHA-256 manifest | Online safe snapshot |
-| **M17** | Disaster Recovery Restore | Run `backup_restore.py restore` | Atomically swaps DB, cleans WAL/SHM, preserves `.pre_restore.bak` | Rollback to `.pre_restore.bak` if needed |
+Exit **1** means a failed check, **2** means incomplete/manual gates, **0** means all
+checks executed and passed. The current suite always has manual/unimplemented gates,
+so even a healthy live baseline returns 2. Never relabel 2 as full acceptance success.
+Tests 08-13 remain SKIPPED with NOT IMPLEMENTED details even if the compatibility fault
+flag is supplied. Test 14 uses a temporary empty local database, not the deployed DB.
+
+## 15. Exact Manual Acceptance Procedures for the Four Official Requirements
+
+**Not executed during this correction.** These procedures require a future authorized
+live session. Record UTC time, revision, endpoint/VM identity, expected and observed
+results, command exit status and restoration status. Redact secrets and scan confirmation
+tokens. A missing step is PENDING/SKIPPED, never PASS. All Bash commands below use the
+same Cloud Shell/workstation terminal with the active three-port tunnel, unless marked
+controller or node. `jq`, curl and gcloud are prerequisites on that operator host.
+
+### Shared setup and independent identity verification
+
+```bash
+set -o pipefail                    # preserve failures in curl/jq pipelines
+cd ~/fleet-manager                 # extracted/checked-out project on operator host
+export GCP_PROJECT=project-3682976b-7d4a-465a-933
+export GCP_ZONE=asia-south1-a
+API=http://127.0.0.1:8000
+read -rsp 'Fleet Manager token: ' FLEET_MANAGER_API_TOKEN; printf '\n'
+export FLEET_MANAGER_API_TOKEN
+fm() { curl --fail-with-body --silent --show-error --max-time 75 -H "Authorization: Bearer ${FLEET_MANAGER_API_TOKEN}" "$@"; }
+curl -s -o /dev/null -w '%{http_code}\n' "$API/api/nodes"  # expect 401
+fm "$API/api/nodes" | jq .                               # expect 200 and nodes array
+```
+
+### Requirement 1: Node onboarding and management
+
+For each `(name, address)` pair: `fleet-node-a 10.160.0.5`, `fleet-node-b 10.160.0.3`,
+`fleet-node-c 10.160.0.4`, run the following, setting NAME and ADDRESS to that pair.
+Reuse matching existing records; never assume IDs 1, 2, 3 and do not create duplicates.
+
+```bash
+NAME=fleet-node-a; ADDRESS=10.160.0.5
+fm "$API/api/nodes" | jq --arg address "$ADDRESS" '.nodes[] | select(.address == $address)'
+# Only if absent:
+fm -X POST -H 'Content-Type: application/json' "$API/api/nodes"   -d "$(jq -nc --arg name "$NAME" --arg address "$ADDRESS" '{name:$name,address:$address,ssh_port:22}')"
+NID=$(fm "$API/api/nodes" | jq -er --arg address "$ADDRESS" '.nodes[] | select(.address == $address and .ssh_port == 22) | .id')
+fm "$API/api/nodes/$NID/onboarding" | jq .
+```
+
+New inventory should be NOT_CHECKED/PENDING_SETUP before a successful probe. The
+onboarding API exposes the operator **public** key and bootstrap instruction. If login
+is not configured, use an independently authenticated node console to install that
+public key for `fleetbootstrap`; retain the private key only on the controller.
+
+Before scanning/enrolling, independently identify the VM/project through authenticated
+GCE console or an existing independently trusted IAP SSH session. Do not accept a new
+SSH prompt merely to obtain a fingerprint from the same unverified endpoint.
+
+```bash
+# Operator terminal -> independently authenticated node (repeat for A/B/C):
+gcloud compute ssh "$NAME" --project="$GCP_PROJECT" --zone="$GCP_ZONE" --tunnel-through-iap   --command='sudo ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub -E sha256'
+# If scan returns another key_type, inspect that corresponding public host key instead.
+SCAN=$(fm -X POST "$API/api/nodes/$NID/scan-host-key")
+printf '%s' "$SCAN" | jq '{node_id,address,ssh_port,key_type,fingerprint,trust_state}'
+```
+
+**STOP AND COMPARE** the SHA256 fingerprint, key type, VM identity, IP and port against
+the independently obtained value. Record who verified, when and via which trusted
+channel. On mismatch, do not enroll or proceed. Only after an exact match:
+
+```bash
+fm -X POST -H 'Content-Type: application/json' "$API/api/nodes/$NID/trust-host-key"   -d "$(printf '%s' "$SCAN" | jq '{fingerprint,confirmation}')"
+unset SCAN
+fm -X POST "$API/api/nodes/$NID/connectivity-check" | jq .   # outcome CONNECTED
+fm "$API/api/nodes/$NID/onboarding" | jq .                  # TRUSTED, READY, is_ready true
+fm "$API/api/nodes/status" | jq .                          # corresponding node REACHABLE
+```
+
+Repeat for all three nodes. Open `/dashboard`, authenticate, reload, and verify all
+three names/addresses/ports and current states persist. Requirement 1 needs this manual
+record; automated test 03 deliberately stays a manual gate even after enrollment.
+
+### Requirement 2: Collect, store and visualize metrics
+
+```bash
+curl -fsSG http://127.0.0.1:9090/api/v1/query --data-urlencode 'query=up' | jq .
+curl -fsS http://127.0.0.1:9090/api/v1/targets | jq '.data.activeTargets[] | {labels,health,lastError,lastScrape}'
+# Collect a stored time window after at least 2 minutes of successful scraping:
+END=$(date +%s); START=$((END-120))
+curl -fsSG http://127.0.0.1:9090/api/v1/query_range   --data-urlencode 'query=node_memory_MemTotal_bytes{job="node_exporter"}'   --data-urlencode "start=$START" --data-urlencode "end=$END" --data-urlencode 'step=5' | jq .
+read -rp 'Grafana user: ' GRAFANA_USER
+read -rsp 'Grafana password: ' GRAFANA_PASSWORD; printf '\n'
+export GRAFANA_USER GRAFANA_PASSWORD
+uv run --no-sync python scripts/gce_acceptance_test.py --host 127.0.0.1 --port 8000 --grafana-port 3000 --prometheus-port 9090
+```
+
+Require `up=1` for `fleet-manager/127.0.0.1:8000` and all three node_exporter instances
+`10.160.0.5:9100`, `10.160.0.3:9100`, `10.160.0.4:9100`; targets must be healthy with
+no lastError and recent lastScrape. The range query must show multiple timestamped,
+positive memory samples for each node. A single HTTP 200 or empty result fails.
+The runner verifies datasource UID `prometheus`, type, proxy access, server URL
+`http://127.0.0.1:9090`, real `up` queries through Grafana, and provisioned dashboard
+UID `fleet-manager-overview` with expected panel queries.
+
+Open `http://127.0.0.1:3000/d/fleet-manager-overview`, choose Last 5 minutes and refresh.
+Require real CPU/memory/disk/network data for A/B/C and control-plane panels without
+query errors. Save timestamped screenshots only during the authorized evidence session.
+API provisioning success alone does not prove rendered panels or historical storage.
+
+### Requirement 3: Availability, failure handling and recovery (separate live gate)
+
+Baseline: execute CONNECTED probes for all three nodes, then inspect `/api/nodes/status`
+and ensure observations are recent within `observation_ttl_seconds`. A failed SSH login
+is CHECK_ERROR, not evidence that the host itself is down.
+
+The following **future maintenance-window procedure is disruptive and needs separate
+explicit authorization**. Run only on disposable node C, with confirmed IAP console
+access, no unrelated workloads, and a second operator able to restore it. Record its
+original RUNNING state first. It is not part of this correction's executed scope.
+
+```bash
+# Operator host, with shared setup/token still loaded:
+gcloud compute instances describe fleet-node-c --project="$GCP_PROJECT" --zone="$GCP_ZONE" --format='value(status)'
+# Must be RUNNING before continuing. Resolve exact inventory ID, never assume 3:
+CID=$(fm "$API/api/nodes" | jq -er '.nodes[] | select(.address == "10.160.0.4" and .ssh_port == 22) | .id')
+# Install restoration trap BEFORE the authorized stop; keep an independent recovery session open.
+restore_c() { gcloud compute instances start fleet-node-c --project="$GCP_PROJECT" --zone="$GCP_ZONE"; }
+trap restore_c EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+gcloud compute instances stop fleet-node-c --project="$GCP_PROJECT" --zone="$GCP_ZONE"
+time fm -X POST "$API/api/nodes/$CID/connectivity-check" | jq .
+fm "$API/api/nodes/status" | jq .
+# Re-run CONNECTED probes for A and B using their resolved IDs as in requirement 1.
+# Inspect API/dashboard responsiveness and fresh peer observations during C's outage.
+restore_c
+# Leave the EXIT trap installed until restoration and recovery are verified.
+gcloud compute instances describe fleet-node-c --project="$GCP_PROJECT" --zone="$GCP_ZONE" --format='value(status)'
+# Poll status every 5s for at most 180s, WITHOUT manual probe, to observe scheduler recovery:
+for i in $(seq 1 36); do
+  STATUS=$(fm "$API/api/nodes/status") || break
+  printf '%s' "$STATUS" | jq --argjson id "$CID" '.nodes[] | select(.node.id == $id)'
+  printf '%s' "$STATUS" | jq -e --argjson id "$CID" '.nodes[] | select(.node.id == $id) | .display_status == "REACHABLE" and .observation.outcome == "CONNECTED"' >/dev/null && break
+  sleep 5
+done
+# Remove trap ONLY after VM is RUNNING, SSH independently works, and fresh CONNECTED is observed:
+# trap - EXIT INT TERM
+```
+
+Expected: the controller remains responsive; C's probe completes within configured
+`FLEET_MANAGER_SSH_TOTAL_TIMEOUT_SECONDS` plus transport overhead, A/B remain fresh and
+REACHABLE, and C recovers automatically after restoration. `CONNECTION_TIMEOUT` or
+`CONNECTION_REFUSED` maps to UNREACHABLE; generic `TIMEOUT` maps to CHECK_ERROR under
+the current contract. Record the actual category; do not assume TIMEOUT proves host death.
+Scheduler polling must produce a **new** observation timestamp after restoration.
+A trap is best effort, not protection against operator-host loss; the independent
+recovery operator must start C if the shell is lost. If any restoration check fails,
+retain the gate as FAILED and restore C through the independent console.
+
+08/09/10/13 (invalid credential, host-key mismatch, bounded specific timeout, controller
+crash reconciliation) have no validated live automation/restoration procedure here.
+Keep them NOT IMPLEMENTED until a separately reviewed isolated scenario exists.
+This outage procedure can supply manual 11/12 evidence, but does not validate all failure categories.
+
+### Requirement 4: Controlled remote execution and audit
+
+For **each node**, resolve NID as in requirement 1 and execute:
+
+```bash
+for PAYLOAD in '{"action":"system.uptime","arguments":{}}'                '{"action":"system.memory","arguments":{}}'                '{"action":"system.disk","arguments":{"path":"/"}}'; do
+  RESULT=$(fm -X POST -H 'Content-Type: application/json' "$API/api/nodes/$NID/operations" -d "$PAYLOAD") || break
+  printf '%s' "$RESULT" | jq .
+  OID=$(printf '%s' "$RESULT" | jq -er '.id') || break
+  fm "$API/api/nodes/$NID/operations/$OID" | jq .
+  fm "$API/api/nodes/$NID/operations?include_output=true" | jq --arg id "$OID" '.operations[] | select(.id == $id)'
+done
+# Catalog rejection, no remote command should execute (expect HTTP 422):
+fm -X POST -H 'Content-Type: application/json' "$API/api/nodes/$NID/operations"   -d '{"action":"shell.exec","arguments":{"command":"id"}}'
+```
+
+Require SUCCESS, exit_code 0, no failure_category or truncation, populated timestamps,
+correct node/action/arguments and audit operator metadata. Inspect actual stdout:
+`uptime` includes uptime and load averages; `system.memory` is **free -m** with numeric
+Mem/Swap rows; disk is **df -h -P -- /** with root mount and percentage usage. Compare
+against those same read-only commands run via independently authenticated node access;
+dynamic uptime/memory counters may change between observations. Audit GET and history
+must contain the exact operation ID and persisted output/outcome. FAILURE, UNCERTAIN,
+409, 429, empty/wrong output or missing history is not a pass. Do not retry uncertain jobs.
+
+At session end unset credentials, close the tunnel and record remaining gates:
+
+```bash
+unset FLEET_MANAGER_API_TOKEN GRAFANA_USER GRAFANA_PASSWORD RESULT STATUS
+```
 
 ---
 

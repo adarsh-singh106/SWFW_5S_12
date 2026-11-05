@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Step 06: Start local SSH port forwarding tunnel through IAP to controller loopback ports.
 # Forwards local 8000 -> controller 127.0.0.1:8000 (Fleet Manager Dashboard)
+# Forwards local 9090 -> controller 127.0.0.1:9090 (Prometheus API)
 # Forwards local 3000 -> controller 127.0.0.1:3000 (Grafana Operational Dashboard)
 
 set -euo pipefail
@@ -35,6 +36,7 @@ echo "Target Controller: ${CONTROLLER_VM} (127.0.0.1)"
 echo "Endpoints forwarded to local workstation:"
 echo "  Fleet Manager UI:     http://127.0.0.1:8000/dashboard"
 echo "  Fleet Metrics:        http://127.0.0.1:8000/metrics"
+echo "  Prometheus API:       http://127.0.0.1:9090"
 echo "  Grafana Dashboard:    http://127.0.0.1:3000"
 echo "Security: Services bind strictly to 127.0.0.1; zero public or VPC ingress exposure."
 echo "============================================================"
@@ -43,7 +45,7 @@ TUNNEL_CMD="gcloud compute ssh \"${CONTROLLER_VM}\" \\
   --project=\"${GCP_PROJECT}\" \\
   --zone=\"${GCP_ZONE}\" \\
   --tunnel-through-iap \\
-  -- -N -L 8000:127.0.0.1:8000 -L 3000:127.0.0.1:3000"
+  -- -N -o ExitOnForwardFailure=yes -L 127.0.0.1:8000:127.0.0.1:8000 -L 127.0.0.1:3000:127.0.0.1:3000 -L 127.0.0.1:9090:127.0.0.1:9090"
 
 if [ "${EXECUTE}" != "true" ]; then
   echo "[DRY-RUN] Live execution skipped. To open tunnel, pass --execute."

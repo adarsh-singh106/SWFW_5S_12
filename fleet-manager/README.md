@@ -4,7 +4,9 @@
 
 Planned workflow: onboarding → monitoring → investigation → controlled action → verification.
 
-The production application registers and lists node records and can explicitly verify one registered endpoint's SSH host key and login. It stores inventory and append-only observations in SQLite. A single-operator development token protects the API. Node registration stays `NOT_CHECKED`; SSH outcomes are separate observations. It does not offer a browser page, collect metrics, execute remote commands, or establish whole-host health. The four official requirements are not complete.
+The application implements token-protected node inventory, guided SSH fingerprint enrollment, a browser dashboard, periodic SSH observations with freshness/failure classification, Prometheus metrics and Grafana provisioning, and allowlisted remote operations with persisted audit history. SQLite stores inventory/observations/audit records; Prometheus stores metrics. Registration alone does not verify identity or host health. The shared operator token is not RBAC.
+
+All four official requirements are **code-complete** and verified in isolated unit/integration tests (including failure classification, crash reconciliation, and backup/restore). **However, local implementation is not cloud acceptance: all four official requirements await actual three-node GCE evidence.** Independent fingerprint verification, successful remote command outputs and audit history, four healthy scrape targets (up=1), historical time-series storage, and rendered Grafana panels must be demonstrated live. Failure/recovery scenarios 08-13 are NOT IMPLEMENTED in the automated acceptance runner and are reported SKIPPED; neither mock execution nor a healthy baseline closes those gates. See [exact manual procedures for all four requirements](docs/DEPLOYMENT-RUNBOOK.md#15-exact-manual-acceptance-procedures-for-the-four-official-requirements).
 
 - [Charter](docs/PROJECT-CHARTER.md): requirements, constraints, and unknowns.
 - [Documentation map](docs/README.md): learning guides, source material, and where decisions/evidence belong.
