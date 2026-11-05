@@ -1,0 +1,71 @@
+:root {
+  --bg-canvas: #090d16;
+  --bg-header: #0c1322;
+  --bg-surface: #111a2e;
+  --bg-card: #152238;
+  --bg-card-hover: #1c2d4a;
+  --bg-card-selected: #162f52;
+  --bg-subsurface: #0e1726;
+  --bg-terminal: #050811;
+  --border-subtle: #1e2d45;
+  --border-default: #283c5e;
+  --border-focus: #38bdf8;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #849ab8;
+  --text-disabled: #516482;
+  --accent-primary: #0ea5e9;
+  --accent-hover: #0284c7;
+  --accent-tint: rgba(14, 165, 233, 0.12);
+  --accent-cyan: #06b6d4;
+  --success-text: #34d399;
+  --success-bg: rgba(16, 185, 129, 0.14);
+  --success-border: rgba(16, 185, 129, 0.35);
+  --danger-text: #f87171;
+  --danger-bg: rgba(239, 68, 68, 0.14);
+  --danger-border: rgba(239, 68, 68, 0.35);
+  --warning-text: #fbbf24;
+  --warning-bg: rgba(245, 158, 11, 0.14);
+  --warning-border: rgba(245, 158, 11, 0.35);
+  --stale-text: #fb923c;
+  --stale-bg: rgba(249, 115, 22, 0.14);
+  --stale-border: rgba(249, 115, 22, 0.35);
+  --info-text: #38bdf8;
+  --info-bg: rgba(56, 189, 248, 0.12);
+  --info-border: rgba(56, 189, 248, 0.3);
+  --uncertain-text: #f472b6;
+  --uncertain-bg: rgba(217, 70, 239, 0.14);
+  --uncertain-border: rgba(217, 70, 239, 0.35);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.6);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Accessibility focus indicators */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}

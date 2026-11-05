@@ -1,0 +1,247 @@
+"""Isolated Chrome/CDP acceptance runner. No dependency install or remote SSH."""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import json
+import os
+import secrets
+import socket
+import subprocess
+import tempfile
+import threading
+import time
+import urllib.request
+from datetime import UTC, datetime
+from pathlib import Path
+from unittest.mock import patch
+
+import paramiko
+import uvicorn
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+from fleet_manager.config import SSHSettings
+from fleet_manager.connectivity.models import ConnectivityOutcome
+from fleet_manager.connectivity.trust import calculate_fingerprint, format_known_hosts_entry
+from fleet_manager.inventory.models import NewNode
+from fleet_manager.main import create_app
+from fleet_manager.operations.models import (
+    OperationExecutionResult,
+    OperationOutcome,
+    OperationRecord,
+)
+
+ROOT = Path(__file__).resolve().parents[1]
+CHROME = Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
+
+
+class FakeSSH:
+    def verify(self, node, settings):
+        return ConnectivityOutcome.CONNECTED
+
+
+class FakeOperations:
+    def execute(self, node, command, settings, timeout_seconds=10, max_output_bytes=65536):
+        return OperationExecutionResult(
+            OperationOutcome.SUCCESS, None, 0, "isolated uptime\n", "", False
+        )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--inject-failure", action="store_true")
+    args = parser.parse_args()
+    run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S") + "-" + secrets.token_hex(4)
+    output = ROOT / ".local" / "browser-qa" / run_id
+    output.mkdir(parents=True, exist_ok=False)
+    evidence = {"run_id": run_id, "output": str(output), "cleanup": False}
+    server = None
+    thread = None
+    chrome = None
+    driver = None
+    sock = None
+    exit_code = 1
+    scratch = tempfile.TemporaryDirectory(prefix="fm_browser_qa_")
+    work = Path(scratch.name)
+    evidence["temporary_directory"] = str(work)
+    try:
+        token = secrets.token_urlsafe(32)
+        key = paramiko.RSAKey.generate(2048)
+        private = work / "operator.key"
+        key.write_private_key_file(str(private))
+        hosts = work / "known_hosts"
+        hosts.write_text(
+            format_known_hosts_entry("127.0.0.1", 2201, key.get_name(), key.get_base64())
+        )
+        settings = SSHSettings("operator", hosts, private)
+        app = create_app(
+            database_path=work / "inventory.db",
+            api_token=token,
+            ssh_settings=settings,
+            ssh_transport=FakeSSH(),
+            operation_transport=FakeOperations(),
+            enable_scheduler=False,
+        )
+        controls = {"outage": False, "delay": 0.0}
+
+        @app.middleware("http")
+        async def qa_controls(request: Request, call_next):
+            if request.url.path == "/__qa/owner":
+                return JSONResponse({"owner": run_id})
+            if request.url.path == "/__qa/control":
+                if request.headers.get("authorization") != "Bearer " + token:
+                    return JSONResponse({}, status_code=401)
+                controls.update(await request.json())
+                return JSONResponse({"ok": True})
+            if request.url.path.startswith("/api/") and controls["outage"]:
+                return JSONResponse({"error": {"message": "QA controlled outage"}}, status_code=503)
+            if request.url.path == "/api/nodes/2/onboarding" and controls["delay"]:
+                await asyncio.sleep(float(controls["delay"]))
+            return await call_next(request)
+
+        sock = socket.socket()
+        sock.bind(("127.0.0.1", 0))
+        port = sock.getsockname()[1]
+        base = f"http://127.0.0.1:{port}"
+        server = uvicorn.Server(uvicorn.Config(app, log_level="error", access_log=False))
+        thread = threading.Thread(target=server.run, kwargs={"sockets": [sock]}, daemon=True)
+        # Fake BOTH scan call sites for the test; enrollment executes real locking/writes.
+        scan = (key.get_name(), key.get_base64(), calculate_fingerprint(key))
+        with (
+            patch(
+                "fleet_manager.connectivity.router.get_presented_host_key",
+                return_value=scan,
+            ),
+            patch(
+                "fleet_manager.connectivity.trust.get_presented_host_key",
+                return_value=scan,
+            ),
+        ):
+            thread.start()
+            deadline = time.monotonic() + 15
+            while not server.started:
+                if not thread.is_alive() or time.monotonic() > deadline:
+                    raise RuntimeError("Owned test server failed startup")
+                time.sleep(0.05)
+            with urllib.request.urlopen(base + "/__qa/owner", timeout=3) as response:
+                assert json.load(response)["owner"] == run_id
+            inv = app.state.inventory_repository
+            service = app.state.connectivity_service
+            ready = inv.add_node(NewNode("alpha-ready", "127.0.0.1", 2201))
+            inv.add_node(NewNode("beta-pending", "127.0.0.1", 2202))
+            inv.add_node(NewNode("gamma-pending", "127.0.0.1", 2203))
+            service.check(ready.id)
+            for index in range(25):
+                now = datetime.now(UTC)
+                app.state.operations_repository.create(
+                    OperationRecord(
+                        id=f"qa-{index:03}",
+                        node_id=ready.id,
+                        action="system.uptime",
+                        arguments={},
+                        requested_at=now,
+                        started_at=now,
+                        completed_at=now,
+                        outcome=OperationOutcome.SUCCESS,
+                        failure_category=None,
+                        exit_code=0,
+                        stdout="isolated output",
+                        stderr="",
+                        output_truncated=False,
+                        audit_metadata={},
+                    )
+                )
+            profile = work / "chrome-profile"
+            chrome = subprocess.Popen(
+                [
+                    str(CHROME),
+                    "--headless=new",
+                    "--disable-gpu",
+                    "--no-first-run",
+                    "--no-default-browser-check",
+                    "--disable-background-networking",
+                    "--disable-component-update",
+                    "--disable-sync",
+                    "--metrics-recording-only",
+                    "--proxy-server=http://127.0.0.1:9",
+                    "--proxy-bypass-list=127.0.0.1;localhost",
+                    "--remote-debugging-port=0",
+                    f"--user-data-dir={profile}",
+                    "about:blank",
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
+            )
+            evidence["chrome_pid"] = chrome.pid
+            active = profile / "DevToolsActivePort"
+            deadline = time.monotonic() + 15
+            while not active.exists():
+                if chrome.poll() is not None or time.monotonic() > deadline:
+                    raise RuntimeError("Owned Chrome failed startup")
+                time.sleep(0.05)
+            debug_port = int(active.read_text().splitlines()[0])
+            driver = subprocess.Popen(
+                ["node", str(ROOT / "scripts/browser_qa.cjs")],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            payload = json.dumps(
+                {
+                    "base": base,
+                    "token": token,
+                    "debugPort": debug_port,
+                    "output": str(output),
+                    "injectFailure": args.inject_failure,
+                }
+            )
+            stdout, stderr = driver.communicate(payload, timeout=150)
+            (output / "driver-stdout.txt").write_text(stdout, encoding="utf-8")
+            (output / "driver-stderr.txt").write_text(stderr, encoding="utf-8")
+            exit_code = driver.returncode
+            evidence["driver_exit"] = exit_code
+    except Exception as exc:
+        evidence["error"] = type(exc).__name__ + ": " + str(exc)
+    finally:
+        if driver is not None and driver.poll() is None:
+            driver.kill()
+            driver.wait(timeout=5)
+        if chrome is not None:
+            try:
+                chrome.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                if os.name == "nt":
+                    subprocess.run(
+                        ["taskkill", "/PID", str(chrome.pid), "/T", "/F"],
+                        capture_output=True,
+                        timeout=10,
+                    )
+                else:
+                    chrome.terminate()
+                chrome.wait(timeout=10)
+        if server is not None:
+            server.should_exit = True
+        if thread is not None:
+            thread.join(timeout=10)
+        if sock is not None:
+            sock.close()
+        try:
+            scratch.cleanup()
+            evidence["cleanup"] = (
+                not work.exists()
+                and (thread is None or not thread.is_alive())
+                and (chrome is None or chrome.poll() is not None)
+            )
+        except OSError as exc:
+            evidence["cleanup_error"] = str(exc)
+        (output / "runner.json").write_text(json.dumps(evidence, indent=2), encoding="utf-8")
+        print(json.dumps(evidence, indent=2))
+    return exit_code if evidence["cleanup"] else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

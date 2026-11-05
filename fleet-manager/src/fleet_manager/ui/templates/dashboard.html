@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fleet Operations Dashboard | Linux Fleet Manager</title>
+  <link rel="stylesheet" href="/static/css/tokens.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/responsive.css">
+</head>
+<body>
+
+  <!-- Global Alert Banner -->
+  <div id="global-alert" role="alert" class="presentation-1 alert alert-info"></div>
+
+  <!-- Operator Authentication Modal (Ephemeral in-memory token) -->
+  <div id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" class="presentation-1 modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-icon-badge" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <div>
+          <h2 id="auth-modal-title" class="presentation-2">Operator Authentication</h2>
+          <p class="presentation-3">Fleet Operations Console Access</p>
+        </div>
+      </div>
+      <p class="presentation-4">
+        Authenticate with an authorized bearer token to access loopback control plane endpoints.
+      </p>
+      <div class="presentation-5 alert alert-warning">
+        <div>
+          <strong>Ephemeral Storage:</strong> Token is retained in JavaScript memory only. It is never stored in localStorage, sessionStorage, or cookies.
+        </div>
+      </div>
+      <div id="auth-error" role="alert" class="presentation-1 alert alert-danger"></div>
+      <form id="auth-form">
+        <div class="form-group">
+          <label class="form-label" for="token-input">Operator Bearer Token</label>
+          <div class="presentation-6">
+            <input type="password" id="token-input" class="presentation-7 form-control" placeholder="32-128 character URL-safe token" required autofocus autocomplete="off">
+            <button type="button" id="toggle-token-btn" title="Toggle token visibility" class="presentation-8">
+              👁
+            </button>
+          </div>
+        </div>
+        <div class="presentation-9">
+          <button type="submit" class="presentation-10 btn btn-primary" id="auth-submit-btn">Authenticate Session</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Guided SSH Node Onboarding Modal -->
+  <div id="onboarding-modal" role="dialog" aria-modal="true" aria-labelledby="onboarding-modal-title" class="presentation-1 modal-overlay">
+    <div class="modal-card modal-card-wide">
+      <div class="modal-header">
+        <div class="modal-icon-badge" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div class="presentation-11">
+          <h2 id="onboarding-modal-title" class="presentation-2">Guided SSH Node Onboarding</h2>
+          <p id="onboarding-node-title" class="presentation-12"></p>
+        </div>
+        <button type="button" id="close-onboarding-btn" class="btn btn-secondary btn-sm" title="Close onboarding guide">✕</button>
+      </div>
+
+      <div class="onboarding-steps">
+        <!-- Step 1: Inventory Registered -->
+        <div class="onboarding-step completed">
+          <div class="step-header">
+            <span class="step-title"><span class="step-num completed">✓</span> 1. Node Inventory Registered</span>
+            <span class="status-badge badge-reachable">Done</span>
+          </div>
+          <p class="presentation-13">
+            Endpoint address and SSH port recorded in inventory.
+          </p>
+        </div>
+
+        <!-- Step 2: Server Identity Verification -->
+        <div class="onboarding-step active" id="step-identity">
+          <div class="step-header">
+            <span class="step-title"><span class="step-num">2</span> 2. Server Identity (Host-Key Trust)</span>
+            <button type="button" id="scan-host-key-btn" class="btn btn-secondary btn-sm">Inspect Server Host Key</button>
+          </div>
+          <p class="presentation-14">
+            The remote server must present its host public key. Fleet Manager rejects unknown host keys until you explicitly verify its SHA-256 fingerprint against the target server console.
+          </p>
+          <div id="step-fp-box" class="presentation-1">
+            <pre id="scanned-fingerprint-content" class="code-snippet"></pre>
+            <div class="presentation-15">
+              <button type="button" id="step-trust-btn" class="presentation-1 btn btn-primary btn-sm">Confirm & Enroll Host Key</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Client Authentication Configuration -->
+        <div class="onboarding-step" id="step-auth">
+          <div class="step-header">
+            <span class="step-title"><span class="step-num">3</span> 3. Client Authentication (~/.ssh/authorized_keys)</span>
+          </div>
+          <p class="presentation-16">
+            Fleet Manager authenticates using its configured private key. The operator public key must be provisioned in the remote user's authorized_keys.
+          </p>
+          <div id="step-auth-box" class="presentation-1">
+            <div class="presentation-17">Copyable bootstrap command for target server:</div>
+            <pre id="bootstrap-cmd-snippet" class="code-snippet">echo "ssh-ed25519 AAAAC3... fleet-manager-operator" &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys</pre>
+            <div class="presentation-18">
+              Note: Private keys are never exposed in browser or database.
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Validate SSH Connectivity -->
+        <div class="onboarding-step" id="step-validate">
+          <div class="step-header">
+            <span class="step-title"><span class="step-num">4</span> 4. Validate SSH Verification</span>
+            <button type="button" id="onboarding-check-ssh-btn" class="btn btn-primary btn-sm">Validate SSH Connectivity</button>
+          </div>
+          <p class="presentation-13">
+            Executes bounded connection, host-key verification, and cryptographic login.
+          </p>
+        </div>
+
+        <!-- Step 5: Operational Readiness -->
+        <div class="presentation-1 onboarding-step" id="step-complete-box">
+          <div class="step-header">
+            <span class="presentation-19 step-title"><span class="step-num completed">✓</span> 5. Node Operationally Ready</span>
+            <span class="status-badge badge-ready">READY</span>
+          </div>
+          <p class="presentation-16">
+            Current endpoint, host identity and client credentials have passed SSH authentication. Check connectivity freshness separately before acting.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Application Shell Header -->
+  <header>
+    <div class="brand-section">
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+          <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+          <line x1="6" y1="6" x2="6.01" y2="6"></line>
+          <line x1="6" y1="18" x2="6.01" y2="18"></line>
+        </svg>
+      </div>
+      <div>
+        <div class="presentation-20">
+          <h1 class="brand-title">Fleet Operations Dashboard</h1>
+          <span class="env-pill">
+            <span class="status-dot"></span>
+            Loopback API
+          </span>
+        </div>
+        <div class="brand-subtitle">Linux Fleet Operations Console</div>
+      </div>
+    </div>
+
+    <!-- Live Telemetry Status & External Integrations -->
+    <div class="nav-actions">
+      <a href="http://127.0.0.1:3000/d/fleet-manager-overview/fleet-manager-overview" target="_blank" rel="noopener noreferrer" class="nav-link" title="Open Provisioned Grafana Dashboard for Linux Host Telemetry">
+        <span aria-hidden="true">📊</span>
+        <span>Grafana Dashboard</span>
+        <span class="tag">Metrics</span>
+      </a>
+      <a href="/metrics" target="_blank" rel="noopener noreferrer" class="nav-link" title="View Prometheus Metrics Text Format Endpoint">
+        <span aria-hidden="true">📈</span>
+        <span>/metrics</span>
+        <span class="tag">Feed</span>
+      </a>
+      <button id="toggle-register-btn" class="btn btn-secondary" title="Toggle Node Registration Panel">
+        <span>+ Add Node</span>
+      </button>
+      <button id="refresh-btn" class="btn btn-secondary" title="Trigger Full Fleet Status Refresh">
+        <span>🔄 Refresh</span>
+      </button>
+      <button id="logout-btn" class="presentation-1 btn btn-danger" title="Wipe In-Memory Bearer Token and Lock Console">
+        <span>🔒 Lock Session</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <main>
+
+    <!-- Overview Strip: Fleet Health & Availability -->
+    <section class="overview-strip" aria-labelledby="overview-title-heading">
+      <div class="overview-header">
+        <div class="overview-title" id="overview-title-heading">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          Fleet Infrastructure Health
+        </div>
+        <div class="overview-policy-note" title="Periodic observation expiry policy">
+          TTL: 180s Policy
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Nodes</div>
+          <div class="stat-value text-info" id="stat-total">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Reachable</div>
+          <div class="stat-value text-success" id="stat-reachable">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Unreachable</div>
+          <div class="stat-value text-danger" id="stat-unreachable">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Check Errors</div>
+          <div class="stat-value text-warning" id="stat-errors">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Stale Obvs</div>
+          <div class="stat-value text-stale" id="stat-stale">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Not Checked</div>
+          <div class="stat-value text-muted" id="stat-not-checked">0</div>
+        </div>
+      </div>
+
+      <!-- Honest Availability Bar & Ratio Indicator -->
+      <div class="availability-bar-container">
+        <div class="availability-meter-wrapper">
+          <div class="availability-track">
+            <div id="avail-bar-reachable" class="presentation-21 availability-fill-reachable"></div>
+            <div id="avail-bar-stale" class="presentation-21 availability-fill-stale"></div>
+            <div id="avail-bar-unreachable" class="presentation-21 availability-fill-unreachable"></div>
+          </div>
+          <span id="availability-percent" class="presentation-22">—</span>
+        </div>
+        <div id="availability-summary-text" class="presentation-23">
+          Observed Nodes Availability: <strong class="presentation-24">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- Collapsible Node Onboarding Drawer -->
+    <section id="register-drawer" aria-labelledby="register-drawer-title" class="presentation-1">
+      <div class="card-header">
+        <div class="card-title" id="register-drawer-title">
+          <span>+</span>
+          <span>Register New Linux Node</span>
+        </div>
+      </div>
+      <div class="register-drawer-content">
+        <div id="register-feedback" role="alert" class="presentation-1 alert alert-info"></div>
+        <form id="register-form">
+          <div class="form-row-3">
+            <div class="presentation-25 form-group">
+              <label class="form-label" for="node-name">Display Name</label>
+              <input type="text" id="node-name" class="form-control" placeholder="e.g. web-app-prod-01" required maxlength="100">
+            </div>
+            <div class="presentation-25 form-group">
+              <label class="form-label" for="node-address">Hostname or IP Address</label>
+              <input type="text" id="node-address" class="form-control" placeholder="192.168.1.100 or node.corp" required>
+            </div>
+            <div class="presentation-25 form-group">
+              <label class="form-label" for="node-port">SSH Port</label>
+              <input type="number" id="node-port" class="form-control" value="22" min="1" max="65535" required>
+            </div>
+            <button type="submit" class="btn btn-primary" id="register-btn">+ Register</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Main Two-Column Fleet Workspace Grid -->
+    <div class="dashboard-grid">
+
+      <!-- Left Column: Inventory Table, Search, Filters -->
+      <div class="column-left">
+        <div class="card" role="region" aria-labelledby="inventory-card-title">
+          <div class="card-header">
+            <div class="card-title" id="inventory-card-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+              </svg>
+              <span>Managed Nodes Inventory</span>
+            </div>
+            <div id="last-updated" class="presentation-26">
+              Awaiting data...
+            </div>
+          </div>
+
+          <!-- Inventory Filter Toolbar -->
+          <div class="inventory-toolbar">
+            <div class="search-box">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="search-input" class="search-input" placeholder="Search by name, address, or port...">
+            </div>
+            <div class="filter-pills">
+              <button type="button" class="filter-btn active" data-filter="ALL">All (<span id="filter-count-all">0</span>)</button>
+              <button type="button" class="filter-btn" data-filter="REACHABLE">Reachable</button>
+              <button type="button" class="filter-btn" data-filter="UNREACHABLE">Unreachable</button>
+              <button type="button" class="filter-btn" data-filter="CHECK_ERROR">Errors</button>
+              <button type="button" class="filter-btn" data-filter="STALE">Stale</button>
+            </div>
+          </div>
+
+          <!-- Inventory Table -->
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Node</th>
+                  <th>Endpoint</th>
+                  <th>Freshness</th>
+                  <th>Last Observed</th>
+                  <th>Diagnostic</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="nodes-table-body">
+                <tr>
+                  <td colspan="7" class="empty-state">
+                    <div class="empty-state-icon">📡</div>
+                    <div>Loading inventory and observing fleet status...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Controlled Operations Console & History -->
+      <div class="column-right">
+        <div class="card" role="region" aria-labelledby="ops-card-title">
+          <div class="card-header">
+            <div class="card-title" id="ops-card-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="12" y1="19" x2="20" y2="19"></line>
+              </svg>
+              <span>Remote Operations Console</span>
+            </div>
+            <span id="selected-node-badge" class="presentation-1 status-badge badge-not_checked"></span>
+          </div>
+
+          <div class="card-body">
+            <!-- Empty state when no node is selected -->
+            <div id="ops-empty-state" class="empty-state">
+              <div class="empty-state-icon">⚡</div>
+              <div class="presentation-27">No Target Selected</div>
+              <div>Select a node from the inventory table to execute controlled operations and inspect audit logs.</div>
+            </div>
+
+            <!-- Active Operations Console -->
+            <div id="ops-active-panel" class="presentation-1">
+              <div class="ops-target-banner">
+                <div class="ops-target-info">
+                  <div id="ops-node-title" class="presentation-28">Operations</div>
+                  <div id="ops-node-subtitle" class="presentation-29"></div>
+                </div>
+              </div>
+
+              <!-- Unreachable Warning Alert -->
+              <div id="ops-target-alert" class="presentation-30 alert alert-warning">
+                <div>
+                  <strong>Target Status Warning:</strong> This endpoint is currently not in REACHABLE status. Remote execution may time out or fail if the host is down or credentials are unauthorized.
+                </div>
+              </div>
+
+              <!-- Operation Form -->
+              <form id="execute-op-form">
+                <div class="form-group">
+                  <label class="form-label" for="action-select">Allowlisted Action</label>
+                  <select id="action-select" class="form-control">
+                    <option value="system.uptime">system.uptime (Read-only: /proc/uptime &amp; load average)</option>
+                    <option value="system.memory">system.memory (Read-only: free -m memory breakdown)</option>
+                    <option value="system.disk">system.disk (Read-only: df -h storage usage)</option>
+                    <option value="service.status">service.status (Read-only: systemctl status service)</option>
+                  </select>
+                </div>
+
+                <!-- Dynamic Arguments -->
+                <div id="arg-disk-container" class="presentation-1 form-group">
+                  <label class="form-label" for="arg-disk-path">Filesystem Path (Absolute POSIX path)</label>
+                  <input type="text" id="arg-disk-path" class="form-control" value="/" placeholder="/" required>
+                </div>
+
+                <div id="arg-service-container" class="presentation-1 form-group">
+                  <label class="form-label" for="arg-service-name">Service Name (Systemd unit name)</label>
+                  <input type="text" id="arg-service-name" class="form-control" value="ssh" placeholder="ssh or prometheus-node-exporter" required>
+                </div>
+
+                <div id="arg-note-fixed" class="presentation-31">
+                  ℹ️ This action takes no additional arguments and executes safe kernel query commands.
+                </div>
+
+                <button type="submit" class="presentation-10 btn btn-primary" id="exec-btn">
+                  <span>▶ Execute Remote Operation</span>
+                </button>
+              </form>
+
+              <!-- Terminal Execution Result Inspector -->
+              <div id="op-result-box" class="presentation-1">
+                <div class="terminal-container">
+                  <div class="terminal-header">
+                    <div class="presentation-32">
+                      <div class="terminal-dots">
+                        <div class="terminal-dot"></div>
+                        <div class="terminal-dot"></div>
+                        <div class="terminal-dot"></div>
+                      </div>
+                      <span class="presentation-33">Execution Terminal</span>
+                    </div>
+                    <div class="presentation-32">
+                      <span id="result-exit-code" class="presentation-34">Exit Code: 0</span>
+                      <span id="result-outcome-badge" class="status-badge badge-success">SUCCESS</span>
+                      <span id="result-truncated-tag" class="presentation-35 tag">TRUNCATED (64 KiB)</span>
+                      <button type="button" id="copy-output-btn" class="presentation-36 btn btn-secondary btn-sm">Copy</button>
+                    </div>
+                  </div>
+
+                  <!-- Uncertain Outcome Warning -->
+                  <div id="result-uncertain-warning" class="presentation-37 alert alert-uncertain">
+                    <div>
+                      <strong>Uncertain Execution Outcome:</strong> Transport terminated or control plane restarted during execution. Remote process state may have completed or aborted. Do not automatically re-execute non-idempotent operations.
+                    </div>
+                  </div>
+
+                  <!-- Standard Output Stream -->
+                  <pre id="result-stdout" class="terminal-box"></pre>
+
+                  <!-- Standard Error Stream (Rendered only when non-empty) -->
+                  <div id="result-stderr-section" class="presentation-1">
+                    <div class="presentation-38">
+                      STANDARD ERROR (STDERR)
+                    </div>
+                    <pre id="result-stderr" class="terminal-box terminal-err"></pre>
+                  </div>
+
+                  <!-- Terminal Footer Metadata -->
+                  <div class="terminal-meta-footer">
+                    <span id="result-metadata">Job ID: —</span>
+                    <span>Bounded Paramiko SSHv2 Engine</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Operation History Audit Log -->
+              <div class="history-card">
+                <div class="presentation-39">
+                  <span class="presentation-40">Audit History</span>
+                  <button type="button" id="refresh-history-btn" class="presentation-36 btn btn-secondary btn-sm">Refresh</button>
+                </div>
+                <div id="history-list">
+                  <div class="presentation-41 empty-state">Select a node to view historical operations.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Observability Shell Footer -->
+  <footer>
+    <div class="footer-content">
+      <div>
+        <span>Fleet Manager Control Plane</span>
+        <span class="presentation-42">•</span>
+        <span>Bounded SSHv2 Allowlist Engine</span>
+      </div>
+      <div class="footer-links">
+        <span class="presentation-43">Integrations:</span>
+        <a href="http://127.0.0.1:3000/d/fleet-manager-overview/fleet-manager-overview" target="_blank" rel="noopener noreferrer" class="presentation-44">Grafana Dashboard</a>
+        <a href="/metrics" target="_blank" rel="noopener noreferrer" class="presentation-44">/metrics</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modular Application ES Script -->
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>

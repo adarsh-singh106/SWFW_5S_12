@@ -91,15 +91,18 @@ def test_dashboard_serves_html_and_security_headers(tmp_path: Path, api_token: s
 
 
 def test_dashboard_does_not_use_local_or_session_storage() -> None:
-    from fleet_manager.ui.router import _load_dashboard_html
+    from fleet_manager.ui.router import STATIC_DIR, _load_dashboard_html
 
     html = _load_dashboard_html()
-    assert "<script>" in html and "</script>" in html
-    script_content = html.split("<script>")[1].split("</script>")[0]
-    # Ensure forbidden persistence mechanisms are never used in frontend script
-    assert "localStorage" not in script_content, "Frontend must not use localStorage for tokens"
-    assert "sessionStorage" not in script_content, "Frontend must not use sessionStorage for tokens"
-    assert "document.cookie" not in script_content, "Frontend must not write tokens to cookies"
+    assert 'src="/static/js/app.js"' in html
+    # Ensure forbidden persistence mechanisms are never used in frontend script assets
+    for js_file in (STATIC_DIR / "js").glob("*.js"):
+        content = js_file.read_text(encoding="utf-8")
+        assert "localStorage" not in content, f"{js_file.name} must not use localStorage for tokens"
+        assert "sessionStorage" not in content, (
+            f"{js_file.name} must not use sessionStorage for tokens"
+        )
+        assert "document.cookie" not in content, f"{js_file.name} must not write tokens to cookies"
 
 
 def test_dashboard_full_api_flow(
@@ -228,3 +231,74 @@ def test_xss_payload_in_node_name_is_handled_safely(
         assert status.status_code == 200
         # In the HTML dashboard, the client uses node.name via element.textContent = node.name,
         # which treats it as pure text, preventing HTML execution.
+
+
+def test_dashboard_contains_redesigned_console_elements() -> None:
+    from fleet_manager.ui.router import _load_dashboard_html
+
+    html = _load_dashboard_html()
+    assert "Linux Fleet Operations Console" in html
+    assert "Fleet Infrastructure Health" in html
+    assert "TTL: 180s Policy" in html
+    assert "availability-track" in html
+    assert "search-input" in html
+    assert "filter-pills" in html
+    assert "toggle-token-btn" in html
+    assert "result-uncertain-warning" in html
+    assert "copy-output-btn" in html
+    assert 'role="dialog"' in html
+    assert 'aria-modal="true"' in html
+    assert 'role="region"' in html
+
+
+def test_dashboard_no_remote_assets_or_forbidden_storage() -> None:
+    from fleet_manager.ui.router import STATIC_DIR, _load_dashboard_html
+
+    html = _load_dashboard_html()
+    # Ensure zero external network asset dependencies
+    assert "fonts.googleapis.com" not in html
+    assert "cdnjs.cloudflare.com" not in html
+    assert "cdn.jsdelivr.net" not in html
+    assert "unpkg.com" not in html
+
+    for js_file in (STATIC_DIR / "js").glob("*.js"):
+        content = js_file.read_text(encoding="utf-8")
+        assert "localStorage" not in content
+        assert "sessionStorage" not in content
+        assert "document.cookie" not in content
+
+
+def test_all_static_assets_return_http_200(tmp_path: Path, api_token: str) -> None:
+    app = create_app(database_path=tmp_path / "inventory.db", api_token=api_token)
+    with TestClient(app) as client:
+        # Dashboard routes
+        for path in ["/", "/dashboard"]:
+            resp = client.get(path)
+            assert resp.status_code == 200
+            assert "text/html" in resp.headers["content-type"]
+
+        # CSS assets
+        css_assets = ["tokens.css", "layout.css", "components.css", "responsive.css"]
+        for css in css_assets:
+            resp = client.get(f"/static/css/{css}")
+            assert resp.status_code == 200, f"Failed to get /static/css/{css}"
+            assert "text/css" in resp.headers["content-type"]
+
+        # JS assets
+        js_assets = [
+            "app.js",
+            "api.js",
+            "state.js",
+            "fleet.js",
+            "node-onboarding.js",
+            "operations.js",
+            "history.js",
+            "auth.js",
+        ]
+        for js in js_assets:
+            resp = client.get(f"/static/js/{js}")
+            assert resp.status_code == 200, f"Failed to get /static/js/{js}"
+            assert (
+                "javascript" in resp.headers["content-type"]
+                or "text/plain" in resp.headers["content-type"]
+            )
