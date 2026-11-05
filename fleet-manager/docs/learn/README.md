@@ -51,8 +51,7 @@ A first-principles, zero-burnout guide to building an industry-grade Linux Fleet
 ---
 
 ### Phase 6: System Integration & Submission Packaging
-* 📄 **[Document 13: End-to-End System Architecture, Mandatory Flow Diagram & Submission Guide](submission-guide/13-system-architecture-and-submission-guide.md)**\
-  *The 360° architecture, mandatory SWFW_5S_12 Flow Diagram, first-principles viva defense cheat-sheet, and final submission archive instructions.*
+* **Document 13: End-to-End System Architecture, Mandatory Flow Diagram & Submission Guide** is currently absent from the working tree. Its historical preparation claim does not establish a current report, diagram, or submission package.
 
 
 ---
