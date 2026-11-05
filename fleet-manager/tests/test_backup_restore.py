@@ -94,13 +94,14 @@ def test_backup_success_and_manifest_creation(tmp_path: Path, seeded_db: SeededD
     # Manifest assertions
     manifest_path = backup_file.with_suffix(".db.manifest.json")
     assert manifest_path.exists()
-    assert manifest["schema_user_version"] == 3
+    assert manifest["schema_user_version"] == 5
     assert manifest["sha256"] == calculate_sha256(backup_file)
     assert manifest["backup_size_bytes"] == backup_file.stat().st_size
     assert manifest["table_counts"] == {
         "connectivity_observations": 2,
         "nodes": 2,
         "operation_executions": 1,
+        "connectivity_validation": 0,
     }
 
 
@@ -190,7 +191,7 @@ def test_all_three_schemas_survive_backup_and_restore(
     # Schema version
     is_ok, msg, version = check_integrity(restored_db)
     assert is_ok is True
-    assert version == 3
+    assert version == 5
 
 
 def test_sha256_and_manifest_validation(tmp_path: Path, seeded_db: SeededDB) -> None:
@@ -217,7 +218,7 @@ def test_schema_version_validation(tmp_path: Path, seeded_db: SeededDB) -> None:
     source_db, _, _, _ = seeded_db
     is_ok, msg, version = check_integrity(source_db)
     assert is_ok is True
-    assert version == 3
+    assert version == 5
     assert msg == "ok"
 
 
@@ -231,7 +232,7 @@ def test_restore_into_fresh_destination(tmp_path: Path, seeded_db: SeededDB) -> 
     res_info = perform_restore(backup_file, fresh_target)
 
     assert fresh_target.exists()
-    assert res_info["schema_user_version"] == 3
+    assert res_info["schema_user_version"] == 5
     assert res_info["table_counts"]["nodes"] == 2
 
 
@@ -514,7 +515,7 @@ def test_manifest_required_by_default(tmp_path: Path, seeded_db: SeededDB) -> No
     # Restore with allow_missing_manifest=True must succeed
     res = perform_restore(backup_file, target_db, allow_missing_manifest=True)
     assert target_db.exists()
-    assert res["schema_user_version"] == 3
+    assert res["schema_user_version"] == 5
 
 
 def test_wal_checkpoint_busy_aborts_restore_before_sidecar_removal(
@@ -721,7 +722,7 @@ def test_normal_restore_succeeds_when_no_previous_snapshot_exists(
     assert not safety_snapshot.exists()
 
     res_info = perform_restore(backup_file, target_db)
-    assert res_info["schema_user_version"] == 3
+    assert res_info["schema_user_version"] == 5
 
     # Safety snapshot was created and holds initial node
     assert safety_snapshot.exists()

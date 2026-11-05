@@ -19,6 +19,7 @@ packages = ["src/fleet_manager"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = [".", "src"]
 
 [tool.ruff]
 target-version = "py312"

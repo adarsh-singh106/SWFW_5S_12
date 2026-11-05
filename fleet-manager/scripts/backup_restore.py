@@ -153,6 +153,13 @@ def recover_backup_generation(backup_path: Path) -> None:
         staged_manifest.unlink(missing_ok=True)
         return
 
+    # Recovery itself can be interrupted between restoring database and manifest.
+    if _is_valid_manifest_pair(backup_dest, prev_manifest):
+        _atomic_replace(prev_manifest, manifest_path)
+        staged_backup.unlink(missing_ok=True)
+        staged_manifest.unlink(missing_ok=True)
+        return
+
     # 3. Forward completion: if no prev_backup, but active backup_dest matches staged_manifest
     if backup_dest.exists() and _is_valid_manifest_pair(backup_dest, staged_manifest):
         _atomic_replace(staged_manifest, manifest_path)
@@ -319,7 +326,7 @@ def perform_backup(source_db: Path, backup_dest: Path) -> dict[str, Any]:
     except Exception:
         recover_backup_generation(backup_dest)
         raise
-    finally:
+    else:
         if prev_backup.exists():
             prev_backup.unlink(missing_ok=True)
         if prev_manifest.exists():
@@ -333,6 +340,47 @@ def perform_backup(source_db: Path, backup_dest: Path) -> dict[str, Any]:
     print(f"    - Manifest saved : {manifest_path}")
 
     return manifest
+
+
+def validate_application_schema(db_path: Path) -> None:
+    """Accept only application schemas which this release can open/migrate."""
+    from fleet_manager.connectivity.repository import _SCHEMA as observations_schema
+    from fleet_manager.connectivity.repository import _VALIDATION_SCHEMA
+    from fleet_manager.inventory.repository import _SCHEMA as nodes_schema
+    from fleet_manager.operations.repository import _SCHEMA as operations_schema
+
+    actual = sqlite3.connect(db_path.as_uri() + "?mode=ro", uri=True)
+    expected = sqlite3.connect(":memory:")
+    try:
+        version = actual.execute("PRAGMA user_version").fetchone()[0]
+        if version not in (1, 2, 3, 4, 5):
+            raise RuntimeError("Unsupported application schema version")
+        expected.executescript(nodes_schema + ";")
+        if version >= 2:
+            expected.executescript(observations_schema + ";")
+        if version >= 3:
+            expected.executescript(operations_schema)
+        if version >= 5:
+            expected.executescript(_VALIDATION_SCHEMA)
+        tables = expected.execute("SELECT name, sql FROM sqlite_master WHERE type='table'")
+        for name, sql in tables:
+            row = actual.execute(
+                "SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (name,)
+            ).fetchone()
+
+            def normalize(value: str) -> str:
+                return "".join(value.lower().split()).rstrip(";")
+
+            if row is None or normalize(row[0]) != normalize(sql):
+                raise RuntimeError("Unsupported application schema structure")
+            if (
+                actual.execute(f'PRAGMA table_info("{name}")').fetchall()
+                != expected.execute(f'PRAGMA table_info("{name}")').fetchall()
+            ):
+                raise RuntimeError("Unsupported application column structure")
+    finally:
+        actual.close()
+        expected.close()
 
 
 def perform_restore(
@@ -385,6 +433,8 @@ def perform_restore(
                 f"Backup size mismatch: manifest expected {expected_size}, "
                 f"actual {backup_file.stat().st_size}"
             )
+
+    validate_application_schema(backup_file.resolve())
 
     target_db.parent.mkdir(parents=True, exist_ok=True)
 
@@ -524,45 +574,15 @@ def self_verify(tmp_dir: Path) -> None:
     restored_db = work_dir / "restored_inventory.db"
 
     # 1. Initialize schema v3 and seed dummy data matching Fleet Manager models
+    from fleet_manager.connectivity.repository import SQLiteConnectivityRepository
+    from fleet_manager.inventory.repository import SQLiteNodeRepository
+    from fleet_manager.operations.repository import SQLiteOperationsRepository
+
+    SQLiteNodeRepository(src_db).initialize()
+    SQLiteConnectivityRepository(src_db).initialize()
+    SQLiteOperationsRepository(src_db).initialize()
     conn = sqlite3.connect(src_db)
     try:
-        conn.execute("PRAGMA user_version = 3;")
-        conn.execute("""
-            CREATE TABLE nodes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL UNIQUE,
-                address TEXT NOT NULL,
-                ssh_port INTEGER NOT NULL,
-                observation_state TEXT NOT NULL DEFAULT 'NOT_CHECKED'
-            );
-        """)
-        conn.execute("""
-            CREATE TABLE connectivity_observations (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                node_id INTEGER NOT NULL REFERENCES nodes(id),
-                observed_at TEXT NOT NULL,
-                outcome TEXT NOT NULL,
-                error_category TEXT
-            );
-        """)
-        conn.execute("""
-            CREATE TABLE operation_executions (
-                id TEXT PRIMARY KEY,
-                node_id INTEGER NOT NULL REFERENCES nodes(id),
-                action TEXT NOT NULL,
-                arguments TEXT NOT NULL,
-                requested_at TEXT NOT NULL,
-                started_at TEXT,
-                completed_at TEXT,
-                outcome TEXT NOT NULL,
-                failure_category TEXT,
-                exit_code INTEGER,
-                stdout TEXT,
-                stderr TEXT,
-                output_truncated INTEGER NOT NULL DEFAULT 0,
-                audit_metadata TEXT NOT NULL
-            );
-        """)
         # Insert test records
         conn.execute(
             "INSERT INTO nodes (name, address, ssh_port, observation_state) "
@@ -592,12 +612,12 @@ def self_verify(tmp_dir: Path) -> None:
 
     # 2. Perform online backup
     manifest = perform_backup(src_db, backup_file)
-    assert manifest["schema_user_version"] == 3
+    assert manifest["schema_user_version"] == 5
     assert manifest["table_counts"] == orig_counts
 
     # 3. Restore into clean target path
     res_info = perform_restore(backup_file, restored_db)
-    assert res_info["schema_user_version"] == 3
+    assert res_info["schema_user_version"] == 5
     assert res_info["table_counts"] == orig_counts
 
     # 4. Verify data fidelity

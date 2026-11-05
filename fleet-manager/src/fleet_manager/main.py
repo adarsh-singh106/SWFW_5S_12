@@ -8,6 +8,7 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from fleet_manager.config import (
@@ -60,6 +61,7 @@ from fleet_manager.operations.repository import SQLiteOperationsRepository
 from fleet_manager.operations.router import router as operations_router
 from fleet_manager.operations.service import OperationService
 from fleet_manager.operations.transport import OperationTransport
+from fleet_manager.ui.router import STATIC_DIR
 from fleet_manager.ui.router import router as ui_router
 
 
@@ -193,12 +195,16 @@ def create_app(
             yield
         finally:
             application.state.is_ready = False
-            if scheduler is not None:
-                await scheduler.stop()
-            if executor is not None:
-                executor.close()
-            if active_op_executor is not None:
-                active_op_executor.close()
+            try:
+                if scheduler is not None:
+                    await scheduler.stop()
+            finally:
+                try:
+                    if executor is not None:
+                        executor.close()
+                finally:
+                    if active_op_executor is not None:
+                        active_op_executor.close()
 
     application = FastAPI(title="Fleet Manager Inventory API", lifespan=lifespan)
     application.state.is_ready = False
@@ -329,6 +335,8 @@ def create_app(
     application.include_router(operations_router)
     application.include_router(metrics_router)
     application.include_router(ui_router)
+    if STATIC_DIR.is_dir():
+        application.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
     return application
 
 

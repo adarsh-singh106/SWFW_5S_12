@@ -51,7 +51,7 @@ CapabilityBoundingSet=
 # Read-only configuration & cryptographic keys
 ReadOnlyPaths=/etc/fleet-manager
 
-# Writable paths strictly for SQLite database and WAL/SHM sidecars
+# Writable paths strictly for SQLite database, WAL/SHM sidecars, and runtime known_hosts enrollment
 ReadWritePaths=/var/lib/fleet-manager
 
 [Install]
