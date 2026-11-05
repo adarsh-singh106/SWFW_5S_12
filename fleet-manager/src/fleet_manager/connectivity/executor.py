@@ -107,7 +107,7 @@ class ProcessSSHExecutor:
                     process.kill()
                 except ProcessLookupError:
                     pass
-                process.communicate()
+                process.communicate(timeout=1.0)
                 with self._lock:
                     if self._closed:
                         raise ConnectivityUnavailable from None
@@ -118,7 +118,7 @@ class ProcessSSHExecutor:
                         process.kill()
                     except ProcessLookupError:
                         pass
-                process.wait()
+                process.wait(timeout=1.0)
                 raise ConnectivityUnavailable from exc
             with self._lock:
                 if self._closed:
@@ -131,17 +131,22 @@ class ProcessSSHExecutor:
                 raise ConnectivityUnavailable from exc
         finally:
             with self._lock:
-                self._active.pop(node.id, None)
+                self._active.pop(node.id, None) if process.poll() is not None else None
 
     def close(self) -> None:
         with self._lock:
             self._closed = True
             processes = tuple(self._active.values())
+        failures: list[Exception] = []
         for process in processes:
-            if process.poll() is None:
-                try:
+            try:
+                if process.poll() is None:
                     process.kill()
-                except ProcessLookupError:
-                    pass
-        for process in processes:
-            process.wait()
+            except OSError as exc:
+                failures.append(exc)
+            try:
+                process.wait(timeout=1.0)
+            except (OSError, subprocess.TimeoutExpired) as exc:
+                failures.append(exc)
+        if failures:
+            raise ConnectivityUnavailable("Worker cleanup incomplete") from failures[0]

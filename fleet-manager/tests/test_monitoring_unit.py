@@ -161,7 +161,9 @@ def test_service_recovery_and_storage_failure(
         is DisplayStatus.REACHABLE
     )
 
-    def fail_save(_node_id: int, _at: datetime, _outcome: ConnectivityOutcome) -> None:
+    def fail_save(
+        _node_id: int, _at: datetime, _outcome: ConnectivityOutcome, _revision=None
+    ) -> None:
         raise StorageError("disk unavailable")
 
     monkeypatch.setattr(observations, "save", fail_save)
@@ -182,7 +184,9 @@ async def test_scheduler_checks_multiple_nodes_and_skips_same_node_overlap(
     executor.block = True
     scheduler = ConnectivityScheduler(service, max_concurrent=2)
     first_cycle = asyncio.create_task(scheduler.run_cycle())
-    assert await asyncio.to_thread(executor.started.wait, 2)
+    assert await asyncio.to_thread(
+        lambda: any(threading.Event().wait(0.05) or len(executor.calls) >= 2 for _ in range(40))
+    )
     second_cycle = asyncio.create_task(scheduler.run_cycle())
     try:
         await asyncio.wait_for(second_cycle, timeout=2)

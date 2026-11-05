@@ -1,10 +1,10 @@
-"""HTTP contract for a completed SSH observation and its latest state."""
+"""HTTP contract for a completed SSH observation, status, and onboarding states."""
 
 from datetime import datetime
 
 from pydantic import BaseModel
 
-from fleet_manager.connectivity.freshness import DisplayStatus
+from fleet_manager.connectivity.freshness import DisplayStatus, SetupState
 from fleet_manager.connectivity.models import ConnectivityObservation, ConnectivityOutcome
 from fleet_manager.inventory.schemas import NodeResponse
 
@@ -36,7 +36,9 @@ class LatestConnectivityResponse(BaseModel):
 class NodeStatusResponse(BaseModel):
     node: NodeResponse
     display_status: DisplayStatus
+    setup_state: SetupState = SetupState.PENDING_SETUP
     reason: str | None = None
+    blocking_reason: str | None = None
     observation: ConnectivityObservationResponse | None = None
 
 

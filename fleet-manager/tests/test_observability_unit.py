@@ -278,25 +278,16 @@ def test_successful_empty_inventory_has_genuine_zero_counts(
 def test_late_repository_failure_does_not_publish_partial_counts(
     client: TestClient, service: ConnectivityService, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    first = service.inventory.list_nodes()[0]
-    second = service.inventory.add_node(NewNode("another-private-node", "another.example", 22))
-    original = service.observations.latest
-    visited: list[int] = []
+    def fail_snapshot() -> dict[int, ConnectivityObservation]:
+        raise StorageError(SENSITIVE)
 
-    def latest(node_id: int) -> ConnectivityObservation | None:
-        visited.append(node_id)
-        if node_id == second.id:
-            raise StorageError(SENSITIVE)
-        return original(node_id)
-
-    monkeypatch.setattr(service.observations, "latest", latest)
+    monkeypatch.setattr(service.observations, "latest_all", fail_snapshot)
     response = client.get("/metrics")
     assert response.status_code == 200
     observed = samples(response.text)
     assert observed[SUCCESS] == 0
     assert observed[ERRORS] == 1
     assert "fleet_nodes_by_status" not in response.text
-    assert visited == [first.id, second.id]
 
 
 @pytest.mark.parametrize("failure", [sqlite3.OperationalError, StorageError, RuntimeError])

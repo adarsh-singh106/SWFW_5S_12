@@ -194,7 +194,7 @@ def run_verification(operation_executor: OperationExecutor | None = None) -> boo
             with sqlite3.connect(db_path) as conn:
                 v = conn.execute("PRAGMA user_version").fetchone()[0]
                 print(f"   Authoritative SQLite PRAGMA user_version: {v}")
-                assert v == 3, f"Expected user_version 3, got {v}"
+                assert v in (3, 4, 5), f"Expected user_version 3, 4 or 5, got {v}"
 
             # Insert simulated in-flight crash record
             from datetime import UTC, datetime

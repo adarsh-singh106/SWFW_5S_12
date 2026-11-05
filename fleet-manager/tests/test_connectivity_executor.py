@@ -142,6 +142,7 @@ def test_communicate_oserror_kills_and_reaps_child(
     process = Mock()
     process.communicate.side_effect = OSError("pipe failed")
     process.poll.return_value = None
+    process.wait.side_effect = lambda **kwargs: setattr(process.poll, "return_value", 0)
     monkeypatch.setattr(
         "fleet_manager.connectivity.executor.subprocess.Popen", lambda *_a, **_k: process
     )
@@ -151,4 +152,4 @@ def test_communicate_oserror_kills_and_reaps_child(
         executor.run(_node(1, "0.01"), ssh_settings)
 
     process.kill.assert_called_once_with()
-    process.wait.assert_called_once_with()
+    process.wait.assert_called_once_with(timeout=1.0)

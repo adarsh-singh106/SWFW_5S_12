@@ -34,6 +34,9 @@ class FakeClient:
     def load_host_keys(self, filename: str) -> None:
         self.known_hosts_path = filename
 
+    def get_host_keys(self) -> paramiko.HostKeys:
+        return paramiko.HostKeys()
+
     def set_missing_host_key_policy(self, policy: paramiko.MissingHostKeyPolicy) -> None:
         self.policy = policy
 

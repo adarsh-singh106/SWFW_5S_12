@@ -356,6 +356,9 @@ def test_transport_marks_lost_post_dispatch_result_uncertain_and_closes_client(
         def load_host_keys(self, path: str) -> None:
             pass
 
+        def get_host_keys(self) -> paramiko.HostKeys:
+            return paramiko.HostKeys()
+
         def set_missing_host_key_policy(self, policy: object) -> None:
             pass
 

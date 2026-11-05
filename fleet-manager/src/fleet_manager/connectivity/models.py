@@ -25,3 +25,4 @@ class ConnectivityObservation:
     observed_at: datetime
     outcome: ConnectivityOutcome
     error_category: ConnectivityOutcome | None
+    revision: str | None = None

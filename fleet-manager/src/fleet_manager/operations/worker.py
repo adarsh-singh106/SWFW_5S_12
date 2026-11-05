@@ -51,7 +51,7 @@ def main() -> None:
         sys.exit(2)
     except Exception:
         result = OperationExecutionResult(
-            outcome=OperationOutcome.FAILURE,
+            outcome=OperationOutcome.UNCERTAIN,
             failure_category=OperationFailureCategory.UNAVAILABLE,
             exit_code=None,
             stdout=None,

@@ -2,7 +2,8 @@
 
 from typing import Annotated, cast
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi.responses import JSONResponse
 
 from fleet_manager.errors import OperationNotFound
 from fleet_manager.inventory.schemas import ErrorResponse
@@ -47,13 +48,30 @@ def execute_operation(
     body: ExecuteOperationRequest,
     service: ServiceDependency,
     digest: DigestDependency,
-) -> OperationRecordResponse:
-    record = service.execute(
-        node_id=node_id,
-        action=body.action,
-        arguments=body.arguments,
-        operator_digest=digest,
-    )
+) -> OperationRecordResponse | JSONResponse:
+    try:
+        record = service.execute(
+            node_id=node_id,
+            action=body.action,
+            arguments=body.arguments,
+            operator_digest=digest,
+        )
+    except Exception as exc:
+        operation_id = getattr(exc, "operation_id", None)
+        if operation_id is None:
+            raise
+        return JSONResponse(
+            status_code=503,
+            content={
+                "error": {
+                    "code": "operation_unavailable",
+                    "message": "Admitted operation has no confirmed response; do not replay",
+                    "operation_id": operation_id,
+                    "persisted_outcome": getattr(exc, "persisted_outcome", None),
+                    "operation_url": f"/api/nodes/{node_id}/operations/{operation_id}",
+                }
+            },
+        )
     return OperationRecordResponse.from_record(record)
 
 
@@ -70,8 +88,11 @@ def execute_operation(
 def list_operations(
     node_id: int,
     service: ServiceDependency,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    offset: Annotated[int, Query(ge=0, le=100000)] = 0,
+    include_output: bool = True,
 ) -> OperationListResponse:
-    records = service.list_operations_for_node(node_id)
+    records = service.list_operations_for_node(node_id, limit, offset, include_output)
     return OperationListResponse(
         operations=[OperationRecordResponse.from_record(rec) for rec in records]
     )

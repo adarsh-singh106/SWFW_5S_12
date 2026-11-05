@@ -200,13 +200,14 @@ class ProcessOperationExecutor:
                     self._terminate_and_reap(process)
             finally:
                 with self._lock:
-                    self._active.pop(node.id, None)
+                    self._active.pop(node.id, None) if process.poll() is not None else None
 
     @staticmethod
     def _terminate_and_reap(process: subprocess.Popen[str]) -> None:
         try:
             process.kill()
-        except ProcessLookupError:
+        except OSError:
+            # A failed kill must not prevent a bounded wait/reap attempt.
             pass
         try:
             process.wait(timeout=1.0)
@@ -217,6 +218,12 @@ class ProcessOperationExecutor:
         with self._lock:
             self._closed = True
             processes = tuple(self._active.values())
+        failures = []
         for process in processes:
-            if process.poll() is None:
-                self._terminate_and_reap(process)
+            try:
+                if process.poll() is None:
+                    self._terminate_and_reap(process)
+            except OperationUnavailable as exc:
+                failures.append(exc)
+        if failures:
+            raise OperationUnavailable("Worker cleanup incomplete") from failures[0]

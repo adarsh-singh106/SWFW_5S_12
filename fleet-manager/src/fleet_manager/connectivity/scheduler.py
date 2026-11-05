@@ -227,7 +227,7 @@ class ConnectivityScheduler:
     async def run_cycle(self) -> None:
         """Run one sweep across all registered nodes with bounded concurrency."""
         try:
-            nodes = self.service.inventory.list_nodes()
+            nodes = await asyncio.to_thread(self.service.inventory.list_nodes)
         except StorageError as exc:
             logger.error(
                 "Could not list nodes for scheduled connectivity check: %s",

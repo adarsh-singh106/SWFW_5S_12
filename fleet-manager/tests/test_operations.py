@@ -542,7 +542,7 @@ def test_schema_evolution_v1_to_v2_to_v3(tmp_path: Path) -> None:
     op_repo = SQLiteOperationsRepository(db_path)
     op_repo.initialize()
     with sqlite3.connect(db_path) as conn:
-        assert conn.execute("PRAGMA user_version").fetchone()[0] == 3
+        assert conn.execute("PRAGMA user_version").fetchone()[0] == 5
         # Tables exist
         tables = [
             r[0]

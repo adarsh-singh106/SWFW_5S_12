@@ -8,6 +8,7 @@ import paramiko
 
 from fleet_manager.config import SSHSettings
 from fleet_manager.connectivity.models import ConnectivityOutcome
+from fleet_manager.connectivity.trust import endpoint_identity, normalize_address, trusted_host_key
 from fleet_manager.errors import ConnectivityConfigurationError
 from fleet_manager.inventory.models import Node
 
@@ -52,6 +53,19 @@ class ParamikoSSHTransport:
                     raise ConnectivityConfigurationError(
                         "Trusted SSH host-key configuration is unavailable"
                     ) from exc
+                try:
+                    pinned = trusted_host_key(
+                        node.address, node.ssh_port, settings.known_hosts_path
+                    )
+                    client.get_host_keys().clear()
+                    if pinned is not None:
+                        client.get_host_keys().add(
+                            endpoint_identity(node.address, node.ssh_port),
+                            pinned.get_name(),
+                            pinned,
+                        )
+                except ValueError as exc:
+                    raise ConnectivityConfigurationError("Ambiguous trusted SSH identity") from exc
                 client.set_missing_host_key_policy(_RejectUnknownHostKey())
                 try:
                     private_key = paramiko.PKey.from_path(settings.private_key_path)
@@ -60,7 +74,7 @@ class ParamikoSSHTransport:
                         "SSH credential configuration is unavailable"
                     ) from exc
                 client.connect(
-                    hostname=node.address,
+                    hostname=normalize_address(node.address),
                     port=node.ssh_port,
                     username=settings.username,
                     pkey=private_key,

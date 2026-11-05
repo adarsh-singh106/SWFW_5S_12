@@ -1,5 +1,7 @@
 """Application service coordinating node operation authorization, execution, and persistence."""
 
+import logging
+import threading
 import time
 import uuid
 from collections.abc import Callable
@@ -7,7 +9,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from fleet_manager.config import SSHSettings, load_ssh_settings
-from fleet_manager.errors import ConnectivityConfigurationError, NodeNotFound
+from fleet_manager.errors import ConnectivityConfigurationError, NodeNotFound, StorageError
 from fleet_manager.inventory.repository import SQLiteNodeRepository
 from fleet_manager.operations.catalog import validate_action
 from fleet_manager.operations.executor import OperationExecutor
@@ -42,6 +44,56 @@ class OperationService:
         self.ssh_settings = ssh_settings
         self.telemetry = telemetry
         self._monotonic_clock = monotonic_clock
+        self._pending: dict[str, tuple[datetime | None, datetime, OperationExecutionResult]] = {}
+        self._pending_lock = threading.Lock()
+
+    def _complete(
+        self,
+        operation_id: str,
+        started_at: datetime | None,
+        completed_at: datetime,
+        result: OperationExecutionResult,
+    ) -> OperationRecord:
+        for attempt in range(2):
+            try:
+                return self.operations_repository.update_completion(
+                    operation_id, started_at, completed_at, result
+                )
+            except StorageError:
+                logging.getLogger(__name__).warning(
+                    "Completion persistence unavailable operation_id=%s attempt=%s",
+                    operation_id,
+                    attempt + 1,
+                )
+        uncertain = OperationExecutionResult(
+            OperationOutcome.UNCERTAIN,
+            OperationFailureCategory.UNAVAILABLE,
+            result.exit_code,
+            result.stdout,
+            result.stderr,
+            result.output_truncated,
+        )
+        with self._pending_lock:
+            self._pending[operation_id] = (started_at, completed_at, uncertain)
+        error = StorageError("Operation completion persistence unavailable")
+        error.operation_id = operation_id  # type: ignore[attr-defined]
+        error.persisted_outcome = "RUNNING"  # type: ignore[attr-defined]
+        raise error
+
+    def recover_completions(self) -> None:
+        """Retry only local writes. Restart recovery independently reconciles RUNNING rows."""
+        with self._pending_lock:
+            for operation_id, (started, completed, result) in list(self._pending.items()):
+                try:
+                    self.operations_repository.update_completion(
+                        operation_id, started, completed, result
+                    )
+                except StorageError:
+                    continue
+                del self._pending[operation_id]
+                logging.getLogger(__name__).info(
+                    "Completion recovered operation_id=%s", operation_id
+                )
 
     def execute(
         self,
@@ -119,7 +171,7 @@ class OperationService:
                         else OperationOutcome.UNCERTAIN
                     )
                     try:
-                        self.operations_repository.update_completion(
+                        self._complete(
                             operation_id=operation_id,
                             started_at=started_at,
                             completed_at=datetime.now(UTC),
@@ -132,8 +184,12 @@ class OperationService:
                                 output_truncated=False,
                             ),
                         )
-                    except Exception:
-                        pass
+                    except StorageError:
+                        terminal_outcome = OperationOutcome.UNCERTAIN
+                        exc.persisted_outcome = "RUNNING"  # type: ignore[attr-defined]
+                    else:
+                        exc.persisted_outcome = terminal_outcome.value  # type: ignore[attr-defined]
+                    exc.operation_id = operation_id  # type: ignore[attr-defined]
 
                     if self.telemetry is not None and start_mono is not None:
                         duration = max(0.0, self._monotonic_clock() - start_mono)
@@ -151,7 +207,7 @@ class OperationService:
                 max(0.0, self._monotonic_clock() - start_mono) if start_mono is not None else 0.0
             )
             try:
-                record = self.operations_repository.update_completion(
+                record = self._complete(
                     operation_id=operation_id,
                     started_at=started_at,
                     completed_at=completed_at,
@@ -189,10 +245,16 @@ class OperationService:
                 self.telemetry.operations_active.dec(labels={"action": validated.action})
 
     def get_operation(self, operation_id: str) -> OperationRecord | None:
+        self.recover_completions()
         return self.operations_repository.get(operation_id)
 
-    def list_operations_for_node(self, node_id: int, limit: int = 50) -> list[OperationRecord]:
+    def list_operations_for_node(
+        self, node_id: int, limit: int = 50, offset: int = 0, include_output: bool = True
+    ) -> list[OperationRecord]:
         node = self.inventory_repository.get_node(node_id)
         if node is None:
             raise NodeNotFound(f"Node {node_id} is not registered")
-        return self.operations_repository.list_for_node(node_id, limit=limit)
+        self.recover_completions()
+        return self.operations_repository.list_for_node(
+            node_id, limit=limit, offset=offset, include_output=include_output
+        )

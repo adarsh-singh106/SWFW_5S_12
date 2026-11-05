@@ -9,6 +9,7 @@ import paramiko
 
 from fleet_manager.config import SSHSettings
 from fleet_manager.connectivity.transport import UnknownHostKeyError, _RejectUnknownHostKey
+from fleet_manager.connectivity.trust import endpoint_identity, normalize_address, trusted_host_key
 from fleet_manager.errors import ConnectivityConfigurationError
 from fleet_manager.inventory.models import Node
 from fleet_manager.operations.models import (
@@ -50,6 +51,19 @@ class ParamikoOperationTransport:
                         "Trusted SSH host-key configuration is unavailable"
                     ) from exc
 
+                try:
+                    pinned = trusted_host_key(
+                        node.address, node.ssh_port, settings.known_hosts_path
+                    )
+                    client.get_host_keys().clear()
+                    if pinned is not None:
+                        client.get_host_keys().add(
+                            endpoint_identity(node.address, node.ssh_port),
+                            pinned.get_name(),
+                            pinned,
+                        )
+                except ValueError as exc:
+                    raise ConnectivityConfigurationError("Ambiguous trusted SSH identity") from exc
                 client.set_missing_host_key_policy(_RejectUnknownHostKey())
 
                 try:
@@ -60,7 +74,7 @@ class ParamikoOperationTransport:
                     ) from exc
 
                 client.connect(
-                    hostname=node.address,
+                    hostname=normalize_address(node.address),
                     port=node.ssh_port,
                     username=settings.username,
                     pkey=private_key,
@@ -84,8 +98,8 @@ class ParamikoOperationTransport:
 
                 channel = transport.open_session()
                 channel.settimeout(timeout_seconds)
-                channel.exec_command(command)
                 command_sent = True
+                channel.exec_command(command)
 
                 stdout_chunks: list[bytes] = []
                 stderr_chunks: list[bytes] = []
@@ -176,7 +190,7 @@ class ParamikoOperationTransport:
                 stdout_text = b"".join(stdout_chunks).decode("utf-8", errors="replace")
                 stderr_text = b"".join(stderr_chunks).decode("utf-8", errors="replace")
 
-                if exit_code == -1 and (transport is None or not transport.is_active()):
+                if exit_code == -1:
                     return OperationExecutionResult(
                         outcome=OperationOutcome.UNCERTAIN,
                         failure_category=OperationFailureCategory.TRANSPORT_ERROR,
@@ -242,7 +256,7 @@ class ParamikoOperationTransport:
             )
         except TimeoutError:
             return OperationExecutionResult(
-                outcome=OperationOutcome.TIMEOUT,
+                outcome=OperationOutcome.UNCERTAIN if command_sent else OperationOutcome.TIMEOUT,
                 failure_category=OperationFailureCategory.TIMEOUT,
                 exit_code=None,
                 stdout=None,
@@ -278,7 +292,7 @@ class ParamikoOperationTransport:
                 output_truncated=False,
             )
         except OSError as exc:
-            if exc.errno == errno.ECONNREFUSED:
+            if exc.errno == errno.ECONNREFUSED and not command_sent:
                 return OperationExecutionResult(
                     outcome=OperationOutcome.FAILURE,
                     failure_category=OperationFailureCategory.CONNECTION_REFUSED,

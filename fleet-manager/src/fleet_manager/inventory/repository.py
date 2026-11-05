@@ -39,6 +39,7 @@ class SQLiteNodeRepository:
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.database_path, timeout=5.0)
         connection.row_factory = sqlite3.Row
+        connection.execute("PRAGMA foreign_keys = ON")
         return connection
 
     def initialize(self) -> None:
@@ -55,7 +56,7 @@ class SQLiteNodeRepository:
                         ).fetchone()
                         is not None
                     )
-                    if (exists and version not in (1, 2, 3)) or (not exists and version != 0):
+                    if (exists and version not in (1, 2, 3, 4, 5)) or (not exists and version != 0):
                         raise StorageError("Inventory schema requires an explicit migration")
                     if not exists:
                         connection.execute(_SCHEMA)

@@ -8,6 +8,13 @@ from pathlib import Path
 from fleet_manager.connectivity.models import ConnectivityObservation, ConnectivityOutcome
 from fleet_manager.errors import StorageError
 
+_VALIDATION_SCHEMA = """
+CREATE TABLE connectivity_validation (
+    observation_id INTEGER PRIMARY KEY REFERENCES connectivity_observations(id),
+    revision TEXT NOT NULL CHECK(length(revision) = 64)
+)
+"""
+
 _SCHEMA = """
 CREATE TABLE connectivity_observations (
     id INTEGER PRIMARY KEY,
@@ -30,6 +37,7 @@ def _observation_from_row(row: sqlite3.Row) -> ConnectivityObservation:
             observed_at=datetime.fromisoformat(str(row["observed_at"])),
             outcome=ConnectivityOutcome(row["outcome"]),
             error_category=ConnectivityOutcome(category) if category is not None else None,
+            revision=str(row["revision"]) if "revision" in row.keys() and row["revision"] else None,
         )
     except (KeyError, ValueError) as exc:
         raise StorageError("Inventory contains an invalid connectivity observation") from exc
@@ -62,8 +70,13 @@ class SQLiteConnectivityRepository:
                     if version == 1 and not exists:
                         connection.execute(_SCHEMA)
                         connection.execute("PRAGMA user_version = 2")
-                    elif version not in (2, 3) or not exists:
+                    elif version not in (2, 3, 4, 5) or not exists:
                         raise StorageError("Inventory schema requires an explicit migration")
+                    connection.execute(
+                        _VALIDATION_SCHEMA.replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS")
+                    )
+                    if version == 4:
+                        connection.execute("PRAGMA user_version = 5")
                     connection.commit()
                 except BaseException:
                     connection.rollback()
@@ -72,7 +85,11 @@ class SQLiteConnectivityRepository:
             raise StorageError("Could not initialize connectivity storage") from exc
 
     def save(
-        self, node_id: int, observed_at: datetime, outcome: ConnectivityOutcome
+        self,
+        node_id: int,
+        observed_at: datetime,
+        outcome: ConnectivityOutcome,
+        revision: str | None = None,
     ) -> ConnectivityObservation:
         if observed_at.utcoffset() is None:
             raise ValueError("Observation timestamp must include a timezone")
@@ -86,8 +103,15 @@ class SQLiteConnectivityRepository:
                         "(node_id, observed_at, outcome, error_category) VALUES (?, ?, ?, ?)",
                         (node_id, observed_at.isoformat(), outcome.value, category),
                     )
+                    if revision is not None:
+                        connection.execute(
+                            "INSERT INTO connectivity_validation VALUES (?, ?)",
+                            (cursor.lastrowid, revision),
+                        )
                     row = connection.execute(
-                        "SELECT id, node_id, observed_at, outcome, error_category "
+                        "SELECT id, node_id, observed_at, outcome, error_category, "
+                        "(SELECT revision FROM connectivity_validation "
+                        "WHERE observation_id=id) AS revision "
                         "FROM connectivity_observations WHERE id = ?",
                         (cursor.lastrowid,),
                     ).fetchone()
@@ -102,10 +126,52 @@ class SQLiteConnectivityRepository:
         try:
             with closing(self._connect()) as connection:
                 row = connection.execute(
-                    "SELECT id, node_id, observed_at, outcome, error_category "
-                    "FROM connectivity_observations WHERE node_id = ? ORDER BY id DESC LIMIT 1",
+                    "SELECT id, node_id, observed_at, outcome, error_category, "
+                    "(SELECT revision FROM connectivity_validation "
+                    "WHERE observation_id=id) AS revision "
+                    "FROM connectivity_observations WHERE node_id = ? "
+                    "ORDER BY id DESC LIMIT 1",
                     (node_id,),
                 ).fetchone()
                 return _observation_from_row(row) if row is not None else None
         except sqlite3.Error as exc:
             raise StorageError("Could not read connectivity observation") from exc
+
+    def latest_all(self) -> dict[int, ConnectivityObservation]:
+        """One statement snapshot, one indexed latest-row lookup per registered node."""
+        try:
+            with closing(self._connect()) as connection:
+                rows = connection.execute(
+                    "SELECT o.*, (SELECT revision FROM connectivity_validation "
+                    "WHERE observation_id=o.id) AS revision "
+                    "FROM nodes n JOIN connectivity_observations o ON o.id = "
+                    "(SELECT id FROM connectivity_observations WHERE node_id=n.id "
+                    "ORDER BY id DESC LIMIT 1)"
+                ).fetchall()
+                return {int(row["node_id"]): _observation_from_row(row) for row in rows}
+        except sqlite3.Error as exc:
+            raise StorageError("Could not read latest observations") from exc
+
+    def has_connected(self, node_id: int, revision: str | None = None) -> bool:
+        """Current revision's most recent decisive validation, never lifetime success."""
+        if revision is None:
+            return False
+        try:
+            with closing(self._connect()) as connection:
+                row = connection.execute(
+                    "SELECT o.outcome, v.revision FROM connectivity_observations o "
+                    "LEFT JOIN connectivity_validation v ON v.observation_id=o.id "
+                    "WHERE o.node_id=? AND (o.outcome IN ("
+                    "'CONNECTED','AUTH_FAILED','HOST_KEY_UNKNOWN',"
+                    "'HOST_KEY_MISMATCH','UNKNOWN_ERROR') "
+                    "OR v.revision IS NULL OR v.revision != ?) "
+                    "ORDER BY o.id DESC LIMIT 1",
+                    (node_id, revision),
+                ).fetchone()
+                return (
+                    row is not None
+                    and row["outcome"] == "CONNECTED"
+                    and row["revision"] == revision
+                )
+        except sqlite3.Error as exc:
+            raise StorageError("Could not read validation history") from exc

@@ -87,10 +87,23 @@ class SQLiteOperationsRepository:
                         is not None
                     )
                     if version == 2 and not exists:
-                        connection.executescript(_SCHEMA)
+                        # executescript implicitly commits an outstanding transaction.
+                        for statement in _SCHEMA.split(";"):
+                            if statement.strip():
+                                connection.execute(statement)
                         connection.execute("PRAGMA user_version = 3")
-                    elif version != 3 or not exists:
+                    elif version not in (3, 4, 5) or not exists:
                         raise StorageError("Inventory schema requires an explicit migration")
+                    if version in (2, 3):
+                        connection.execute(
+                            "CREATE INDEX idx_observations_node_latest "
+                            "ON connectivity_observations(node_id, id DESC)"
+                        )
+                        connection.execute(
+                            "CREATE INDEX idx_operations_history "
+                            "ON operation_executions(node_id, requested_at DESC, id DESC)"
+                        )
+                        connection.execute("PRAGMA user_version = 5")
                     connection.commit()
                 except BaseException:
                     connection.rollback()
@@ -193,13 +206,24 @@ class SQLiteOperationsRepository:
         except sqlite3.Error as exc:
             raise StorageError("Could not read operation record") from exc
 
-    def list_for_node(self, node_id: int, limit: int = 50) -> list[OperationRecord]:
+    def list_for_node(
+        self, node_id: int, limit: int = 50, offset: int = 0, include_output: bool = True
+    ) -> list[OperationRecord]:
         try:
             with closing(self._connect()) as connection:
+                columns = (
+                    "*"
+                    if include_output
+                    else (
+                        "id, node_id, action, arguments, requested_at, started_at, completed_at, "
+                        "outcome, failure_category, exit_code, NULL AS stdout, NULL AS stderr, "
+                        "output_truncated, audit_metadata"
+                    )
+                )
                 rows = connection.execute(
-                    "SELECT * FROM operation_executions WHERE node_id = ? "
-                    "ORDER BY requested_at DESC, id DESC LIMIT ?",
-                    (node_id, limit),
+                    f"SELECT {columns} FROM operation_executions WHERE node_id = ? "
+                    "ORDER BY requested_at DESC, id DESC LIMIT ? OFFSET ?",
+                    (node_id, limit, offset),
                 ).fetchall()
                 return [_record_from_row(row) for row in rows]
         except sqlite3.Error as exc:
