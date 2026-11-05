@@ -1,6 +1,6 @@
 # Project charter
 
-Updated 2026-10-12 by executing Codex agent.
+Updated 2026-10-27 by executing Codex agent. Official scope and reported instructor feedback below remain as originally recorded; current implementation evidence is in the learning checkpoint.
 
 ## Official scope (user-supplied paraphrase)
 
@@ -8,7 +8,7 @@ Updated 2026-10-12 by executing Codex agent.
 
 | Enumerated requirement | Planned evidence | Current state |
 | --- | --- | --- |
-| 1. Node onboarding and management | Register/list nodes; later verify identity and connectivity | Proposed |
+| 1. Node onboarding and management | Register/list nodes; later verify identity and connectivity | Token-protected inventory and explicit SSH identity/authentication observation verified with a disposable loopback target; real managed nodes, web UI, operator identity/RBAC, and full onboarding pending |
 | 2. Collect, store, visualize system metrics using Prometheus and Grafana | Real scrape, stored series, Grafana display | Pending |
 | 3. Detect availability and handle failures gracefully | Isolated failure/recovery experiments and honest observation states | Pending |
 | 4. Controlled remote command execution | Authorized structured operation, audit trail, outcome verification | Pending |
@@ -30,7 +30,9 @@ Success includes independent implementation/debugging/explanation, reproducible 
 - Mandatory: Prometheus and Grafana; use Prometheus for time-series storage unless another need is demonstrated.
 - Approved organization: one Git repository, application under `fleet-manager/`, prerequisite history preserved.
 - Follow shared learning/approval rules and nested security/monitoring constraints. Do not treat WSL distributions sharing a kernel as independent failure domains.
-- Proposed, not approved: Python/FastAPI plus SQLite for node inventory and a plain browser page. SQLite would store inventory, not monitoring time series.
+- Approved and implemented for the first inventory API slice: Python 3.12, FastAPI, and SQLite. SQLite stores inventory, not monitoring time series. A browser page remains proposed and unimplemented; see [ADR 0001](decisions/0001-inventory-backend.md).
+- Approved local access boundary: a single shared bearer token from the environment, with startup failure when missing; see [ADR 0002](decisions/0002-local-inventory-authentication.md). It is not operator identity or RBAC.
+- Approved one-node SSH check: pinned host key, explicit non-root key credential, bounded connection/banner/auth phases, and a separate observation history; see [ADR 0003](decisions/0003-verified-ssh-observations.md). This does not establish overall node health or remote command execution.
 - Do not add heavy infrastructure without a demonstrated need.
 
 ## Official submission guidelines & timeline (SETU 2026, confirmed 2026-10-15)

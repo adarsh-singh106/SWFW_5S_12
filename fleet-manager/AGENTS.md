@@ -23,6 +23,7 @@ Prometheus and Grafana are mandatory. Prioritize official requirements (P0), ess
 
 ## Engineering rules
 
+- Keep HTTP and lifecycle wiring at the application boundary, validation and use cases independent of FastAPI, and SQL inside inventory persistence. Preserve the documented `/api/nodes` contract, bearer-token gate, and SQLite schema unless a separately approved change requires migration.
 - Distinguish probe outcomes from node health. Successful collection proves only that observation; authentication failure or an unreachable endpoint does not prove host failure. SSH exit code 255 does not uniquely identify a cause.
 - Missing metrics are not zero. Represent stale observations and uncertainty explicitly. Use Prometheus for time-series storage unless another need is demonstrated.
 - Verify SSH host identity securely; protect credentials and private keys. Use least privilege and explicitly authorized, structured operations. Do not expose unrestricted remote shell access through the web application.
