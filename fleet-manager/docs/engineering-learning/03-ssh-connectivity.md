@@ -67,7 +67,7 @@ It passes `pkey=private_key`, `allow_agent=False`, and `look_for_keys=False` to 
 
 ```python
 client.connect(
-    hostname=node.address,
+    hostname=normalize_address(node.address),
     port=node.ssh_port,
     username=settings.username,
     pkey=private_key,
@@ -76,14 +76,21 @@ client.connect(
     timeout=settings.connect_timeout_seconds,
     banner_timeout=settings.banner_timeout_seconds,
     auth_timeout=settings.authentication_timeout_seconds,
+    sock=connected_socket,
 )
 ```
+
+Before this call, the adapter resolves the endpoint with `getaddrinfo()` and
+tries each IPv4/IPv6 stream candidate with the configured connect timeout. It
+closes every failed candidate and passes only the connected socket into
+Paramiko. `hostname` and `port` still describe the original registered
+endpoint, so preconnecting does not replace or weaken host-key verification.
 
 The production worker receives file **paths**, not the private-key contents. Its child environment is an allowlist that excludes the API bearer token. The worker's stdout is a single outcome string; stderr is discarded by the executor. `DirectSSHExecutor` exists for injected test transports and does not supply process isolation.
 
 ## 3. Timeouts and cleanup
 
-The default connect, SSH banner, and authentication timeouts are each five seconds. These bound particular phases of Paramiko's connection, but DNS resolution, multiple address attempts, or a stuck library call can exceed an individual timeout. [`ProcessSSHExecutor`](../../src/fleet_manager/connectivity/executor.py) therefore applies a separate total budget: 12 seconds by default, configurable from 1 to 60 seconds through the committed settings loader. It starts the clock before child launch, and kills and reaps the worker when the budget expires. The result is `TIMEOUT`, an observation about this attempt rather than proof that the node is down.
+The default TCP connect, SSH banner, and authentication timeouts are each five seconds. Each resolved TCP candidate receives the connect timeout; DNS resolution, multiple sequential candidates, or a stuck library call can still exceed one phase budget. [`ProcessSSHExecutor`](../../src/fleet_manager/connectivity/executor.py) therefore applies a separate total budget: 12 seconds by default, configurable from 1 to 60 seconds through the committed settings loader. It starts the clock before child launch, and kills and reaps the worker when the budget expires. The result is `EXECUTION_TIMEOUT`, an observation about the control plane's deadline rather than proof that the node is down.
 
 The executor allows four active checks by default (configurable from 1 to 16) and rejects a second active check for the same node. Rejections are control-plane errors, not SSH outcomes. It also kills and waits for children during graceful shutdown. Its `communicate()` error path kills and reaps a still-running child before raising `ConnectivityUnavailable`.
 
@@ -97,7 +104,10 @@ The transport uses `with paramiko.SSHClient() as client:`. A **context manager**
 | `HOST_KEY_UNKNOWN` | No trusted host key matches the endpoint. | Enrollment requires independent fingerprint verification. |
 | `HOST_KEY_MISMATCH` | A trusted entry differs from the presented key. | Investigate reimage, reassignment, or interception. |
 | `AUTH_FAILED` | Server rejects credential or encrypted key needs unsupported passphrase. | Check account/key configuration; host health is unknown. |
-| `CONNECTION_REFUSED`, `DNS_ERROR`, `TIMEOUT` | Socket resolution or connection fails. | Specific network observation, not a host-health verdict. |
+| `CONNECTION_REFUSED`, `CONNECTION_TIMEOUT` | Every TCP candidate refuses, or at least one candidate times out and none connects. | The SSH endpoint was unreachable during this attempt, not proof of complete host failure. |
+| `TIMEOUT` | TCP connected, then SSH negotiation raised or wrapped a timeout. | The endpoint accepted TCP but SSH verification did not finish; investigate the SSH service or protocol path. |
+| `EXECUTION_TIMEOUT` | Parent kills the child at its total deadline. | The control plane stopped waiting; the remote phase is unknown. |
+| `DNS_ERROR` | Endpoint resolution fails. | Check endpoint configuration or DNS; node health is unknown. |
 | `UNKNOWN_ERROR` | Other SSH or socket failure. | Preserve uncertainty instead of inventing a cause. |
 
 [`test_ssh_transport.py`](../../tests/test_ssh_transport.py) checks arguments, strict policy, classification, and client closure with a fake client. [`test_ssh_transport_loopback.py`](../../tests/test_ssh_transport_loopback.py) uses disposable keys and a real in-process Paramiko server: trusted login succeeds, unknown and changed keys produce separate failures, and a wrong client key fails authentication. [`test_connectivity_executor.py`](../../tests/test_connectivity_executor.py) checks deadline termination, capacity and same-node rejection, shutdown, and cleanup when `communicate()` raises `OSError`.

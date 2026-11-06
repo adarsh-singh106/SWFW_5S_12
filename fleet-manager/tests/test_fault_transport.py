@@ -762,7 +762,12 @@ def test_process_backed_connectivity_failures(
         )
         node_stall = inv_repo.add_node(NewNode("conn-stall", "127.0.0.1", port_stall))
         obs_stall = service_stall.check(node_stall.id)
-        assert obs_stall.outcome == ConnectivityOutcome.UNKNOWN_ERROR
+        assert obs_stall.outcome == ConnectivityOutcome.TIMEOUT
+        assert obs_stall.error_category == ConnectivityOutcome.TIMEOUT
+        latest_stall = conn_repo.latest(node_stall.id)
+        assert latest_stall is not None
+        assert latest_stall.outcome == ConnectivityOutcome.TIMEOUT
+        assert latest_stall.error_category == ConnectivityOutcome.TIMEOUT
 
     # Verify active connectivity checks returned to zero
     active_samples = telemetry.connectivity_active_checks.collect()

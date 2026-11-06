@@ -74,21 +74,21 @@ sequenceDiagram
 | Any outcome | Age > TTL | `STALE`, `TTL_EXPIRED`; original outcome remains in the observation |
 | Observation timestamp without timezone, naive display clock, or future timestamp | Invalid ordering | `CHECK_ERROR`, `INVALID_TIMESTAMP` or `FUTURE_TIMESTAMP` |
 
-The names describe **SSH endpoint reachability**, not general node health. `CONNECTION_REFUSED` means the TCP endpoint rejected the connection; `CONNECTION_TIMEOUT` is used only when Paramiko reports a timeout among connection-establishment attempts. An exact TTL boundary remains fresh (`age > ttl` becomes stale). A fresh failed observation does not become `REACHABLE` just because an older success exists. A later `CONNECTED` observation restores `REACHABLE`.
+The names describe **SSH endpoint reachability**, not general node health. `CONNECTION_REFUSED` means every resolved TCP endpoint rejected the connection; `CONNECTION_TIMEOUT` means at least one bounded TCP connection attempt timed out and none succeeded. An exact TTL boundary remains fresh (`age > ttl` becomes stale). A fresh failed observation does not become `REACHABLE` just because an older success exists. A later `CONNECTED` observation restores `REACHABLE`.
 
 **Table 2. Timeout origin and conservative interpretation.**
 
 | Origin | Outcome or error | Derived state |
 | --- | --- | --- |
-| Socket connection attempt inside `NoValidConnectionsError` times out | `CONNECTION_TIMEOUT` | `UNREACHABLE` |
-| Paramiko raises an otherwise unqualified `TimeoutError` | `TIMEOUT` | `CHECK_ERROR` |
-| SSH banner or protocol problem | Usually `UNKNOWN_ERROR` | `CHECK_ERROR` |
+| Any resolved TCP candidate times out and none connects | `CONNECTION_TIMEOUT` | `UNREACHABLE` |
+| TCP connects, then SSH banner/protocol negotiation times out | `TIMEOUT` | `CHECK_ERROR` |
+| Other SSH banner or protocol problem | `UNKNOWN_ERROR` | `CHECK_ERROR` |
 | Authentication rejection or Paramiko authentication exception | `AUTH_FAILED` | `CHECK_ERROR` |
 | Parent executor reaches its total worker deadline | `EXECUTION_TIMEOUT` | `CHECK_ERROR` |
 | Local capacity/same-node admission or worker unavailability | Exception; no new observation | Previous observation continues to age |
 | HTTP client stops waiting | No automatic observation from that event alone | Existing status is unchanged |
 
-The committed [`transport.py`](../../src/fleet_manager/connectivity/transport.py) and [`executor.py`](../../src/fleet_manager/connectivity/executor.py) now preserve two timeout origins in the shared [`ConnectivityOutcome`](../../src/fleet_manager/connectivity/models.py). The older `TIMEOUT` value remains readable for historical database rows but is treated conservatively because its origin was ambiguous. Paramiko does not reliably label every banner or authentication delay as a distinct outcome here; the code does not claim to infer an exact stage from exception text. An encrypted SSH connection or a local deadline is not proof that a remote node is down.
+The committed [`transport.py`](../../src/fleet_manager/connectivity/transport.py) and [`executor.py`](../../src/fleet_manager/connectivity/executor.py) preserve three timeout origins in the shared [`ConnectivityOutcome`](../../src/fleet_manager/connectivity/models.py): TCP establishment, post-connect SSH verification, and the parent worker deadline. Resolution returns IPv4 and IPv6 candidates in an operating-system-defined order. The transport tries all candidates, closes each failed socket, and uses a deterministic final policy: any timeout wins over refusals, all-refused becomes `CONNECTION_REFUSED`, and other mixed socket errors remain `UNKNOWN_ERROR`. DNS and all sequential attempts remain inside the child-process deadline. Paramiko does not expose a distinct typed exception for every authentication delay, so an encrypted SSH connection or a local deadline is still not proof that a remote node is down.
 
 ## 3. Freshness and persistence
 
@@ -108,7 +108,7 @@ An **async task** schedules Python coroutine work; `asyncio.to_thread()` moves t
 
 ## 5. Tests and tradeoffs
 
-[`test_freshness.py`](../../tests/test_freshness.py) fixes the clock and checks first state, exact TTL, stale success/failure, timeout origin, future/naive times, and timezone offsets. [`test_monitoring_unit.py`](../../tests/test_monitoring_unit.py) uses a temporary SQLite database and fake executor to check latest-row ordering, UTC persistence, recovery, multi-node scheduling, overlap, storage errors, and bounded shutdown without importing `main.py`. The existing mixed `test_scheduler.py`, `test_connectivity.py`, and `test_status_api.py` import later HTTP composition; they remain outside this chunk.
+[`test_freshness.py`](../../tests/test_freshness.py) fixes the clock and checks first state, exact TTL, stale success/failure, timeout origin, future/naive times, and timezone offsets. [`test_ssh_transport.py`](../../tests/test_ssh_transport.py) checks hostname, IPv4 and IPv6 resolution, mixed candidate failures, per-candidate timeout assignment, socket cleanup, strict SSH identity arguments, and post-connect timeouts. [`test_connectivity_executor.py`](../../tests/test_connectivity_executor.py) proves blocked DNS and sequential attempts are killed at the parent deadline. [`test_monitoring_unit.py`](../../tests/test_monitoring_unit.py) uses a temporary SQLite database and fake executor to check latest-row ordering, UTC persistence, recovery, multi-node scheduling, overlap, storage errors, and bounded shutdown without importing `main.py`.
 
 From `fleet-manager/` with the project environment:
 

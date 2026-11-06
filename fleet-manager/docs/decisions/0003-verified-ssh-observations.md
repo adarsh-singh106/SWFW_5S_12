@@ -53,6 +53,26 @@ The gate is per application process, so deploy with one Uvicorn worker until
 cross-process coordination is designed. Abrupt parent-process termination and
 OS process creation behavior are outside the graceful-shutdown guarantee.
 
+## Phase-aware TCP amendment (2026-11-06)
+
+The transport now resolves the registered endpoint with `getaddrinfo()`, tries
+each IPv4 or IPv6 stream address in resolver order, and gives every TCP connect
+attempt the configured connect timeout. Failed candidate sockets are closed
+before the next candidate. A successful socket is passed to Paramiko with the
+original normalized endpoint and SSH port, so the existing strict `known_hosts`
+lookup, unknown-key rejection, key-mismatch rejection, and authentication
+policy remain in force.
+
+If every candidate fails, a timeout on any candidate produces
+`CONNECTION_TIMEOUT`; only an all-refused set produces `CONNECTION_REFUSED`.
+Mixed failures containing another socket error remain `UNKNOWN_ERROR` unless a
+timeout occurred. This policy tries every candidate while avoiding the false
+claim that every operating-system socket error proves unreachability. DNS and
+sequential attempts are still bounded by the executor's total child-process
+deadline; no resolver thread or retry loop was added. A timeout after a TCP
+socket connects remains `TIMEOUT`, and the parent deadline remains
+`EXECUTION_TIMEOUT`, both interpreted as check errors.
+
 ## Storage and interpretation
 
 The existing `nodes` table and `/api/nodes` responses remain unchanged. App

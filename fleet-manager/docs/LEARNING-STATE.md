@@ -1,5 +1,57 @@
 # Current learning and engineering checkpoint
 
+## Chunk 09: phase-aware SSH timeout classification - 2026-11-06
+
+Author/environment: executing Codex agent, Windows PowerShell, repository
+`.venv/Scripts/python.exe`. Authorized scope: local reliability correction,
+tests, documentation, and one commit; no GCE access, deployment, VM change, UI
+work, schema migration, or new dependency.
+
+- User-supplied production report: stopping node C left controller `/healthz`
+  at HTTP 200 and nodes A/B connected; C recorded `TIMEOUT`/`CHECK_ERROR`;
+  after restart, the scheduler restored `REACHABLE`/`CONNECTED` and Prometheus
+  later reported its exporter `up = 1`. No raw GCE logs were inspected here.
+- Source inspection of Paramiko 5.1.0 showed that its internal multi-address
+  connector re-raises a TCP `TimeoutError` directly while Fleet Manager's broad
+  handler recorded it as generic `TIMEOUT`. The user-reported stopped-node-C
+  evidence is consistent with TCP establishment timeout, but the historical
+  observation does not prove that phase retrospectively.
+- The transport now resolves IPv4/IPv6 stream candidates explicitly, applies
+  the configured timeout to every TCP attempt, tries later candidates, and
+  closes every attempted socket. It passes a successful socket to Paramiko
+  while retaining the original normalized endpoint and port for strict host-key
+  verification. No thread, hidden retry loop, dependency, enum, or schema was
+  added.
+- Deterministic all-failed policy: any TCP timeout becomes
+  `CONNECTION_TIMEOUT`; all-refused becomes `CONNECTION_REFUSED`; other mixed
+  socket errors remain `UNKNOWN_ERROR`. A wrapped post-connect SSH timeout is
+  `TIMEOUT`; the existing parent deadline remains `EXECUTION_TIMEOUT`. The
+  existing status contract maps only refused/connection-timeout to
+  `UNREACHABLE`; all other failures remain `CHECK_ERROR` with their stored
+  reason.
+- RED evidence: the new transport suite initially failed 11 tests before the
+  preconnect implementation, and the wrapped protocol-timeout case failed
+  before cause-aware classification. A mutation that disabled timeout priority
+  was caught by the mixed IPv6-timeout/IPv4-refusal test. The full suite also
+  exposed the existing real process-backed banner-stall assertion; it was
+  updated from `UNKNOWN_ERROR` to the more specific `TIMEOUT` and strengthened
+  to verify persisted outcome and error category.
+- Observed local verification: focused SSH transport/loopback tests 20 passed;
+  freshness tests 14 passed; connectivity service, executor, status, and
+  scheduler tests 42 passed; focused real banner-stall test 1 passed. Full
+  pytest passed 466 tests with one existing Starlette/httpx deprecation warning
+  in 109.89 seconds. Ruff lint passed, Ruff format check passed after formatting
+  77 files, and mypy reported no issues in 42 source files.
+- Evidence limit: candidate ordering and failures are deterministic local test
+  doubles except for the existing loopback SSH and banner-stall coverage. No
+  cloud endpoint was contacted, so this commit does not reclassify the earlier
+  GCE row or claim live post-change verification. Authentication timeout remains
+  represented by Paramiko's authentication exception contract. Student
+  understanding and video evidence were not assessed.
+- Exact next action: in a later approved increment, add a disposable dual-stack
+  integration harness that exercises real operating-system resolver ordering
+  and mixed IPv4/IPv6 failures through the isolated worker.
+
 ## Acceptance correction - 2026-11-05
 
 Author/environment: executing Codex agent, Windows PowerShell, repository `.venv/Scripts/python.exe`.

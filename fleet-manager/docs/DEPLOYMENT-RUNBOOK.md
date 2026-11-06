@@ -790,7 +790,11 @@ Expected: the controller remains responsive; C's probe completes within configur
 `FLEET_MANAGER_SSH_TOTAL_TIMEOUT_SECONDS` plus transport overhead, A/B remain fresh and
 REACHABLE, and C recovers automatically after restoration. `CONNECTION_TIMEOUT` or
 `CONNECTION_REFUSED` maps to UNREACHABLE; generic `TIMEOUT` maps to CHECK_ERROR under
-the current contract. Record the actual category; do not assume TIMEOUT proves host death.
+the current contract. `EXECUTION_TIMEOUT` also maps to CHECK_ERROR because the parent
+deadline does not identify the remote phase. Record the actual category; do not assume
+any SSH timeout proves complete host or application failure. The phase-aware transport
+makes future TCP establishment timeouts explicit; an older generic `TIMEOUT` observation
+cannot be reclassified retrospectively.
 Scheduler polling must produce a **new** observation timestamp after restoration.
 A trap is best effort, not protection against operator-host loss; the independent
 recovery operator must start C if the shell is lost. If any restoration check fails,

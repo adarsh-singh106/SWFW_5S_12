@@ -22,9 +22,9 @@ At query time, `GET /api/nodes/status` evaluates each node's latest observation 
 and observation TTL (`DEFAULT_OBSERVATION_TTL_SECONDS = 180`, configurable via `FLEET_MANAGER_OBSERVATION_TTL_SECONDS`):
 - `NOT_CHECKED`: Node has no recorded observation.
 - `REACHABLE`: Latest observation is `CONNECTED` and age <= TTL.
-- `UNREACHABLE`: Latest observation is `CONNECTION_REFUSED` or `TIMEOUT` and age <= TTL.
+- `UNREACHABLE`: Latest observation is `CONNECTION_REFUSED` or `CONNECTION_TIMEOUT` and age <= TTL.
 - `STALE`: Latest observation age > TTL (reason `TTL_EXPIRED`). Stale observations are never reported healthy or reachable.
-- `CHECK_ERROR`: Latest observation was `AUTH_FAILED`, `HOST_KEY_MISMATCH`, `HOST_KEY_UNKNOWN`, `DNS_ERROR`, `UNKNOWN_ERROR`, or has an invalid/future timestamp. Detailed failure reasons are strictly preserved in `reason` and `observation.outcome`.
+- `CHECK_ERROR`: Latest observation was `TIMEOUT`, `EXECUTION_TIMEOUT`, `AUTH_FAILED`, `HOST_KEY_MISMATCH`, `HOST_KEY_UNKNOWN`, `DNS_ERROR`, `UNKNOWN_ERROR`, or has an invalid/future timestamp. Detailed failure reasons are strictly preserved in `reason` and `observation.outcome`.
 
 ## Automatic Monitoring Scheduler
 
