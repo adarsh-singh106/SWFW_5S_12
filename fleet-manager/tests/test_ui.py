@@ -238,8 +238,11 @@ def test_dashboard_contains_redesigned_console_elements() -> None:
 
     html = _load_dashboard_html()
     assert "Linux Fleet Operations Console" in html
-    assert "Fleet Infrastructure Health" in html
-    assert "TTL: 180s Policy" in html
+    assert "Fleet overview" in html
+    assert "Observation TTL awaiting API" in html
+    assert 'id="inventory-results"' in html
+    assert 'aria-pressed="true"' in html
+    assert 'for="search-input"' in html
     assert "availability-percent" not in html
     assert "Observed Nodes Availability" not in html
     assert "search-input" in html
@@ -315,6 +318,7 @@ def test_all_static_assets_return_http_200(tmp_path: Path, api_token: str) -> No
             "operations.js",
             "history.js",
             "auth.js",
+            "inventory-view.js",
         ]
         for js in js_assets:
             resp = client.get(f"/static/js/{js}")

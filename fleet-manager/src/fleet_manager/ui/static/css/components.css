@@ -508,6 +508,46 @@ tr.selected-row td:first-child {
 .badge-authentication_required { background: rgba(244, 114, 182, 0.15); color: var(--uncertain-text); border-color: var(--uncertain-border); }
 .badge-configuration_error { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
 
+/* Fleet inventory: one semantic table with a compact row presentation on phones. */
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.overview-strip { padding: var(--space-5); }
+.overview-title { text-transform: none; letter-spacing: -0.01em; font-size: 1rem; }
+.stat-card { min-width: 0; }
+.stat-value { font-variant-numeric: tabular-nums; }
+.inventory-panel[data-refresh-state="unverified"] { border-color: var(--warning-border); }
+.inventory-panel[data-refresh-state="unverified"] .inventory-refresh { color: var(--warning-text); font-weight: 700; }
+.inventory-refresh { color: var(--text-muted); font-size: 0.75rem; }
+.search-box { max-width: 340px; }
+.search-label { display: block; margin-bottom: var(--space-1); color: var(--text-secondary); font-size: 0.72rem; font-weight: 700; }
+.search-icon { top: calc(50% + 0.55rem); }
+.inventory-results { padding: var(--space-2) var(--space-4); color: var(--text-muted); font-size: 0.72rem; border-bottom: 1px solid var(--border-subtle); }
+.inventory-table { width: 100%; table-layout: fixed; }
+.inventory-table th, .inventory-table td { padding: 0.65rem 0.65rem; }
+.inventory-table th:nth-child(1) { width: 15%; }
+.inventory-table th:nth-child(2) { width: 14%; }
+.inventory-table th:nth-child(3) { width: 12%; }
+.inventory-table th:nth-child(4) { width: 16%; }
+.inventory-table th:nth-child(5) { width: 13%; }
+.inventory-table th:nth-child(6) { width: 11%; }
+.inventory-table th:nth-child(7) { width: 19%; }
+.inventory-table tr[data-node-id] { cursor: pointer; }
+.inventory-table tr[data-node-id]:focus-visible { outline: 3px solid var(--border-focus); outline-offset: -3px; }
+.inventory-table td { overflow-wrap: anywhere; }
+.inventory-node { font-weight: 600; }
+.inventory-node .node-name-text, .inventory-node .node-id-tag, .inventory-observed span { display: block; }
+.inventory-node .node-name-text { white-space: normal; }
+.inventory-table .status-badge { max-width: 100%; white-space: normal; overflow-wrap: anywhere; line-height: 1.25; }
+.inventory-table .status-badge::before { flex: none; }
+.inventory-observed { font-size: 0.74rem; font-variant-numeric: tabular-nums; }
+.observed-time { color: var(--text-secondary); }
+.observed-age { color: var(--text-muted); }
+.observed-age.is-expired { color: var(--stale-text); font-weight: 700; }
+.inventory-reason { color: var(--danger-text); font-family: var(--font-mono); font-size: 0.7rem; }
+.endpoint-cell { white-space: normal; font-variant-numeric: tabular-nums; }
+.inventory-actions { white-space: normal; }
+.inventory-actions .btn { min-height: 34px; padding: 0.3rem 0.45rem; margin: 0 0.2rem 0.2rem 0; font-size: 0.7rem; }
+.inventory-actions .btn:last-child { margin-right: 0; }
+
 /* Operations Console */
 .ops-target-banner {
   background: var(--bg-card);

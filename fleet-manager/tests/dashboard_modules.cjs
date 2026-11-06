@@ -109,6 +109,73 @@ test('search renders exactly matching names, addresses and ports after previous 
   state.setCurrentSearch('22'); render(fleet); assert.deepEqual(rowIds(h), ['1', '2']);
 });
 
+test('overview counts API connectivity states and keeps setup separate', async () => {
+  const h = await harness(); const render = h.module('fleet').renderFleet;
+  const statuses = ['REACHABLE', 'UNREACHABLE', 'CHECK_ERROR', 'STALE', 'NOT_CHECKED'];
+  render({ observation_ttl_seconds: 45, nodes: statuses.map((status, i) => ({
+    node: node(i + 1), display_status: status, setup_state: 'HOST_KEY_REQUIRED'
+  })) });
+  for (const id of ['reachable', 'unreachable', 'errors', 'stale', 'not-checked'])
+    assert.equal(h.element('stat-' + id).textContent, '1');
+  assert.equal(h.element('stat-total').textContent, '5');
+  assert.match(h.element('observation-ttl').textContent, /45/);
+  const row = h.element('nodes-table-body').children[0];
+  assert.equal(row.children[2].textContent, 'REACHABLE');
+  assert.equal(row.children[3].textContent, 'HOST_KEY_REQUIRED');
+});
+
+test('observations show API TTL, valid age, expiry, and invalid or missing timestamps', async () => {
+  const h = await harness(); const render = h.module('fleet').renderFleet;
+  const now = Date.now();
+  render({ observation_ttl_seconds: 30, nodes: [
+    { node: node(1), display_status: 'REACHABLE', setup_state: 'READY', observation: { observed_at: new Date(now - 5000).toISOString() } },
+    { node: node(2), display_status: 'STALE', setup_state: 'READY', reason: 'TTL_EXPIRED', observation: { observed_at: new Date(now - 60000).toISOString() } },
+    { node: node(3), display_status: 'CHECK_ERROR', setup_state: 'CONFIGURATION_ERROR', reason: 'INVALID_TIMESTAMP', observation: { observed_at: 'invalid' } },
+    { node: node(4), display_status: 'NOT_CHECKED', setup_state: 'PENDING_SETUP', observation: null }
+  ] });
+  const rows = h.element('nodes-table-body').children;
+  assert.match(rows[0].children[4].textContent, /5s ago/);
+  assert.match(rows[1].children[4].textContent, /Expired/);
+  assert.match(rows[2].children[4].textContent, /Invalid timestamp/);
+  assert.match(rows[3].children[4].textContent, /Never observed/);
+  assert.equal(h.element('last-updated').textContent.includes('Observed'), false);
+  assert.equal(h.module('inventory-view').observationDetails({}, 30, 'CHECK_ERROR').timestamp, 'Timestamp unavailable');
+});
+
+test('hostile inventory values and failure reason remain text, with contextual actions', async () => {
+  const h = await harness(); const render = h.module('fleet').renderFleet;
+  render({ observation_ttl_seconds: 60, nodes: [{
+    node: { id: 7, name: '<img src=x onerror=alert(1)>', address: '<script>bad</script>', ssh_port: 2222 },
+    display_status: 'UNREACHABLE', setup_state: 'AUTHENTICATION_REQUIRED',
+    reason: '<svg onload=alert(2)>', observation: null
+  }] });
+  const row = h.element('nodes-table-body').children[0];
+  assert.match(row.children[0].textContent, /<img/);
+  assert.match(row.children[1].textContent, /<script>/);
+  assert.match(row.children[5].textContent, /<svg/);
+  assert.equal(row.children.some(cell => cell._html !== undefined), false);
+  assert.deepEqual(row.querySelectorAll('button').map(x => x.textContent), ['Check SSH', 'Operations', 'Resume onboarding']);
+});
+
+test('all setup states are separate from connectivity and selected node survives filters', async () => {
+  const h = await harness(); const render = h.module('fleet').renderFleet; const state = h.module('state');
+  const setups = ['READY', 'HOST_KEY_REQUIRED', 'AUTHENTICATION_REQUIRED', 'CONFIGURATION_ERROR', 'PENDING_SETUP'];
+  const data = { observation_ttl_seconds: 60, nodes: setups.map((setup, i) => ({
+    node: node(i + 1), display_status: 'REACHABLE', setup_state: setup
+  })) };
+  render(data);
+  assert.deepEqual(h.element('nodes-table-body').children.map(row => row.children[3].textContent), setups);
+  state.setSelectedNodeId(2); render(data);
+  assert.equal(h.element('nodes-table-body').children[1].className, 'selected-row');
+  state.setCurrentSearch('no-match'); render(data); assert.deepEqual(rowIds(h), []);
+  assert.equal(state.getSelectedNodeId(), 2);
+  state.setCurrentSearch(''); render(data);
+  assert.equal(h.element('nodes-table-body').children[1].className, 'selected-row');
+  render({ observation_ttl_seconds: 60, nodes: [] });
+  assert.match(h.element('nodes-table-body').textContent, /No nodes registered/);
+  assert.equal(h.element('inventory-results').textContent, 'No registered nodes');
+});
+
 test('existing pending inventory node offers a working onboarding resume action', async () => {
   const h = await harness('', async url => url.endsWith('/onboarding') ? details(2) : { nodes: [] });
   h.module('state').setOperatorToken('test-only'); h.module('fleet').renderFleet(fleet);

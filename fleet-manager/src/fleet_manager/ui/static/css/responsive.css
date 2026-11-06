@@ -4,6 +4,18 @@
 @media (max-width: 1180px) {
   .stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+@media (min-width: 601px) and (max-width: 1100px) {
+  .inventory-table th:nth-child(2), .inventory-table td:nth-child(2),
+  .inventory-table th:nth-child(6), .inventory-table td:nth-child(6) { display: none; }
+  .inventory-table th:nth-child(1) { width: 21%; }
+  .inventory-table th:nth-child(3) { width: 17%; }
+  .inventory-table th:nth-child(4) { width: 21%; }
+  .inventory-table th:nth-child(5) { width: 17%; }
+  .inventory-table th:nth-child(7) { width: 24%; }
+}
+@media (min-width: 601px) and (max-width: 800px) {
+  .inventory-table { min-width: 790px; }
+}
 @media (max-width: 900px) {
   .app-header-inner { align-items: flex-start; }
   .app-context { flex-wrap: wrap; justify-content: flex-end; }
@@ -30,4 +42,19 @@
   .nav-link .tag { display: none; }
   .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .footer-content { align-items: flex-start; }
+}
+@media (max-width: 600px) {
+  .inventory-table, .inventory-table tbody { display: block; width: 100%; }
+  .inventory-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .inventory-table tr[data-node-id] { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); padding: var(--space-3); border-bottom: 1px solid var(--border-default); }
+  .inventory-table tr[data-node-id]:last-child { border-bottom: 0; }
+  .inventory-table tr[data-node-id]:hover { background: var(--bg-card-hover); }
+  .inventory-table tr[data-node-id].selected-row { background: var(--bg-card-selected); box-shadow: inset 3px 0 var(--accent-primary); }
+  .inventory-table tr[data-node-id] td { display: block; min-width: 0; padding: 0; border: 0; background: none; }
+  .inventory-table td::before { content: attr(data-label); display: block; margin-bottom: 0.2rem; color: var(--text-muted); font: 700 0.62rem/1.3 var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; }
+  .inventory-table .inventory-node, .inventory-table .endpoint-cell, .inventory-table .inventory-observed, .inventory-table .inventory-reason, .inventory-table .inventory-actions { grid-column: 1 / -1; }
+  .inventory-node .node-name-text { font-size: 0.95rem; }
+  .inventory-actions .btn { margin-bottom: var(--space-1); }
+  .inventory-table .empty-state { display: block; padding: var(--space-5); }
+  .inventory-table .empty-state::before { display: none; }
 }

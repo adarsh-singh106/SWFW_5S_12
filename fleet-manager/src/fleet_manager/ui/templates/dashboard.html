@@ -182,21 +182,21 @@
   <!-- Main Application Body -->
   <main>
 
-    <!-- Overview Strip: Fleet Health & Availability -->
+    <!-- Fleet observation summary; status and setup are distinct. -->
     <section class="overview-strip" aria-labelledby="overview-title-heading">
       <div class="overview-header">
         <div class="overview-title" id="overview-title-heading">
           <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#activity"></use></svg>
-          Fleet Infrastructure Health
+          Fleet overview
         </div>
-        <div class="overview-policy-note" title="Periodic observation expiry policy">
-          TTL: 180s Policy
+        <div id="observation-ttl" class="overview-policy-note" title="API observation expiry policy">
+          Observation TTL awaiting API
         </div>
       </div>
 
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-label">Total Nodes</div>
+          <div class="stat-label">Total registered</div>
           <div class="stat-value text-info" id="stat-total">0</div>
         </div>
         <div class="stat-card">
@@ -208,11 +208,11 @@
           <div class="stat-value text-danger" id="stat-unreachable">0</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Check Errors</div>
+          <div class="stat-label">Check error</div>
           <div class="stat-value text-warning" id="stat-errors">0</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Stale Obvs</div>
+          <div class="stat-label">Stale</div>
           <div class="stat-value text-stale" id="stat-stale">0</div>
         </div>
         <div class="stat-card">
@@ -258,44 +258,48 @@
 
       <!-- Left Column: Inventory Table, Search, Filters -->
       <div class="column-left">
-        <div class="card" role="region" aria-labelledby="inventory-card-title">
+        <div class="card inventory-panel" id="inventory-card" role="region" aria-labelledby="inventory-card-title">
           <div class="card-header">
             <div class="card-title" id="inventory-card-title">
               <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#server"></use></svg>
               <span>Managed Nodes Inventory</span>
             </div>
-            <div id="last-updated" class="presentation-26">
-              Awaiting data...
+            <div id="last-updated" class="inventory-refresh" role="status">
+              Browser refresh pending
             </div>
           </div>
 
           <!-- Inventory Filter Toolbar -->
           <div class="inventory-toolbar">
             <div class="search-box">
+              <label class="search-label" for="search-input">Find a node</label>
               <svg class="search-icon icon" aria-hidden="true"><use href="/static/icons.svg#search"></use></svg>
               <input type="text" id="search-input" class="search-input" placeholder="Search by name, address, or port...">
             </div>
-            <div class="filter-pills">
-              <button type="button" class="filter-btn active" data-filter="ALL">All (<span id="filter-count-all">0</span>)</button>
-              <button type="button" class="filter-btn" data-filter="REACHABLE">Reachable</button>
-              <button type="button" class="filter-btn" data-filter="UNREACHABLE">Unreachable</button>
-              <button type="button" class="filter-btn" data-filter="CHECK_ERROR">Errors</button>
-              <button type="button" class="filter-btn" data-filter="STALE">Stale</button>
+            <div class="filter-pills" role="group" aria-label="Filter by connectivity">
+              <button type="button" class="filter-btn active" data-filter="ALL" aria-pressed="true">All (<span id="filter-count-all">0</span>)</button>
+              <button type="button" class="filter-btn" data-filter="REACHABLE" aria-pressed="false">Reachable</button>
+              <button type="button" class="filter-btn" data-filter="UNREACHABLE" aria-pressed="false">Unreachable</button>
+              <button type="button" class="filter-btn" data-filter="CHECK_ERROR" aria-pressed="false">Check error</button>
+              <button type="button" class="filter-btn" data-filter="STALE" aria-pressed="false">Stale</button>
+              <button type="button" class="filter-btn" data-filter="NOT_CHECKED" aria-pressed="false">Not checked</button>
             </div>
           </div>
+          <div class="inventory-results" id="inventory-results" role="status">Awaiting inventory</div>
 
           <!-- Inventory Table -->
           <div class="table-responsive">
-            <table>
+            <table class="inventory-table">
+              <caption class="visually-hidden">Managed Linux nodes, connectivity, setup, observations, failure reasons and actions</caption>
               <thead>
                 <tr>
-                  <th>Status</th>
-                  <th>Node</th>
-                  <th>Endpoint</th>
-                  <th>Freshness</th>
-                  <th>Last Observed</th>
-                  <th>Diagnostic</th>
-                  <th>Actions</th>
+                  <th scope="col">Node</th>
+                  <th scope="col">Endpoint</th>
+                  <th scope="col">Connectivity</th>
+                  <th scope="col">Setup</th>
+                  <th scope="col">Last observed</th>
+                  <th scope="col">Failure reason</th>
+                  <th scope="col">Actions</th>
                 </tr>
               </thead>
               <tbody id="nodes-table-body">
