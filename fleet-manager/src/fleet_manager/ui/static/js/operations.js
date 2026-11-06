@@ -74,7 +74,7 @@ export function initOperations() {
       } finally {
         if (execBtn) {
           execBtn.disabled = false;
-          execBtn.innerHTML = '<span>▶ Execute Remote Operation</span>';
+          execBtn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="/static/icons.svg#play"></use></svg><span>Execute Remote Operation</span>';
         }
       }
     });

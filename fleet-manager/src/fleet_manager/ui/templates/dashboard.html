@@ -19,10 +19,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-icon-badge" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
+          <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#lock"></use></svg>
         </div>
         <div>
           <h2 id="auth-modal-title" class="presentation-2">Operator Authentication</h2>
@@ -43,8 +40,8 @@
           <label class="form-label" for="token-input">Operator Bearer Token</label>
           <div class="presentation-6">
             <input type="password" id="token-input" class="presentation-7 form-control" placeholder="32-128 character URL-safe token" required autofocus autocomplete="off">
-            <button type="button" id="toggle-token-btn" title="Toggle token visibility" class="presentation-8">
-              👁
+            <button type="button" id="toggle-token-btn" title="Toggle token visibility" aria-label="Toggle token visibility" class="presentation-8">
+              <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#eye"></use></svg>
             </button>
           </div>
         </div>
@@ -60,24 +57,20 @@
     <div class="modal-card modal-card-wide">
       <div class="modal-header">
         <div class="modal-icon-badge" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-            <path d="M2 17l10 5 10-5"></path>
-            <path d="M2 12l10 5 10-5"></path>
-          </svg>
+          <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#box"></use></svg>
         </div>
         <div class="presentation-11">
           <h2 id="onboarding-modal-title" class="presentation-2">Guided SSH Node Onboarding</h2>
           <p id="onboarding-node-title" class="presentation-12"></p>
         </div>
-        <button type="button" id="close-onboarding-btn" class="btn btn-secondary btn-sm" title="Close onboarding guide">✕</button>
+        <button type="button" id="close-onboarding-btn" class="btn btn-secondary btn-sm" title="Close onboarding guide" aria-label="Close onboarding guide"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#close"></use></svg></button>
       </div>
 
       <div class="onboarding-steps">
         <!-- Step 1: Inventory Registered -->
         <div class="onboarding-step completed">
           <div class="step-header">
-            <span class="step-title"><span class="step-num completed">✓</span> 1. Node Inventory Registered</span>
+            <span class="step-title"><span class="step-num completed"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#check"></use></svg></span> 1. Node Inventory Registered</span>
             <span class="status-badge badge-reachable">Done</span>
           </div>
           <p class="presentation-13">
@@ -133,7 +126,7 @@
         <!-- Step 5: Operational Readiness -->
         <div class="presentation-1 onboarding-step" id="step-complete-box">
           <div class="step-header">
-            <span class="presentation-19 step-title"><span class="step-num completed">✓</span> 5. Node Operationally Ready</span>
+            <span class="presentation-19 step-title"><span class="step-num completed"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#check"></use></svg></span> 5. Node Operationally Ready</span>
             <span class="status-badge badge-ready">READY</span>
           </div>
           <p class="presentation-16">
@@ -145,50 +138,45 @@
   </div>
 
   <!-- Global Application Shell Header -->
-  <header>
-    <div class="brand-section">
-      <div class="brand-icon" aria-hidden="true">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-          <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-          <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-          <line x1="6" y1="6" x2="6.01" y2="6"></line>
-          <line x1="6" y1="18" x2="6.01" y2="18"></line>
-        </svg>
-      </div>
-      <div>
-        <div class="presentation-20">
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="brand-section">
+        <div class="brand-icon" aria-hidden="true"><svg class="icon icon-brand"><use href="/static/icons.svg#server"></use></svg></div>
+        <div class="brand-copy">
+          <div class="brand-eyebrow">OPERATIONS / LINUX FLEET</div>
           <h1 class="brand-title">Fleet Operations Dashboard</h1>
-          <span class="env-pill">
-            <span class="status-dot"></span>
-            Loopback API
-          </span>
+          <div class="brand-subtitle">Linux Fleet Operations Console</div>
         </div>
-        <div class="brand-subtitle">Linux Fleet Operations Console</div>
+      </div>
+      <div class="app-context" aria-label="Operational context">
+        <span class="context-label">Control plane</span>
+        <span class="env-pill"><span class="status-dot" aria-hidden="true"></span>Loopback API</span>
+        <span class="context-note">Local access</span>
       </div>
     </div>
-
-    <!-- Live Telemetry Status & External Integrations -->
-    <div class="nav-actions">
+    <nav class="app-navigation" aria-label="Fleet navigation">
+      <div class="app-navigation-inner nav-actions">
       <a href="http://127.0.0.1:3000/d/fleet-manager-overview/fleet-manager-overview" target="_blank" rel="noopener noreferrer" class="nav-link" title="Open Provisioned Grafana Dashboard for Linux Host Telemetry">
-        <span aria-hidden="true">📊</span>
+        <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#chart"></use></svg>
         <span>Grafana Dashboard</span>
         <span class="tag">Metrics</span>
       </a>
       <a href="/metrics" target="_blank" rel="noopener noreferrer" class="nav-link" title="View Prometheus Metrics Text Format Endpoint">
-        <span aria-hidden="true">📈</span>
+        <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#activity"></use></svg>
         <span>/metrics</span>
         <span class="tag">Feed</span>
       </a>
       <button id="toggle-register-btn" class="btn btn-secondary" title="Toggle Node Registration Panel">
-        <span>+ Add Node</span>
+        <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#plus"></use></svg><span>Add Node</span>
       </button>
       <button id="refresh-btn" class="btn btn-secondary" title="Trigger Full Fleet Status Refresh">
-        <span>🔄 Refresh</span>
+        <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#refresh"></use></svg><span>Refresh</span>
       </button>
       <button id="logout-btn" class="presentation-1 btn btn-danger" title="Wipe In-Memory Bearer Token and Lock Console">
-        <span>🔒 Lock Session</span>
+        <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#lock"></use></svg><span>Lock Session</span>
       </button>
-    </div>
+      </div>
+    </nav>
   </header>
 
   <!-- Main Application Body -->
@@ -198,9 +186,7 @@
     <section class="overview-strip" aria-labelledby="overview-title-heading">
       <div class="overview-header">
         <div class="overview-title" id="overview-title-heading">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-          </svg>
+          <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#activity"></use></svg>
           Fleet Infrastructure Health
         </div>
         <div class="overview-policy-note" title="Periodic observation expiry policy">
@@ -235,27 +221,13 @@
         </div>
       </div>
 
-      <!-- Honest Availability Bar & Ratio Indicator -->
-      <div class="availability-bar-container">
-        <div class="availability-meter-wrapper">
-          <div class="availability-track">
-            <div id="avail-bar-reachable" class="presentation-21 availability-fill-reachable"></div>
-            <div id="avail-bar-stale" class="presentation-21 availability-fill-stale"></div>
-            <div id="avail-bar-unreachable" class="presentation-21 availability-fill-unreachable"></div>
-          </div>
-          <span id="availability-percent" class="presentation-22">—</span>
-        </div>
-        <div id="availability-summary-text" class="presentation-23">
-          Observed Nodes Availability: <strong class="presentation-24">—</strong>
-        </div>
-      </div>
     </section>
 
     <!-- Collapsible Node Onboarding Drawer -->
     <section id="register-drawer" aria-labelledby="register-drawer-title" class="presentation-1">
       <div class="card-header">
         <div class="card-title" id="register-drawer-title">
-          <span>+</span>
+          <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#plus"></use></svg>
           <span>Register New Linux Node</span>
         </div>
       </div>
@@ -275,7 +247,7 @@
               <label class="form-label" for="node-port">SSH Port</label>
               <input type="number" id="node-port" class="form-control" value="22" min="1" max="65535" required>
             </div>
-            <button type="submit" class="btn btn-primary" id="register-btn">+ Register</button>
+            <button type="submit" class="btn btn-primary" id="register-btn"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#plus"></use></svg>Register</button>
           </div>
         </form>
       </div>
@@ -289,12 +261,7 @@
         <div class="card" role="region" aria-labelledby="inventory-card-title">
           <div class="card-header">
             <div class="card-title" id="inventory-card-title">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                <line x1="6" y1="18" x2="6.01" y2="18"></line>
-              </svg>
+              <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#server"></use></svg>
               <span>Managed Nodes Inventory</span>
             </div>
             <div id="last-updated" class="presentation-26">
@@ -305,10 +272,7 @@
           <!-- Inventory Filter Toolbar -->
           <div class="inventory-toolbar">
             <div class="search-box">
-              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
+              <svg class="search-icon icon" aria-hidden="true"><use href="/static/icons.svg#search"></use></svg>
               <input type="text" id="search-input" class="search-input" placeholder="Search by name, address, or port...">
             </div>
             <div class="filter-pills">
@@ -337,7 +301,7 @@
               <tbody id="nodes-table-body">
                 <tr>
                   <td colspan="7" class="empty-state">
-                    <div class="empty-state-icon">📡</div>
+                    <div class="empty-state-icon"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#activity"></use></svg></div>
                     <div>Loading inventory and observing fleet status...</div>
                   </td>
                 </tr>
@@ -352,10 +316,7 @@
         <div class="card" role="region" aria-labelledby="ops-card-title">
           <div class="card-header">
             <div class="card-title" id="ops-card-title">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="4 17 10 11 4 5"></polyline>
-                <line x1="12" y1="19" x2="20" y2="19"></line>
-              </svg>
+              <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#terminal"></use></svg>
               <span>Remote Operations Console</span>
             </div>
             <span id="selected-node-badge" class="presentation-1 status-badge badge-not_checked"></span>
@@ -364,7 +325,7 @@
           <div class="card-body">
             <!-- Empty state when no node is selected -->
             <div id="ops-empty-state" class="empty-state">
-              <div class="empty-state-icon">⚡</div>
+              <div class="empty-state-icon"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#bolt"></use></svg></div>
               <div class="presentation-27">No Target Selected</div>
               <div>Select a node from the inventory table to execute controlled operations and inspect audit logs.</div>
             </div>
@@ -409,11 +370,11 @@
                 </div>
 
                 <div id="arg-note-fixed" class="presentation-31">
-                  ℹ️ This action takes no additional arguments and executes safe kernel query commands.
+                  <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#info"></use></svg> This action takes no additional arguments and executes safe kernel query commands.
                 </div>
 
                 <button type="submit" class="presentation-10 btn btn-primary" id="exec-btn">
-                  <span>▶ Execute Remote Operation</span>
+                  <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#play"></use></svg><span>Execute Remote Operation</span>
                 </button>
               </form>
 
@@ -485,7 +446,7 @@
     <div class="footer-content">
       <div>
         <span>Fleet Manager Control Plane</span>
-        <span class="presentation-42">•</span>
+        <span class="presentation-42" aria-hidden="true">/</span>
         <span>Bounded SSHv2 Allowlist Engine</span>
       </div>
       <div class="footer-links">

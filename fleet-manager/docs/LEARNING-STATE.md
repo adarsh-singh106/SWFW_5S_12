@@ -1,5 +1,16 @@
 # Current learning and engineering checkpoint
 
+## Chunk 10B: premium design foundation and application shell - 2026-11-06
+
+Author/environment: executing Codex agent, Windows PowerShell, local `.venv/Scripts/python.exe`, Node.js, isolated Chrome/CDP browser QA. User approved this scope and one conventional commit. Git was clean at start (`main` ahead of `origin/main` by one commit); existing history and prerequisites were preserved.
+
+- Files changed: `src/fleet_manager/ui/static/css/tokens.css`, `layout.css`, `components.css`, `responsive.css`; `src/fleet_manager/ui/static/icons.svg`; `src/fleet_manager/ui/templates/dashboard.html`; `src/fleet_manager/ui/static/js/fleet.js`, `operations.js`; `tests/test_ui.py`; `scripts/browser_qa.cjs`; and this checkpoint.
+- Decisions: Graphite surfaces, warm neutral text and muted sage accent use local system fonts and CSS tokens; header separates brand, loopback control context and navigation. One local stroked SVG sprite supplies interface icons. Shared focus rings, input/button treatments and reduced motion apply across the existing screen. Narrow navigation wraps so actions remain visible. No new dependency or remote asset was added.
+- Corrected the existing ambiguous “Observed Nodes Availability” ratio by removing its display and calculation. The existing state counts remain REACHABLE, UNREACHABLE, CHECK_ERROR, STALE and NOT_CHECKED; overview metric redesign, including any coverage or SSH success ratio, is reserved for a later approved increment.
+- Observed tests: `pytest tests/test_ui.py -q` 8 passed, one existing Starlette/httpx deprecation warning; `node --experimental-vm-modules --test tests/dashboard_modules.cjs tests/dashboard_regression.cjs` 24 passed; Ruff check and format check passed (77 files); mypy passed (42 source files). A first ES-module invocation without the required Node VM flag failed due to `vm.SourceTextModule` being unavailable, then the documented flag passed. Isolated browser QA passed with cleanup true and no unexpected console/network failures at `.local/browser-qa/20261106T162049-6ff7f7eb/`. Browser checks included auth/logout/reload, API outage recovery, local SVG rendering, focus visibility, reduced motion, no remote resource requests and four viewport overflow assertions.
+- Real screenshots: before `.local/browser-qa/20261106T161403-a22875ef/`; after `.local/browser-qa/20261106T162225-491b4b4b/`, each at 1440x900, 1024x800, 768x1024 and 390x844. The before run and final run used the same viewport list. Visual inspection found no page-level horizontal overflow or clipped shell actions after navigation wrapping. Existing inventory table still has internal horizontal scrolling, including at 1440px when the operations column is visible; its rightmost actions require scrolling. Its workflow redesign belongs to Chunk 10C. This local browser evidence does not establish live GCE, SSH, Prometheus or Grafana behavior. Student understanding and video evidence were not assessed.
+- Exact next action: review the four before/after screenshot pairs and this commit; request explicit approval for Chunk 10C before inventory/overview work.
+
 ## Chunk 09: phase-aware SSH timeout classification - 2026-11-06
 
 Author/environment: executing Codex agent, Windows PowerShell, repository

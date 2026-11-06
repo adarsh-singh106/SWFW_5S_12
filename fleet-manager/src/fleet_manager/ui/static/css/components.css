@@ -3,7 +3,8 @@
   font-family: inherit;
   font-size: 0.8125rem;
   font-weight: 600;
-  padding: 0.42rem 0.85rem;
+  padding: 0.55rem 0.95rem;
+  min-height: 40px;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   cursor: pointer;
@@ -24,7 +25,7 @@
 
 .btn-primary {
   background: var(--accent-primary);
-  color: #08111d;
+  color: #152019;
   border-color: var(--accent-primary);
 }
 .btn-primary:hover {
@@ -44,12 +45,12 @@
 }
 
 .btn-danger {
-  background: rgba(239, 68, 68, 0.15);
+  background: var(--danger-bg);
   color: var(--danger-text);
   border-color: var(--danger-border);
 }
 .btn-danger:hover {
-  background: rgba(239, 68, 68, 0.25);
+  background: rgba(183, 93, 83, 0.28);
   border-color: var(--danger-text);
 }
 
@@ -63,7 +64,8 @@
   font-size: 0.8125rem;
   color: var(--text-secondary);
   text-decoration: none;
-  padding: 0.42rem 0.75rem;
+  padding: 0.55rem 0.85rem;
+  min-height: 40px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   background: var(--bg-surface);
@@ -81,7 +83,7 @@
 .nav-link .tag {
   font-size: 0.65rem;
   padding: 0.1rem 0.35rem;
-  background: rgba(14, 165, 233, 0.18);
+  background: var(--accent-tint);
   border-radius: var(--radius-sm);
   color: var(--accent-cyan);
   font-weight: 600;
@@ -297,7 +299,8 @@
 
 .form-control {
   width: 100%;
-  padding: 0.45rem 0.75rem;
+  padding: 0.6rem 0.75rem;
+  min-height: 40px;
   font-size: 0.8125rem;
   font-family: inherit;
   color: var(--text-primary);
@@ -307,10 +310,10 @@
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .form-control:focus {
-  outline: none;
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 1px var(--border-focus);
+  box-shadow: 0 0 0 2px var(--accent-tint);
 }
+.form-control:focus-visible, .search-input:focus-visible { outline: 3px solid var(--border-focus); outline-offset: 2px; }
 .form-control::placeholder {
   color: var(--text-disabled);
 }
@@ -340,7 +343,8 @@ select.form-control {
 
 .search-input {
   width: 100%;
-  padding: 0.36rem 0.65rem 0.36rem 1.85rem;
+  padding: 0.55rem 0.65rem 0.55rem 1.85rem;
+  min-height: 40px;
   font-size: 0.78rem;
   background: var(--bg-card);
   border: 1px solid var(--border-default);
@@ -348,7 +352,6 @@ select.form-control {
   color: var(--text-primary);
 }
 .search-input:focus {
-  outline: none;
   border-color: var(--border-focus);
 }
 

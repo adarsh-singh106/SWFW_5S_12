@@ -240,7 +240,8 @@ def test_dashboard_contains_redesigned_console_elements() -> None:
     assert "Linux Fleet Operations Console" in html
     assert "Fleet Infrastructure Health" in html
     assert "TTL: 180s Policy" in html
-    assert "availability-track" in html
+    assert "availability-percent" not in html
+    assert "Observed Nodes Availability" not in html
     assert "search-input" in html
     assert "filter-pills" in html
     assert "toggle-token-btn" in html
@@ -260,6 +261,21 @@ def test_dashboard_no_remote_assets_or_forbidden_storage() -> None:
     assert "cdnjs.cloudflare.com" not in html
     assert "cdn.jsdelivr.net" not in html
     assert "unpkg.com" not in html
+    assert 'href="/static/icons.svg#' in html
+    assert "📊" not in html
+    assert "📈" not in html
+    assert "🔄" not in html
+    assert "🔒" not in html
+
+    tokens = (STATIC_DIR / "css" / "tokens.css").read_text(encoding="utf-8")
+    assert ":focus-visible" in tokens
+    assert "prefers-reduced-motion: reduce" in tokens
+    assert "--bg-canvas: #141817" in tokens
+    app_js = (STATIC_DIR / "js" / "app.js").read_text(encoding="utf-8")
+    auth_js = (STATIC_DIR / "js" / "auth.js").read_text(encoding="utf-8")
+    assert "}, 10000)" in app_js
+    assert "getOperatorToken()" in app_js
+    assert 'tokenInput.type === "password"' in auth_js
 
     for js_file in (STATIC_DIR / "js").glob("*.js"):
         content = js_file.read_text(encoding="utf-8")
@@ -283,6 +299,11 @@ def test_all_static_assets_return_http_200(tmp_path: Path, api_token: str) -> No
             resp = client.get(f"/static/css/{css}")
             assert resp.status_code == 200, f"Failed to get /static/css/{css}"
             assert "text/css" in resp.headers["content-type"]
+
+        sprite = client.get("/static/icons.svg")
+        assert sprite.status_code == 200
+        assert "image/svg+xml" in sprite.headers["content-type"]
+        assert '<symbol id="server"' in sprite.text
 
         # JS assets
         js_assets = [

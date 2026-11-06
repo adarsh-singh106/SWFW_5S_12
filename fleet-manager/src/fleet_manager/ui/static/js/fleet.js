@@ -62,7 +62,7 @@ export async function fetchFleetStatus() {
 }
 
 /**
- * Render fleet summary counters, availability ratio, and node table rows.
+ * Render existing fleet state counters and node table rows.
  */
 export function renderFleet(fleetData) {
   const nodes = fleetData.nodes || [];
@@ -95,41 +95,13 @@ export function renderFleet(fleetData) {
   const countAllEl = document.getElementById("filter-count-all");
   if (countAllEl) countAllEl.textContent = nodes.length;
 
-  // Honest availability calculation
-  const observedTotal = reachable + unreachable + errors + stale;
-  const availPercentEl = document.getElementById("availability-percent");
-  const availTextEl = document.getElementById("availability-summary-text");
-  const barReachable = document.getElementById("avail-bar-reachable");
-  const barStale = document.getElementById("avail-bar-stale");
-  const barUnreachable = document.getElementById("avail-bar-unreachable");
-
-  if (observedTotal === 0) {
-    if (availPercentEl) availPercentEl.textContent = "—";
-    if (availTextEl) {
-      availTextEl.innerHTML = 'Observed Nodes Availability: <strong style="color: var(--text-primary);">—</strong> <span style="font-size: 0.7rem; color: var(--text-muted); margin-left: 0.4rem;">(Awaiting first probes)</span>';
-    }
-    if (barReachable) barReachable.style.width = "0%";
-    if (barStale) barStale.style.width = "0%";
-    if (barUnreachable) barUnreachable.style.width = "0%";
-  } else {
-    const pct = ((reachable / observedTotal) * 100).toFixed(1);
-    if (availPercentEl) availPercentEl.textContent = pct + "%";
-    if (availTextEl) {
-      const color = reachable === observedTotal ? 'var(--success-text)' : 'var(--text-primary)';
-      availTextEl.innerHTML = `Observed Nodes Availability: <strong style="color: ${color};">${pct}%</strong> <span style="font-size: 0.7rem; color: var(--text-muted); margin-left: 0.4rem;">(${reachable} of ${observedTotal} observed nodes)</span>`;
-    }
-    if (barReachable) barReachable.style.width = `${(reachable / observedTotal) * 100}%`;
-    if (barStale) barStale.style.width = `${(stale / observedTotal) * 100}%`;
-    if (barUnreachable) barUnreachable.style.width = `${((unreachable + errors) / observedTotal) * 100}%`;
-  }
-
   const lastUpdatedEl = document.getElementById("last-updated");
   if (lastUpdatedEl) {
     lastUpdatedEl.textContent = "Updated: " + new Date().toLocaleTimeString();
   }
 
   if (nodes.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">📦</div><div>No nodes registered. Use the "+ Add Node" form above to onboard a Linux host.</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#box"></use></svg></div><div>No nodes registered. Use the Add Node form above to onboard a Linux host.</div></td></tr>';
     return;
   }
 
