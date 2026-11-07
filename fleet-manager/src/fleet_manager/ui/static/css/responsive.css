@@ -33,6 +33,13 @@
   .search-box { max-width: 100%; }
 }
 @media (max-width: 540px) {
+  #onboarding-modal { padding: 0; align-items: stretch; }
+  .onboarding-dialog { max-width: none; max-height: 100dvh; min-height: 100dvh; border-radius: 0; }
+  .onboarding-dialog-header { padding: max(0.75rem, env(safe-area-inset-top)) 1rem 0.75rem; }
+  .onboarding-dialog-footer { flex-direction: column; padding: 0.75rem 1rem max(0.75rem, env(safe-area-inset-bottom)); }
+  .onboarding-dialog-footer .btn { width: 100%; justify-content: center; }
+  .onboarding-dialog .onboarding-steps { padding: 0.75rem 1rem; }
+  .onboarding-state-grid { grid-template-columns: minmax(0, 1fr); }
   .app-header-inner { gap: var(--space-2); align-items: center; }
   .brand-icon { width: 36px; height: 36px; }
   .brand-title { font-size: 0.95rem; }
@@ -42,6 +49,11 @@
   .nav-link .tag { display: none; }
   .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .footer-content { align-items: flex-start; }
+}
+@media (max-height: 520px) {
+  #onboarding-modal { align-items: stretch; padding: 0.25rem; }
+  .onboarding-dialog { max-height: calc(100dvh - 0.5rem); }
+  .onboarding-dialog-header, .onboarding-dialog-footer { padding-top: 0.45rem; padding-bottom: 0.45rem; }
 }
 @media (max-width: 600px) {
   .inventory-table, .inventory-table tbody { display: block; width: 100%; }

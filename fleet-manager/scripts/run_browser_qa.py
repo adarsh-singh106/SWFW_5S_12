@@ -38,8 +38,15 @@ CHROME = Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
 
 
 class FakeSSH:
+    def __init__(self, controls):
+        self.controls = controls
+
     def verify(self, node, settings):
-        return ConnectivityOutcome.CONNECTED
+        return (
+            ConnectivityOutcome.AUTH_FAILED
+            if self.controls["ssh_fail"]
+            else ConnectivityOutcome.CONNECTED
+        )
 
 
 class FakeOperations:
@@ -76,15 +83,15 @@ def main() -> int:
             format_known_hosts_entry("127.0.0.1", 2201, key.get_name(), key.get_base64())
         )
         settings = SSHSettings("operator", hosts, private)
+        controls = {"outage": False, "delay": 0.0, "ssh_fail": False, "scan_mismatch": False}
         app = create_app(
             database_path=work / "inventory.db",
             api_token=token,
             ssh_settings=settings,
-            ssh_transport=FakeSSH(),
+            ssh_transport=FakeSSH(controls),
             operation_transport=FakeOperations(),
             enable_scheduler=False,
         )
-        controls = {"outage": False, "delay": 0.0}
 
         @app.middleware("http")
         async def qa_controls(request: Request, call_next):
@@ -108,15 +115,24 @@ def main() -> int:
         server = uvicorn.Server(uvicorn.Config(app, log_level="error", access_log=False))
         thread = threading.Thread(target=server.run, kwargs={"sockets": [sock]}, daemon=True)
         # Fake BOTH scan call sites for the test; enrollment executes real locking/writes.
-        scan = (key.get_name(), key.get_base64(), calculate_fingerprint(key))
+        mismatch_key = paramiko.RSAKey.generate(2048)
+
+        def presented_key(address, port, timeout):
+            scanned_key = mismatch_key if controls["scan_mismatch"] and port == 2201 else key
+            return (
+                scanned_key.get_name(),
+                scanned_key.get_base64(),
+                calculate_fingerprint(scanned_key),
+            )
+
         with (
             patch(
                 "fleet_manager.connectivity.router.get_presented_host_key",
-                return_value=scan,
+                side_effect=presented_key,
             ),
             patch(
                 "fleet_manager.connectivity.trust.get_presented_host_key",
-                return_value=scan,
+                side_effect=presented_key,
             ),
         ):
             thread.start()

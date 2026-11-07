@@ -8,21 +8,18 @@ import {
   clearOperatorToken,
   incrementSelectionEpoch,
   abortAllActiveRequests,
-  setSelectedNodeId,
-  getModalReturnFocus,
-  setModalReturnFocus
+  setSelectedNodeId
 } from "./state.js";
 import { boundedFetch, showAlert } from "./api.js";
 import { fetchFleetStatus } from "./fleet.js";
+import { activateDialog, deactivateDialog } from "./dialog-ownership.js";
 
 export function showAuthModal(errMsg = "") {
   const modal = document.getElementById("auth-modal");
   const errBox = document.getElementById("auth-error");
   if (!modal) return;
 
-  if (modal.style.display !== "flex") {
-    setModalReturnFocus(document.activeElement);
-  }
+  activateDialog(modal, { priority: true });
   modal.style.display = "flex";
 
   if (errBox) {
@@ -44,11 +41,7 @@ export function hideAuthModal() {
   const modal = document.getElementById("auth-modal");
   if (!modal) return;
   modal.style.display = "none";
-
-  const returnTarget = getModalReturnFocus();
-  if (returnTarget && typeof returnTarget.focus === "function") {
-    returnTarget.focus();
-  }
+  deactivateDialog(modal);
 }
 
 export function updateAuthUI() {

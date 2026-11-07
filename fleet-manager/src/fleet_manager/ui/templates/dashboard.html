@@ -53,44 +53,55 @@
   </div>
 
   <!-- Guided SSH Node Onboarding Modal -->
-  <div id="onboarding-modal" role="dialog" aria-modal="true" aria-labelledby="onboarding-modal-title" class="presentation-1 modal-overlay">
-    <div class="modal-card modal-card-wide">
-      <div class="modal-header">
+  <div id="onboarding-modal" role="dialog" aria-modal="true" aria-labelledby="onboarding-modal-title" aria-describedby="onboarding-modal-description" class="presentation-1 modal-overlay">
+    <div class="modal-card modal-card-wide onboarding-dialog">
+      <div class="modal-header onboarding-dialog-header">
         <div class="modal-icon-badge" aria-hidden="true">
           <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#box"></use></svg>
         </div>
         <div class="presentation-11">
-          <h2 id="onboarding-modal-title" class="presentation-2">Guided SSH Node Onboarding</h2>
+          <h2 id="onboarding-modal-title" class="presentation-2">Node setup</h2>
           <p id="onboarding-node-title" class="presentation-12"></p>
         </div>
         <button type="button" id="close-onboarding-btn" class="btn btn-secondary btn-sm" title="Close onboarding guide" aria-label="Close onboarding guide"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#close"></use></svg></button>
       </div>
 
-      <div class="onboarding-steps">
+      <p id="onboarding-modal-description" class="visually-hidden">Review server identity, configure SSH authentication, validate connectivity, and inspect the latest observation.</p>
+      <div id="onboarding-progress" class="onboarding-progress" aria-live="polite">Loading setup state</div>
+      <div id="onboarding-feedback" class="presentation-1 alert alert-danger onboarding-feedback" role="alert" tabindex="-1"></div>
+      <div id="onboarding-announcement" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+      <div class="onboarding-steps" id="onboarding-scroll">
         <!-- Step 1: Inventory Registered -->
-        <div class="onboarding-step completed">
+        <div class="onboarding-step completed" id="step-register">
           <div class="step-header">
-            <span class="step-title"><span class="step-num completed"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#check"></use></svg></span> 1. Node Inventory Registered</span>
+            <h3 class="step-title"><span class="step-num">1</span> Node added to inventory</h3>
             <span class="status-badge badge-reachable">Done</span>
           </div>
           <p class="presentation-13">
-            Endpoint address and SSH port recorded in inventory.
+            SSH connectivity has not yet been verified by registration.
           </p>
         </div>
 
         <!-- Step 2: Server Identity Verification -->
         <div class="onboarding-step active" id="step-identity">
           <div class="step-header">
-            <span class="step-title"><span class="step-num">2</span> 2. Server Identity (Host-Key Trust)</span>
+            <h3 class="step-title"><span class="step-num">2</span> Verify server identity</h3>
             <button type="button" id="scan-host-key-btn" class="btn btn-secondary btn-sm">Inspect Server Host Key</button>
           </div>
           <p class="presentation-14">
-            The remote server must present its host public key. Fleet Manager rejects unknown host keys until you explicitly verify its SHA-256 fingerprint against the target server console.
+            Scanning retrieves the key presented by this endpoint. It does not prove server identity. Compare its SHA-256 fingerprint with one obtained through a trusted server console or authenticated administrator channel.
           </p>
+          <p class="onboarding-field-label">Currently trusted host key</p>
+          <p id="trusted-fingerprint-content" class="code-snippet">None</p>
           <div id="step-fp-box" class="presentation-1">
+            <p class="onboarding-field-label">Untrusted key presented by server</p>
             <pre id="scanned-fingerprint-content" class="code-snippet"></pre>
+            <p id="scan-verification-instruction" class="presentation-14"></p>
+            <label class="onboarding-acknowledgement" for="fingerprint-acknowledgement"><input type="checkbox" id="fingerprint-acknowledgement"> <span>I independently compared this exact fingerprint through a trusted channel, and it matches.</span></label>
+            <p class="presentation-13">This acknowledgement is an operator assertion. The backend checks the presented key again before enrollment.</p>
+            <p class="presentation-13">If it differs or cannot be verified, do not trust it. Ask an administrator to review server identity.</p>
             <div class="presentation-15">
-              <button type="button" id="step-trust-btn" class="presentation-1 btn btn-primary btn-sm">Confirm & Enroll Host Key</button>
+              <button type="button" id="step-trust-btn" class="presentation-1 btn btn-primary btn-sm" disabled>Trust verified host key</button>
             </div>
           </div>
         </div>
@@ -98,13 +109,14 @@
         <!-- Step 3: Client Authentication Configuration -->
         <div class="onboarding-step" id="step-auth">
           <div class="step-header">
-            <span class="step-title"><span class="step-num">3</span> 3. Client Authentication (~/.ssh/authorized_keys)</span>
+            <h3 class="step-title"><span class="step-num">3</span> Configure SSH authentication</h3>
           </div>
           <p class="presentation-16">
-            Fleet Manager authenticates using its configured private key. The operator public key must be provisioned in the remote user's authorized_keys.
+            On the target server, add Fleet Manager's public key to the SSH user's authorized_keys. This is a target-side instruction; Fleet Manager does not run it for you.
           </p>
           <div id="step-auth-box" class="presentation-1">
-            <div class="presentation-17">Copyable bootstrap command for target server:</div>
+            <p class="onboarding-field-label">Target SSH user: <span id="onboarding-ssh-user">Unavailable</span></p>
+            <div class="presentation-17">Target-side bootstrap instruction:</div>
             <pre id="bootstrap-cmd-snippet" class="code-snippet">echo "ssh-ed25519 AAAAC3... fleet-manager-operator" &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys</pre>
             <div class="presentation-18">
               Note: Private keys are never exposed in browser or database.
@@ -115,24 +127,30 @@
         <!-- Step 4: Validate SSH Connectivity -->
         <div class="onboarding-step" id="step-validate">
           <div class="step-header">
-            <span class="step-title"><span class="step-num">4</span> 4. Validate SSH Verification</span>
+            <h3 class="step-title"><span class="step-num">4</span> Check SSH connectivity</h3>
             <button type="button" id="onboarding-check-ssh-btn" class="btn btn-primary btn-sm">Validate SSH Connectivity</button>
           </div>
           <p class="presentation-13">
-            Executes bounded connection, host-key verification, and cryptographic login.
+            Runs a bounded connection, pinned host-key check and SSH authentication. A failed check does not prove the host is unhealthy.
           </p>
+          <p id="validation-result" class="onboarding-result" role="status">No check run in this session.</p>
         </div>
 
         <!-- Step 5: Operational Readiness -->
-        <div class="presentation-1 onboarding-step" id="step-complete-box">
+        <div class="onboarding-step" id="step-complete-box">
           <div class="step-header">
-            <span class="presentation-19 step-title"><span class="step-num completed"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#check"></use></svg></span> 5. Node Operationally Ready</span>
-            <span class="status-badge badge-ready">READY</span>
+            <h3 class="step-title"><span class="step-num">5</span> Setup and latest observation</h3>
           </div>
           <p class="presentation-16">
-            Current endpoint, host identity and client credentials have passed SSH authentication. Check connectivity freshness separately before acting.
+            Setup completion describes the current configuration. Connectivity is a separate, time-limited observation, not overall node health.
           </p>
+          <dl class="onboarding-state-grid"><div><dt>Setup state</dt><dd id="onboarding-setup-state">Loading</dd></div><div><dt>Connectivity state</dt><dd id="onboarding-connectivity-state">Loading</dd></div><div><dt>Latest observation</dt><dd id="onboarding-observation">Loading</dd></div></dl>
+          <p id="onboarding-blocking-reason" class="presentation-16"></p>
         </div>
+      </div>
+      <div class="onboarding-dialog-footer">
+        <button type="button" id="onboarding-primary-btn" class="btn btn-primary">Loading setup</button>
+        <button type="button" id="close-onboarding-footer-btn" class="btn btn-secondary">Close</button>
       </div>
     </div>
   </div>

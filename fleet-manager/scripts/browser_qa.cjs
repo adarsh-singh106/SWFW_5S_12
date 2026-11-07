@@ -45,12 +45,36 @@ async function run(c){
   await until(`![...document.querySelectorAll('.inventory-panel')].some(el=>/[\u{1F300}-\u{1FAFF}]/u.test(el.textContent))`,'no emoji interface glyphs in inventory');
   await click('[data-node-id="1"] td:last-child button:nth-child(2)');await until(`document.getElementById('ops-node-title').textContent.includes('alpha') && document.querySelectorAll('.history-item').length===20`,'node selection and 20-record history');
   await click('.history-nav button:last-child');await until(`document.querySelectorAll('.history-item').length===5`,'history next page');await click('.history-nav button:first-child');await until(`document.querySelectorAll('.history-item').length===20`,'history previous page');
-  await click('[data-node-id="2"] td:last-child button:last-child');await until(`${vis('onboarding-modal')} && document.getElementById('bootstrap-cmd-snippet').textContent.includes('authorized_keys')`,'resume existing node and bootstrap display');
+  await click('[data-node-id="2"] td:last-child button:last-child');await until(`${vis('onboarding-modal')} && document.getElementById('bootstrap-cmd-snippet').textContent.includes('authorized_keys') && typeof document.getElementById('scan-host-key-btn').onclick==='function'`,'resume existing node and bootstrap display');
   await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});await until(`document.getElementById('onboarding-modal').contains(document.activeElement)`,'keyboard focus inside modal');
-  await click('#scan-host-key-btn');await until(vis('step-trust-btn'),'host-key scan offers explicit enrollment');await click('#step-trust-btn');await until(`document.getElementById('scanned-fingerprint-content').textContent.includes('Trust: TRUSTED') && !(${vis('step-trust-btn')})`,'explicit trust enrollment');
-  await click('#onboarding-check-ssh-btn');await until(vis('step-complete-box'),'current configuration SSH authentication');await shot('onboarding-ready');
+  await click('#scan-host-key-btn');await until(`${vis('step-fp-box')} && document.getElementById('step-trust-btn').disabled`,'fresh scan requires independent acknowledgement');
+  await until(`document.getElementById('scanned-fingerprint-content').textContent.startsWith('SHA256:') && document.getElementById('trusted-fingerprint-content').textContent.includes('None')`,'scanned and trusted fingerprints labelled separately');
+  await ev(`document.getElementById('fingerprint-acknowledgement').focus()`);
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:' ',code:'Space',windowsVirtualKeyCode:32});await send('Input.dispatchKeyEvent',{type:'keyUp',key:' ',code:'Space',windowsVirtualKeyCode:32});
+  await until(`document.getElementById('fingerprint-acknowledgement').checked && !document.getElementById('step-trust-btn').disabled`,'keyboard acknowledgement enables explicit trust');
+  await click('#step-trust-btn');await until(`document.getElementById('trusted-fingerprint-content').textContent.startsWith('SHA256:') && !(${vis('step-fp-box')})`,'explicit trust enrollment');
+  await click('#onboarding-check-ssh-btn');await until(`document.getElementById('validation-result').textContent.includes('SSH connected') && document.getElementById('onboarding-setup-state').textContent.includes('previously passed')`,'actual SSH outcome and setup shown separately');await shot('onboarding-ready');
+  expected=true;
+  await ev(`(async()=>{const state=await import('/static/js/state.js');state.setOperatorToken('invalid-fixture')})()`);
+  await click('#onboarding-primary-btn');
+  await until(`${vis('auth-modal')} && !document.getElementById('auth-modal').inert && document.getElementById('onboarding-modal').inert && document.activeElement===document.getElementById('token-input')`,'authentication retry takes dialog ownership and keyboard focus');
+  await login();expected=false;
+  await until(`${vis('onboarding-modal')} && !document.getElementById('onboarding-modal').inert`,'onboarding resumes after authentication');
+  await until(`document.getElementById('auth-modal').inert`,'hidden authentication dialog remains locked by onboarding');
+  await until(`document.getElementById('onboarding-modal').contains(document.activeElement)`,'focus returns inside onboarding');
+  await control({ssh_fail:true});await click('#onboarding-check-ssh-btn');
+  await until(`document.getElementById('validation-result').textContent.includes('AUTH_FAILED') && document.getElementById('onboarding-setup-state').textContent.includes('needs attention')`,'HTTP success with failed SSH outcome is shown as failure');
+  await control({ssh_fail:false});await click('#onboarding-check-ssh-btn');
+  await until(`document.getElementById('validation-result').textContent.includes('SSH connected') && document.getElementById('onboarding-setup-state').textContent.includes('previously passed')`,'successful SSH retry restores verified setup');
+  await ev(`(async()=>{const onboarding=await import('/static/js/node-onboarding.js');await onboarding.openOnboardingModal({id:1,name:'alpha-ready',address:'127.0.0.1',ssh_port:2201})})()`);
+  await until(`document.getElementById('onboarding-node-title').textContent.includes('alpha-ready') && document.getElementById('auth-modal').inert && document.querySelector('.app-header').inert`,'direct node switch retains modal ownership');
+  await control({scan_mismatch:true});await click('#scan-host-key-btn');
+  await until(`document.getElementById('onboarding-feedback').textContent.includes('differs') && document.getElementById('scanned-fingerprint-content').textContent.startsWith('SHA256:') && document.getElementById('step-trust-btn').disabled && !document.getElementById('scan-host-key-btn').disabled`,'mismatched key blocks trust and permits rescan');await shot('onboarding-mismatch');
+  await control({scan_mismatch:false});await click('#scan-host-key-btn');
+  await until(`!document.getElementById('fingerprint-acknowledgement').checked && document.getElementById('step-trust-btn').disabled && !(${vis('step-fp-box')})`,'deliberate rescan clears acknowledgement');
   await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await until(`!(${vis('onboarding-modal')})`,'Escape dismisses onboarding');
-  await control({delay:0.5});await click('[data-node-id="2"] td:last-child button:last-child');await sleep(100);await click('#close-onboarding-btn');await click('[data-node-id="3"] td:last-child button:last-child');await sleep(700);await until(`document.getElementById('onboarding-node-title').textContent.includes('gamma') && !(${vis('step-complete-box')})`,'delayed response cannot cross node ownership');await click('#scan-host-key-btn');await until(vis('step-trust-btn'),'current modal handlers remain valid');await click('#close-onboarding-btn');await control({delay:0});
+  await until(`!document.querySelector('.app-header').inert && !document.getElementById('auth-modal').inert`,'closing onboarding restores background interaction');
+  await control({delay:0.5});await click('[data-node-id="2"] td:last-child button:last-child');await sleep(100);await click('#close-onboarding-btn');await click('[data-node-id="3"] td:last-child button:last-child');await sleep(700);await until(`document.getElementById('onboarding-node-title').textContent.includes('gamma') && ${vis('step-complete-box')} && document.getElementById('onboarding-setup-state').textContent!=='Loading' && typeof document.getElementById('scan-host-key-btn').onclick==='function'`,'delayed response keeps current node and visible status panel');await click('#scan-host-key-btn');await until(vis('step-trust-btn'),'current modal handlers remain valid');await click('#close-onboarding-btn');await control({delay:0});
   expected=true;await control({outage:true});await click('#refresh-btn');await until(`document.getElementById('inventory-card').getAttribute('data-refresh-state')==='unverified' && document.getElementById('last-updated').textContent.includes('stale/unverified') && document.getElementById('last-updated').textContent.includes('Last successful browser refresh')`,'API outage marks stale data and preserves last success time');await control({outage:false});await click('#refresh-btn');await until(`document.getElementById('last-updated').textContent.startsWith('Browser refreshed successfully.') && !document.getElementById('inventory-card').hasAttribute('data-refresh-state')`,'API outage recovery');await sleep(100);expected=false;
   for(const [width,height] of [[1440,900],[1024,800],[768,1024],[390,844]]){
    await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
@@ -61,10 +85,22 @@ async function run(c){
    if(width===768)await until(`document.querySelector('.table-responsive').scrollWidth>document.querySelector('.table-responsive').clientWidth && getComputedStyle(document.querySelector('.inventory-table td:nth-child(3)')).display!=='none'`,'768 semantic table has internal scroll with connectivity visible');
    if(width===390)await until(`getComputedStyle(document.querySelector('#nodes-table-body tr[data-node-id]')).display==='grid' && document.querySelector('#nodes-table-body tr[data-node-id]').textContent.includes('Operations')`,'390 node record layout and primary action');
    await shot('dashboard-'+width+'x'+height);
+   await click('[data-node-id="2"] td:last-child button:last-child');
+   await until(`${vis('onboarding-modal')} && document.getElementById('onboarding-setup-state').textContent!=='Loading' && document.getElementById('trusted-fingerprint-content').textContent!=='Loading'`,'onboarding dialog loads at '+width);
+   await until(`document.querySelector('.onboarding-dialog').getBoundingClientRect().bottom<=innerHeight && document.querySelector('.onboarding-dialog-footer').getBoundingClientRect().bottom<=innerHeight && document.querySelector('.onboarding-dialog-header').getBoundingClientRect().top>=0`,'modal header and footer reachable at '+width);
+   await shot('onboarding-'+width+'x'+height);
+   await click('#close-onboarding-btn');
    if(width===390){
     await ev(`window.scrollTo({top:document.querySelector('#nodes-table-body tr[data-node-id]').getBoundingClientRect().top+scrollY-320,behavior:'instant'})`);
     await sleep(150);await shot('inventory-390x844');
    }
+  }
+  for(const [width,height] of [[768,420],[390,500]]){
+   await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
+   await click('[data-node-id="2"] td:last-child button:last-child');await until(vis('onboarding-modal'),'short modal opens');
+   await until(`document.querySelector('.onboarding-dialog').getBoundingClientRect().bottom<=innerHeight && document.getElementById('onboarding-scroll').scrollHeight>document.getElementById('onboarding-scroll').clientHeight && document.querySelector('.onboarding-dialog-footer').getBoundingClientRect().bottom<=innerHeight && document.documentElement.scrollWidth<=innerWidth`,'short modal scroll and controls fit '+width);
+   await shot('onboarding-'+width+'x'+height);
+   await click('#close-onboarding-btn');
   }
   assert.equal(report.consoleErrors.filter(x=>!x.expected).length,0,'unexpected console/module errors');assert.equal(report.failedRequests.filter(x=>!x.expected).length,0,'unexpected failed requests');report.assertions.push('console/network/module/navigation inspection');report.passed=true;
  }catch(e){report.passed=false;report.failure=e.stack;process.exitCode=1;try{if(ws?.readyState===1)await shot('failure')}catch{}}
