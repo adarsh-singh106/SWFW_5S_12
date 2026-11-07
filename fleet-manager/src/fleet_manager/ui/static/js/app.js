@@ -11,7 +11,8 @@ import { initHistory } from "./history.js";
 import {
   getOperatorToken,
   clearOperatorToken,
-  isAuthenticated
+  isAuthenticated,
+  getMustChangePassword
 } from "./state.js";
 
 function scrubCredentialURL() {
@@ -38,7 +39,7 @@ function initApp() {
 
   // Periodic auto-refresh every 10 seconds if authenticated
   setInterval(() => {
-    if (isAuthenticated() || getOperatorToken()) {
+    if ((isAuthenticated() || getOperatorToken()) && !getMustChangePassword()) {
       fetchFleetStatus();
     }
   }, 10000);

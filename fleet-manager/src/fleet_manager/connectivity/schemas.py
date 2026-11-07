@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from fleet_manager.connectivity.freshness import DisplayStatus, SetupState
 from fleet_manager.connectivity.models import ConnectivityObservation, ConnectivityOutcome
@@ -45,3 +45,4 @@ class NodeStatusResponse(BaseModel):
 class FleetStatusResponse(BaseModel):
     observation_ttl_seconds: int
     nodes: list[NodeStatusResponse]
+    configuration_issues: list[str] = Field(default_factory=list)

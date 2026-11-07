@@ -25,6 +25,7 @@ async function run(c){
    if(x.method==='Network.responseReceived'&&x.params.response.status>=400)report.failedRequests.push({type:'http',url:x.params.response.url,status:x.params.response.status,expected:expected||x.params.response.url.endsWith('/favicon.ico')});
   };
   for(const d of ['Page','Runtime','Log','Network'])await send(d+'.enable');
+  await send('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
   const nav=await send('Page.navigate',{url:c.base+'/dashboard'});if(nav.errorText){report.navigationFailures.push(nav.errorText);throw Error(nav.errorText)}
   await until(`document.readyState==='complete' && document.getElementById('auth-modal') && ${vis('auth-modal')}`,'auth modal rendered');await send('Page.bringToFront');await sleep(250);
   if(c.injectFailure)throw Error('Injected failure for cleanup verification');
@@ -43,10 +44,29 @@ async function run(c){
    expected=true;await type('token-input','invalid-fixture');await click('#auth-submit-btn');await until(`document.getElementById('auth-error').textContent.includes('Invalid')`,'invalid authentication feedback');await sleep(100);expected=false;
    await type('token-input','CHANGEME');await shot('02-changeme-initial-login');
    await click('#auth-submit-btn');await until(vis('auth-change-password-view'),'mandatory password change view displayed');await shot('03-mandatory-password-change');
+   await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+   await until(`${vis('auth-modal')} && ${vis('auth-change-password-view')} && document.querySelector('.app-header').inert`,'mandatory change ignores Escape and locks dashboard');
+   await ev(`(async()=>{const fleet=await import('/static/js/fleet.js');await fleet.fetchFleetStatus()})()`);
+   await until(`${vis('auth-change-password-view')} && document.getElementById('last-updated').textContent.includes('Browser refresh pending')`,'dashboard refresh stays blocked during mandatory change');
+   await click('#auth-modal');await until(`${vis('auth-change-password-view')} && document.querySelector('.app-header').inert`,'mandatory change ignores outside click');
+   await until(`document.getElementById('auth-storage-notice').textContent.includes('HttpOnly cookie') && !document.getElementById('auth-storage-notice').textContent.includes('JavaScript memory')`,'browser session copy accurately describes HttpOnly cookie');
+   await click('#change-password-signout-btn');await until(`${vis('auth-login-view')} && ${vis('auth-modal')} && document.activeElement===document.getElementById('token-input')`,'mandatory change Sign out returns to login with focus');
+   assert.equal((await ev(`(async()=>{const s=await(await fetch('/api/auth/session')).json();return s.authenticated})()`)),false);report.assertions.push('mandatory Sign out revokes session');
+   await type('token-input','CHANGEME');await click('#auth-submit-btn');await until(vis('auth-change-password-view'),'mandatory change remains required after signing in again');
    await type('change-new-password',adminPassword);await type('change-confirm-password',adminPassword);await click('#change-password-submit-btn');
    await until(`!(${vis('auth-modal')}) && document.querySelectorAll('#nodes-table-body tr[data-node-id]').length===3`,'password change establishes admin password and loads inventory');
   }
+  await until(`document.querySelectorAll('.health-card').length===3 && document.querySelector('.health-card').textContent.includes('Target up')`,'Prometheus fixture populates Fleet Health cards');
+  await ev(`document.getElementById('health-overview').textContent += ' · QA fixture metrics (not live host measurements)'`);
   await shot('05-authenticated-dashboard');
+  await until(`document.querySelector('#health-detail .health-trend svg') && document.documentElement.scrollWidth<=innerWidth`,'health detail trends render without page overflow');
+  await ev(`(async()=>{const api=await import('/static/js/api.js');api.showAlert('<script>unsafe</script>','danger',40)})()`);
+  await until(`document.getElementById('global-alert').getAttribute('role')==='alert' && document.querySelector('.toast-message').textContent==='<script>unsafe</script>' && !document.querySelector('.toast script') && document.getElementById('global-alert').getBoundingClientRect().width<=380`,'compact error toast is live, safe text and bounded width');
+  await sleep(80);await until(vis('global-alert'),'error toast waits for accessible dismissal');
+  await click('.toast-dismiss');await until(`!(${vis('global-alert')})`,'error toast dismiss control works');
+  await ev(`(async()=>{const api=await import('/static/js/api.js');api.showAlert('Saved','success',40)})()`);await until(`!(${vis('global-alert')})`,'success toast auto dismisses');
+  await ev(`window.scrollTo({top:document.getElementById('fleet-health').offsetTop-190,behavior:'instant'})`);await shot('fleet-health');
+  await ev(`window.scrollTo({top:document.getElementById('health-detail').offsetTop-190,behavior:'instant'})`);await shot('fleet-health-detail');
   await send('Page.reload');
   await until(`document.readyState==='complete' && !(${vis('auth-modal')}) && document.querySelectorAll('#nodes-table-body tr[data-node-id]').length===3`,'dashboard refresh preserves active browser session and inventory');
   expected=true;
@@ -60,6 +80,10 @@ async function run(c){
   await login();
   const fleetContract=await(await fetch(c.base+'/api/nodes/status',{headers:{Authorization:'Bearer '+c.token}})).json();
   await until(`document.getElementById('observation-ttl').textContent.includes('${fleetContract.observation_ttl_seconds}s') && document.getElementById('last-updated').textContent.includes('Last successful browser refresh')`,'API TTL and browser refresh time remain separate');
+  await until(`document.querySelector('label[for="node-address"]').textContent==='Node address (IPv4, IPv6 or hostname)' && ['192.168.1.10','2001:db8::1','node-a.example.com'].every(x=>document.getElementById('node-address-help').textContent.includes(x))`,'registration explains IP and hostname syntax without implying DNS reachability');
+  await ev(`(async()=>{const fleet=await import('/static/js/fleet.js');fleet.renderFleet({...${JSON.stringify({observation_ttl_seconds:180,nodes:[]})},configuration_issues:['FLEET_MANAGER_SSH_PRIVATE_KEY']})})()`);
+  await until(`!document.getElementById('ssh-config-guidance').hidden && document.getElementById('ssh-config-guidance').textContent.includes('FLEET_MANAGER_SSH_PRIVATE_KEY') && !(${vis('global-alert')})`,'SSH configuration warning stays inline without global banner');
+  await click('#refresh-btn');await until(`document.getElementById('ssh-config-guidance').hidden`,'inline SSH guidance clears after valid refresh');
   await until(`[...document.querySelectorAll('.app-header .icon')].every(icon=>icon.getBBox().width>0 && icon.getBBox().height>0 && icon.querySelector('use')?.getAttribute('href')?.startsWith('/static/icons.svg#'))`,'local SVG sprite symbols render in shell');
   await until(`![...document.querySelectorAll('.app-header')].some(el=>/[\u{1F300}-\u{1FAFF}]/u.test(el.textContent))`,'no emoji interface icons in shell');
   await ev(`document.getElementById('refresh-btn').focus()`);await until(`getComputedStyle(document.getElementById('refresh-btn')).outlineStyle==='solid' && parseFloat(getComputedStyle(document.getElementById('refresh-btn')).outlineWidth)>=3`,'keyboard focus visible on shell action');
@@ -73,6 +97,7 @@ async function run(c){
   await click('[data-filter="REACHABLE"]');await until(`document.querySelectorAll('#nodes-table-body tr[data-node-id]').length===1 && document.querySelector('[data-filter="REACHABLE"]').getAttribute('aria-pressed')==='true'`,'reachable filter');
   await click('[data-filter="STALE"]');await until(`document.querySelectorAll('#nodes-table-body tr[data-node-id]').length===0`,'zero-result filter');await click('[data-filter="ALL"]');
   await until(`![...document.querySelectorAll('.inventory-panel')].some(el=>/[\u{1F300}-\u{1FAFF}]/u.test(el.textContent))`,'no emoji interface glyphs in inventory');
+  await ev(`window.scrollTo({top:document.getElementById('inventory-card').offsetTop-190,behavior:'instant'})`);await shot('inventory');
   await click('[data-node-id="1"] td:last-child button:nth-child(2)');await until(`document.getElementById('ops-node-title').textContent.includes('alpha') && document.querySelectorAll('.history-item').length===20`,'node selection and 20-record history');
   await click('.history-nav button:last-child');await until(`document.querySelectorAll('.history-item').length===5`,'history next page');await click('.history-nav button:first-child');await until(`document.querySelectorAll('.history-item').length===20`,'history previous page');
   await until(`document.getElementById('command-preview-text').textContent==='uptime'`,'initial command preview uptime');
@@ -82,9 +107,9 @@ async function run(c){
   await type('arg-disk-path','/var/log');await until(`!document.getElementById('arg-disk-error').textContent && document.getElementById('command-preview-text').textContent==='df -h -P -- /var/log'`,'valid path clears error and updates preview');
   await click('#action-service');await until(`document.getElementById('command-preview-text').textContent==='systemctl --no-pager status -- ssh'`,'preview updates to systemctl status ssh');
   await click('#action-uptime');await until(`document.getElementById('command-preview-text').textContent==='uptime'`,'return to uptime');
-  await click('#exec-btn');await until(`document.getElementById('op-result-box') && ${vis('op-result-box')} && document.getElementById('result-outcome-badge').textContent==='SUCCESS' && document.getElementById('result-stdout').textContent.includes('isolated uptime')`,'operation execution updates inspector with SUCCESS outcome and stdout');
+  await click('#exec-btn');await until(`document.getElementById('op-result-box') && ${vis('op-result-box')} && document.getElementById('result-outcome-badge').textContent==='SUCCESS' && document.getElementById('result-stdout').textContent.includes('isolated uptime')`,'operation execution updates inspector with SUCCESS outcome and stdout');await ev(`window.scrollTo({top:document.getElementById('operations-workbench').offsetTop-190,behavior:'instant'})`);await shot('operations-workbench');
   await click('#copy-output-btn');await until(`document.getElementById('copy-btn-text').textContent==='Copied!'`,'copy button explicit feedback');
-  await click('#audit-history-table tbody tr:first-child .inspect-btn');await until(`document.getElementById('inspector-mode-tag').textContent.includes('Historical') && document.querySelector('#audit-history-table tr.selected-history-row')`,'historical audit record inspection and row highlight');
+  await click('#audit-history-table tbody tr:first-child .inspect-btn');await until(`document.getElementById('inspector-mode-tag').textContent.includes('Historical') && document.querySelector('#audit-history-table tr.selected-history-row')`,'historical audit record inspection and row highlight');await ev(`window.scrollTo({top:document.querySelector('.workbench-history').offsetTop-190,behavior:'instant'})`);await shot('audit-history');
   await click('#return-to-inventory-btn');await until(`document.activeElement === document.querySelector('[data-node-id="1"] td:last-child button:nth-child(2)')`,'return to inventory restores focus');
   await click('[data-node-id="2"] td:last-child button:last-child');await until(`${vis('onboarding-modal')} && document.getElementById('bootstrap-cmd-snippet').textContent.includes('authorized_keys') && typeof document.getElementById('scan-host-key-btn').onclick==='function'`,'resume existing node and bootstrap display');
   await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});await until(`document.getElementById('onboarding-modal').contains(document.activeElement)`,'keyboard focus inside modal');
@@ -126,6 +151,7 @@ async function run(c){
    if(width===1024)await until(`getComputedStyle(document.querySelector('.inventory-table td:nth-child(2)')).display==='none' && getComputedStyle(document.querySelector('.inventory-actions')).display!=='none'`,'1024 priority columns and actions');
    if(width===768)await until(`document.querySelector('.table-responsive').scrollWidth>document.querySelector('.table-responsive').clientWidth && getComputedStyle(document.querySelector('.inventory-table td:nth-child(3)')).display!=='none'`,'768 semantic table has internal scroll with connectivity visible');
    if(width===390)await until(`getComputedStyle(document.querySelector('#nodes-table-body tr[data-node-id]')).display==='grid' && document.querySelector('#nodes-table-body tr[data-node-id]').textContent.includes('Operations')`,'390 node record layout and primary action');
+   await until(`document.querySelectorAll('.health-card').length===3 && [...document.querySelectorAll('.health-card')].every(x=>x.getBoundingClientRect().right<=innerWidth) && document.getElementById('global-alert').getBoundingClientRect().width<=380`,'health cards and toast fit viewport '+width);
    await shot('dashboard-'+width+'x'+height);
    await ev(`document.getElementById('operations-workbench').scrollIntoView({behavior:'instant',block:'start'})`);
    await sleep(100);
@@ -135,6 +161,7 @@ async function run(c){
    await click('[data-node-id="2"] td:last-child button:last-child');
    await until(`${vis('onboarding-modal')} && document.getElementById('onboarding-setup-state').textContent!=='Loading' && document.getElementById('trusted-fingerprint-content').textContent!=='Loading'`,'onboarding dialog loads at '+width);
    await until(`document.querySelector('.onboarding-dialog').getBoundingClientRect().bottom<=innerHeight && document.querySelector('.onboarding-dialog-footer').getBoundingClientRect().bottom<=innerHeight && document.querySelector('.onboarding-dialog-header').getBoundingClientRect().top>=0`,'modal header and footer reachable at '+width);
+   await until(`document.querySelector('.onboarding-dialog-header').getBoundingClientRect().left>=0 && document.getElementById('close-onboarding-btn').getBoundingClientRect().right<=innerWidth && document.getElementById('onboarding-scroll').scrollWidth<=document.getElementById('onboarding-scroll').clientWidth && document.getElementById('bootstrap-cmd-snippet').getBoundingClientRect().right<=innerWidth`,'onboarding text and close control avoid horizontal clipping at '+width);
    await shot('onboarding-'+width+'x'+height);
    await click('#close-onboarding-btn');
    if(width===390){

@@ -52,6 +52,8 @@ from fleet_manager.errors import (
 from fleet_manager.inventory.repository import SQLiteNodeRepository
 from fleet_manager.inventory.router import router as inventory_router
 from fleet_manager.inventory.service import NodeService
+from fleet_manager.metrics.health import PrometheusHealth
+from fleet_manager.metrics.health_router import router as health_router
 from fleet_manager.metrics.router import router as metrics_router
 from fleet_manager.metrics.telemetry import Telemetry
 from fleet_manager.operations.executor import (
@@ -169,6 +171,7 @@ def create_app(
             application.state.monitoring_settings = active_monitoring
             telemetry = Telemetry()
             application.state.telemetry = telemetry
+            application.state.prometheus_health = PrometheusHealth()
 
             # Initialize single-worker in-memory session store & rate limiter
             session_store = SessionStore()
@@ -408,6 +411,7 @@ def create_app(
     application.include_router(connectivity_router)
     application.include_router(operations_router)
     application.include_router(metrics_router)
+    application.include_router(health_router)
     application.include_router(ui_router)
     if STATIC_DIR.is_dir():
         application.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")

@@ -17,6 +17,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import patch
 
+import httpx
 import paramiko
 import uvicorn
 from fastapi import Request
@@ -27,6 +28,7 @@ from fleet_manager.connectivity.models import ConnectivityOutcome
 from fleet_manager.connectivity.trust import calculate_fingerprint, format_known_hosts_entry
 from fleet_manager.inventory.models import NewNode
 from fleet_manager.main import create_app
+from fleet_manager.metrics.health import PrometheusHealth
 from fleet_manager.operations.models import (
     OperationExecutionResult,
     OperationOutcome,
@@ -150,6 +152,59 @@ def main() -> int:
             with urllib.request.urlopen(base + "/__qa/owner", timeout=3) as response:
                 assert json.load(response)["owner"] == run_id
             inv = app.state.inventory_repository
+
+            def prometheus_fixture(request: httpx.Request) -> httpx.Response:
+                query = request.url.params.get("query", "")
+                if query.startswith("up{"):
+                    stamp = time.time()
+                    rows = [
+                        {
+                            "metric": {
+                                "node_id": str(node_id),
+                                "instance": f"127.0.0.1:{9100 + node_id}",
+                            },
+                            "value": [stamp, "1" if node_id == 1 else "0"],
+                        }
+                        for node_id in (1, 2, 3)
+                    ]
+                    return httpx.Response(
+                        200,
+                        json={
+                            "status": "success",
+                            "data": {"resultType": "vector", "result": rows},
+                        },
+                    )
+                elif "MemTotal" in query or "filesystem_size" in query:
+                    value = "8589934592"
+                elif "MemAvailable" in query or "filesystem_avail" in query:
+                    value = "4294967296"
+                elif "boot_time" in query:
+                    value = "7200"
+                elif "load1" in query:
+                    value = "0.8"
+                elif "network" in query:
+                    value = "1500"
+                else:
+                    value = "27.5"
+                stamp = time.time()
+                if request.url.path.endswith("query_range"):
+                    data = {
+                        "resultType": "matrix",
+                        "result": [
+                            {"metric": {}, "values": [[stamp - 150, value], [stamp, value]]}
+                        ],
+                    }
+                else:
+                    data = {
+                        "resultType": "vector",
+                        "result": [{"metric": {}, "value": [stamp, value]}],
+                    }
+                return httpx.Response(200, json={"status": "success", "data": data})
+
+            app.state.prometheus_health = PrometheusHealth(
+                transport=httpx.MockTransport(prometheus_fixture)
+            )
+            evidence["telemetry_source"] = "Mocked Prometheus fixture; no live host measurements"
             service = app.state.connectivity_service
             ready = inv.add_node(NewNode("alpha-ready", "127.0.0.1", 2201))
             inv.add_node(NewNode("beta-pending", "127.0.0.1", 2202))

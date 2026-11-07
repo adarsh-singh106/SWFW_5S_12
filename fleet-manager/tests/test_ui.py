@@ -81,7 +81,9 @@ def test_dashboard_serves_html_and_security_headers(tmp_path: Path, api_token: s
             html = resp.text
             assert "Fleet Operations Dashboard" in html
             assert "Operator Authentication" in html
-            assert "Ephemeral Storage:" in html
+            assert "Browser session:" in html
+            assert "HttpOnly cookie" in html
+            assert "Token is retained in JavaScript memory only" not in html
             assert "system.uptime" in html
             assert "system.memory" in html
             assert "system.disk" in html

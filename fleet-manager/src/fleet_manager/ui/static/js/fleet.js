@@ -5,6 +5,7 @@
 import {
   getOperatorToken,
   isAuthenticated,
+  getMustChangePassword,
   setSelectedNodeId,
   isFleetPending,
   setFleetPending,
@@ -21,6 +22,7 @@ import { apiRequest, showAlert } from "./api.js";
 import { openOnboardingModal } from "./node-onboarding.js";
 import { fetchNodeOperationsHistory } from "./history.js";
 import { renderInventory } from "./inventory-view.js";
+import { refreshHealth, selectHealthNode } from "./health.js";
 import {
   updateExecButtonState,
   getLatestNodeResult,
@@ -39,7 +41,7 @@ function refreshLabel(prefix) {
  * Fetch fleet status and update the inventory table and overview counters.
  */
 export async function fetchFleetStatus() {
-  if (!isAuthenticated() || isFleetPending()) return;
+  if (!isAuthenticated() || getMustChangePassword() || isFleetPending()) return;
 
   setFleetPending(true);
   const lastUpdatedEl = document.getElementById("last-updated");
@@ -55,6 +57,7 @@ export async function fetchFleetStatus() {
     if (isAuthenticated()) {
       setLastFleetData(data);
       renderFleet(data);
+      void refreshHealth(data.nodes || []);
       lastSuccessfulRefreshAt = new Date();
       if (lastUpdatedEl) lastUpdatedEl.textContent = refreshLabel("Browser refreshed successfully.");
       document.getElementById("inventory-card")?.removeAttribute("data-refresh-state");
@@ -74,6 +77,13 @@ export function renderFleet(fleetData) {
     check: triggerConnectivityCheck,
     onboarding: openOnboardingModal
   });
+  const guidance = document.getElementById("ssh-config-guidance");
+  if (guidance) {
+    const issues = Array.isArray(fleetData.configuration_issues) ? fleetData.configuration_issues : [];
+    const configured = issues.length > 0 || (fleetData.nodes || []).some(item => item.setup_state === "CONFIGURATION_ERROR");
+    guidance.hidden = !configured;
+    guidance.textContent = configured ? `SSH configuration needs attention. ${issues.length ? `Missing or invalid: ${issues.join(", ")}. ` : ""}Set a non-root SSH user, an existing known_hosts file, and a protected private key file. Review node setup before retrying.` : "";
+  }
 }
 
 /**
@@ -91,10 +101,23 @@ export async function triggerConnectivityCheck(nodeId, btn) {
     });
     const data = await res.json();
     if (res.ok) {
-      showAlert(`Check completed for node ${nodeId}: ${data.outcome}`, data.outcome === "CONNECTED" ? "success" : "warning");
+      const explanations = {
+        DNS_ERROR: "Hostname could not be resolved by DNS. Verify the registered name and resolver.",
+        CONNECTION_REFUSED: "The address resolved, but SSH refused the connection. Check the SSH service and port.",
+        CONNECTION_TIMEOUT: "The SSH connection timed out. Check routing and firewall access."
+      };
+      showAlert(`Check completed for node ${nodeId}: ${data.outcome}. ${explanations[data.outcome] || ""}`, data.outcome === "CONNECTED" ? "success" : "warning");
       fetchFleetStatus();
     } else {
-      showAlert(`Check failed: ${data.error ? data.error.message : 'Unknown error'}`, "danger");
+      if (res.status === 503 && data.error?.code === "connectivity_unavailable") {
+        const guidance = document.getElementById("ssh-config-guidance");
+        if (guidance) {
+          guidance.hidden = false;
+          guidance.textContent = "SSH settings are missing or invalid. Configure FLEET_MANAGER_SSH_USERNAME, FLEET_MANAGER_SSH_KNOWN_HOSTS, and FLEET_MANAGER_SSH_PRIVATE_KEY on the server, then retry this node's check.";
+        }
+      } else {
+        showAlert(`Check failed: ${data.error ? data.error.message : 'Unknown error'}`, "danger");
+      }
     }
   } catch (err) {
     showAlert("Error triggering check: " + err.message, "danger");
@@ -114,6 +137,7 @@ export function selectNode(node, displayStatus, triggerEl = null) {
   setHistoryOffset(0);
   setInspectedOperationId(null);
   setSelectedNodeId(node.id);
+  selectHealthNode(node.id);
   if (triggerEl) {
     setInventoryReturnFocus(triggerEl);
   }

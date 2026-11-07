@@ -5,7 +5,7 @@ from typing import Annotated, cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
-from fleet_manager.config import SSHSettings, load_ssh_settings
+from fleet_manager.config import SSHSettings, load_ssh_settings, ssh_configuration_issues
 from fleet_manager.connectivity.freshness import derive_status
 from fleet_manager.connectivity.onboarding import (
     ClientAuthenticationInfo,
@@ -52,7 +52,10 @@ router = APIRouter(prefix="/api/nodes", dependencies=[Depends(require_operator_t
     },
 )
 def fleet_status(service: ServiceDependency) -> FleetStatusResponse:
-    return service.fleet_status()
+    response = service.fleet_status()
+    if service.settings is None:
+        response.configuration_issues = ssh_configuration_issues()
+    return response
 
 
 @router.post(
@@ -150,7 +153,11 @@ def get_onboarding_status(node_id: int, service: ServiceDependency) -> Onboardin
             server_identity=server_identity,
             client_authentication=client_auth,
             is_ready=False,
-            blocking_reason="SSH operator configuration is missing or invalid",
+            blocking_reason=(
+                "SSH settings missing or invalid: " + ", ".join(ssh_configuration_issues())
+                if ssh_configuration_issues()
+                else "SSH operator configuration is missing or invalid"
+            ),
         )
 
     # Server Identity Trust State

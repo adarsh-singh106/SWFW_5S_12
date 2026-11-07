@@ -89,18 +89,32 @@ export async function apiRequest(path, options = {}) {
   return response;
 }
 
-/**
- * Display a global alert banner.
- */
+/** Display a compact, accessible transient notification. */
 export function showAlert(msg, type = "info", durationMs = 6000) {
   const alertBox = document.getElementById("global-alert");
   if (!alertBox) return;
-  alertBox.className = `alert alert-${type}`;
-  alertBox.textContent = msg;
+  const kind = ["success", "danger", "warning", "info"].includes(type) ? type : "info";
+  alertBox.className = `toast toast-${kind}`;
+  alertBox.setAttribute("role", kind === "danger" ? "alert" : "status");
+  alertBox.setAttribute("aria-live", kind === "danger" ? "assertive" : "polite");
+  const icon = document.createElement("span");
+  icon.className = "toast-icon";
+  icon.setAttribute("aria-hidden", "true");
+  icon.textContent = kind === "success" ? "✓" : kind === "danger" ? "!" : "i";
+  const copy = document.createElement("span");
+  copy.className = "toast-message";
+  copy.textContent = String(msg);
+  const dismiss = document.createElement("button");
+  dismiss.type = "button";
+  dismiss.className = "toast-dismiss";
+  dismiss.setAttribute("aria-label", "Dismiss notification");
+  dismiss.textContent = "×";
+  dismiss.addEventListener("click", () => { alertBox.style.display = "none"; });
+  alertBox.replaceChildren(icon, copy, dismiss);
   alertBox.style.display = "flex";
-  if (durationMs > 0) {
+  if (kind === "success" && durationMs > 0) {
     setTimeout(() => {
-      if (alertBox.textContent === msg) {
+      if (alertBox.contains(copy)) {
         alertBox.style.display = "none";
       }
     }, durationMs);

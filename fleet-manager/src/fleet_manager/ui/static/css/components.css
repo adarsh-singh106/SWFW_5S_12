@@ -113,6 +113,59 @@
 .alert-success { background: var(--success-bg); border-color: var(--success-border); color: var(--success-text); }
 .alert-uncertain { background: var(--uncertain-bg); border-color: var(--uncertain-border); color: var(--uncertain-text); }
 
+.toast {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 1200;
+  width: min(380px, calc(100vw - 2rem));
+  max-width: 380px;
+  padding: 0.8rem;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-lg);
+  align-items: flex-start;
+  gap: 0.7rem;
+  overflow-wrap: anywhere;
+}
+.toast-danger { border-color: var(--danger-border); color: var(--danger-text); }
+.toast-success { border-color: var(--success-border); color: var(--success-text); }
+.toast-warning { border-color: var(--warning-border); color: var(--warning-text); }
+.toast-icon { flex: none; font-size: 1rem; font-weight: 800; }
+.toast-message { flex: 1; min-width: 0; }
+.toast-dismiss { flex: none; background: transparent; border: 0; color: inherit; cursor: pointer; font-size: 1.2rem; line-height: 1; }
+
+.field-help { display: block; margin-top: 0.3rem; color: var(--text-muted); font-size: 0.72rem; overflow-wrap: anywhere; }
+.ssh-config-guidance { margin-bottom: 1.25rem; padding: 0.8rem 1rem; border-left: 3px solid var(--warning-border); background: var(--warning-bg); color: var(--warning-text); border-radius: var(--radius-sm); overflow-wrap: anywhere; }
+.ssh-config-guidance[hidden] { display: none; }
+.auth-signout { width: 100%; justify-content: center; margin-top: 0.75rem; }
+
+.health-section { margin-bottom: 1.25rem; }
+.health-section .card-header { gap: 1rem; }
+#health-overview { color: var(--text-secondary); font-size: 0.78rem; }
+.health-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 0.75rem; padding: 1rem; }
+.health-card { min-width: 0; max-width: 100%; display: flex; flex-direction: column; gap: 0.25rem; text-align: left; padding: 0.8rem; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); cursor: pointer; }
+.health-card[aria-pressed="true"] { border-color: var(--accent-primary); }
+.health-node-name { overflow-wrap: anywhere; }
+.health-target { font-size: 0.73rem; margin-bottom: 0.3rem; }
+.health-up { color: var(--success-text); }
+.health-down, .health-unavailable { color: var(--danger-text); }
+.health-stale { color: var(--stale-text); }
+.health-metric { display: flex; justify-content: space-between; gap: 0.5rem; min-width: 0; }
+.health-metric-label, .health-last-scrape { color: var(--text-muted); font-size: 0.72rem; }
+.health-metric-value { font-size: 0.78rem; text-align: right; overflow-wrap: anywhere; }
+.health-last-scrape { margin-top: 0.4rem; }
+.health-detail { margin: 0 1rem; padding: 1rem; border-top: 1px solid var(--border-subtle); }
+.health-detail-title { font-size: 0.95rem; overflow-wrap: anywhere; }
+.health-detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 0.75rem; margin-top: 0.8rem; }
+.health-detail-grid .health-metric { flex-direction: column; background: var(--bg-card); padding: 0.6rem; border-radius: var(--radius-sm); }
+.health-detail-grid .health-metric-value { text-align: left; }
+.health-trends { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 0.75rem; margin-top: 0.8rem; }
+.health-trend { min-width: 0; display: flex; flex-direction: column; padding: 0.6rem; background: var(--bg-card); border-radius: var(--radius-sm); }
+.health-trend svg { width: 100%; height: 60px; color: var(--accent-primary); }
+.health-note { padding: 0.6rem 1rem 1rem; font-size: 0.73rem; color: var(--text-muted); overflow-wrap: anywhere; }
+
 /* Overview Strip */
 .overview-strip {
   background: var(--bg-surface);
@@ -1106,6 +1159,8 @@ tr.selected-row td:first-child {
   justify-content: center;
   z-index: 1000;
   padding: 1rem;
+  min-width: 0;
+  overflow: auto;
 }
 
 .modal-card {
@@ -1141,14 +1196,19 @@ tr.selected-row td:first-child {
   padding: 0;
   max-height: calc(100dvh - 2rem);
   overflow: hidden;
+  width: min(100%, 720px);
+  min-width: 0;
 }
+.onboarding-dialog * { min-width: 0; }
+.onboarding-dialog-header { position: relative; z-index: 1; background: var(--bg-surface); }
+.onboarding-dialog-header .modal-icon-badge, .onboarding-dialog-header button { flex: none; }
 .onboarding-dialog-header, .onboarding-dialog-footer { flex: none; padding: 1rem 1.25rem; }
 .onboarding-dialog-header { margin: 0; border-bottom: 1px solid var(--border-subtle); }
 .onboarding-dialog-header .presentation-11 { min-width: 0; overflow-wrap: anywhere; }
 .onboarding-dialog-footer { display: flex; gap: 0.65rem; justify-content: flex-end; border-top: 1px solid var(--border-subtle); }
 .onboarding-progress { flex: none; padding: 0.55rem 1.25rem; color: var(--text-secondary); background: var(--bg-subsurface); font-size: 0.8rem; }
 .onboarding-feedback { margin: 0.5rem 1.25rem 0; flex: none; max-height: 22vh; overflow: auto; }
-.onboarding-dialog .onboarding-steps { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 1rem 1.25rem; margin: 0; }
+.onboarding-dialog .onboarding-steps { min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; padding: 1rem 1.25rem; margin: 0; }
 .onboarding-step { min-width: 0; scroll-margin-top: 1rem; }
 .onboarding-step[aria-current="step"] { border-color: var(--accent-primary); box-shadow: 0 0 0 1px var(--accent-primary); }
 .onboarding-field-label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-top: 0.65rem; }
@@ -1159,7 +1219,7 @@ tr.selected-row td:first-child {
 .onboarding-state-grid div { min-width: 0; padding: 0.6rem; background: var(--bg-subsurface); border-radius: var(--radius-sm); }
 .onboarding-state-grid dt { color: var(--text-muted); font-size: 0.7rem; }
 .onboarding-state-grid dd { overflow-wrap: anywhere; }
-.onboarding-dialog .code-snippet { overflow-wrap: anywhere; word-break: break-word; }
+.onboarding-dialog .code-snippet { max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-wrap; }
 
 @keyframes modalPop {
   from { opacity: 0; transform: scale(0.96); }

@@ -11,8 +11,7 @@
 </head>
 <body>
 
-  <!-- Global Alert Banner -->
-  <div id="global-alert" role="alert" class="presentation-1 alert alert-info"></div>
+  <div id="global-alert" class="presentation-1 toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <!-- Operator Authentication Modal (Single Administrator Password Experience) -->
   <div id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" class="presentation-1 modal-overlay">
@@ -27,11 +26,11 @@
         </div>
       </div>
       <p class="presentation-4" id="auth-modal-desc">
-        Authenticate with the administrator credential to access loopback control plane endpoints.
+        Sign in with your administrator password to manage the fleet.
       </p>
       <div class="presentation-5 alert alert-warning" id="auth-storage-notice">
         <div>
-          <strong>Ephemeral Storage:</strong> Token is retained in JavaScript memory only. It is never stored in localStorage, sessionStorage, or cookies.
+          <strong>Browser session:</strong> Your session uses a server-managed HttpOnly cookie. JavaScript cannot read the session cookie. Sign out to revoke it.
         </div>
       </div>
       <div id="auth-error" role="alert" class="presentation-1 alert alert-danger" style="display:none;"></div>
@@ -109,6 +108,7 @@
             <button type="submit" class="presentation-10 btn btn-primary" id="change-password-submit-btn">Save New Password & Continue</button>
           </div>
         </form>
+        <button type="button" id="change-password-signout-btn" class="btn btn-secondary auth-signout">Sign out</button>
       </div>
     </div>
   </div>
@@ -322,8 +322,9 @@
               <input type="text" id="node-name" class="form-control" placeholder="e.g. web-app-prod-01" required maxlength="100">
             </div>
             <div class="presentation-25 form-group">
-              <label class="form-label" for="node-address">Hostname or IP Address</label>
-              <input type="text" id="node-address" class="form-control" placeholder="192.168.1.100 or node.corp" required>
+              <label class="form-label" for="node-address">Node address (IPv4, IPv6 or hostname)</label>
+              <input type="text" id="node-address" class="form-control" placeholder="192.168.1.10" aria-describedby="node-address-help" required>
+              <small id="node-address-help" class="field-help">Examples: 192.168.1.10 · 2001:db8::1 · node-a.example.com. Registration checks syntax; DNS and SSH are checked later.</small>
             </div>
             <div class="presentation-25 form-group">
               <label class="form-label" for="node-port">SSH Port</label>
@@ -334,6 +335,15 @@
         </form>
       </div>
     </section>
+
+    <section id="fleet-health" class="card health-section" aria-labelledby="fleet-health-title">
+      <div class="card-header"><h2 id="fleet-health-title" class="card-title">Fleet Health</h2><span id="health-overview" role="status">Telemetry pending</span></div>
+      <div id="health-cards" class="health-cards" aria-live="polite"></div>
+      <div id="health-detail" class="health-detail" aria-live="polite">Select a node to inspect detailed Linux telemetry.</div>
+      <p class="health-note">Metrics come from Prometheus Node Exporter scrapes. SSH connectivity and host telemetry are separate observations. <a href="http://127.0.0.1:3000/d/fleet-manager-overview/fleet-manager-overview" target="_blank" rel="noopener noreferrer">Open Grafana for advanced charts</a>.</p>
+    </section>
+
+    <div id="ssh-config-guidance" class="ssh-config-guidance" role="status" hidden></div>
 
     <!-- Main Two-Column Fleet Workspace Grid -->
     <div class="dashboard-grid">

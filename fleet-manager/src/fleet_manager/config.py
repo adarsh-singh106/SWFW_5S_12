@@ -90,6 +90,27 @@ def load_ssh_settings() -> SSHSettings:
     return SSHSettings(username, known_hosts_path, private_key_path)
 
 
+def ssh_configuration_issues() -> list[str]:
+    """Return safe setting names that need attention, without exposing their values."""
+    issues = []
+    username = os.getenv("FLEET_MANAGER_SSH_USERNAME", "")
+    if not username or username == "root" or any(c.isspace() for c in username):
+        issues.append("FLEET_MANAGER_SSH_USERNAME")
+    for key in ("FLEET_MANAGER_SSH_KNOWN_HOSTS", "FLEET_MANAGER_SSH_PRIVATE_KEY"):
+        value = os.getenv(key, "")
+        if not value or not Path(value).expanduser().is_file():
+            issues.append(key)
+    private = os.getenv("FLEET_MANAGER_SSH_PRIVATE_KEY", "")
+    if private and os.name == "posix":
+        try:
+            if Path(private).expanduser().stat().st_mode & 0o077:
+                if "FLEET_MANAGER_SSH_PRIVATE_KEY" not in issues:
+                    issues.append("FLEET_MANAGER_SSH_PRIVATE_KEY")
+        except OSError:
+            pass
+    return issues
+
+
 def load_connectivity_limits() -> ConnectivityLimits:
     """Fail startup on unsafe admission or deadline configuration."""
     try:

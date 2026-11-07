@@ -136,6 +136,7 @@ export function initAuth({ skipInitialCheck = false } = {}) {
   const toggleChangeBtn = document.getElementById("toggle-change-password-btn");
   const changePwNavBtn = document.getElementById("change-password-nav-btn");
   const logoutBtn = document.getElementById("logout-btn");
+  const changeSignoutBtn = document.getElementById("change-password-signout-btn");
 
   // Show/hide password controls
   if (toggleTokenBtn && tokenInput) {
@@ -455,8 +456,9 @@ export function initAuth({ skipInitialCheck = false } = {}) {
   }
 
   // Logout / Terminate Session
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", async () => {
+  for (const signoutButton of [logoutBtn, changeSignoutBtn]) {
+    if (!signoutButton) continue;
+    signoutButton.addEventListener("click", async () => {
       try {
         const headers = {};
         const csrf = getCsrfToken();
@@ -473,6 +475,7 @@ export function initAuth({ skipInitialCheck = false } = {}) {
 
       clearOperatorToken();
       setIsAuthenticated(false);
+      setMustChangePassword(false);
       incrementSelectionEpoch();
       abortAllActiveRequests();
       updateAuthUI();

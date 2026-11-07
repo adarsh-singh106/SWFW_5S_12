@@ -867,3 +867,15 @@ bash deploy/gce/07-cleanup-vms.sh --execute
      --zone="asia-south1-a" \
      --delete-disks=all
    ```
+
+## 17. Pending hostname-based SSH acceptance on an existing GCP node
+
+This scenario is prepared for an operator-controlled live session. It has **not** been executed by local tests. Do not start a VM solely for this check without owner authorization.
+
+1. On an already running controller, identify the existing `fleet-node-a` private DNS hostname or configured FQDN. Confirm the controller can resolve it to the intended private address using `getent ahosts <hostname>`. Record the hostname and resolved address; do not treat resolution as SSH reachability.
+2. In Fleet Manager, register that exact hostname in **Node address (IPv4, IPv6 or hostname)**. Registration should succeed on syntax alone and show `NOT_CHECKED`; no DNS lookup should occur during registration.
+3. In the node setup guide, scan the SSH host key, compare its SHA-256 fingerprint with a trusted GCP serial console or administrator channel, then explicitly enroll it for the hostname and SSH port. Do not reuse trust recorded for a numeric IP without verifying the hostname identity.
+4. Run **Check SSH connectivity**. Record the node ID, timestamp, resolved address, observation outcome, and setup state. Success requires `CONNECTED` plus separately verified host key and authentication. Then inspect Fleet Health for an actual `node_id`-labelled Node Exporter target and scrape timestamp; SSH success alone does not establish telemetry.
+5. For a controlled DNS failure case, register a syntactically valid but deliberately unresolvable test hostname and run the bounded SSH check. Expect `DNS_ERROR` guidance without a registration error. Keep this test record distinct from the real GCP node.
+
+Fleet Health queries the server-side Prometheus URL from `FLEET_MANAGER_PROMETHEUS_URL` (default `http://127.0.0.1:9090`). The browser only calls authenticated fixed-query application routes. Target selection prefers a matching inventory `node_id`; the existing GCP target file uses `node_name`, so matching that inventory name selects its private exporter `instance`. An exact `<inventory address>:9100` target is the final fallback. Keep names unique in Prometheus target configuration; ambiguous matches display as unavailable. Absent or stale series display as unavailable, never as zero.
