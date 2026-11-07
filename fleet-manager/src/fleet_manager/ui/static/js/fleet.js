@@ -12,12 +12,20 @@ import {
   getLastFleetData,
   setLastFleetData,
   incrementSelectionEpoch,
-  setHistoryOffset
+  setHistoryOffset,
+  setInspectedOperationId,
+  setInventoryReturnFocus
 } from "./state.js";
 import { apiRequest, showAlert } from "./api.js";
 import { openOnboardingModal } from "./node-onboarding.js";
 import { fetchNodeOperationsHistory } from "./history.js";
 import { renderInventory } from "./inventory-view.js";
+import {
+  updateExecButtonState,
+  getLatestNodeResult,
+  displayOperationResult,
+  showStandbyInspector
+} from "./operations.js";
 
 let lastSuccessfulRefreshAt = null;
 
@@ -101,10 +109,14 @@ export async function triggerConnectivityCheck(nodeId, btn) {
 /**
  * Select a node for remote operations and audit inspection.
  */
-export function selectNode(node, displayStatus) {
+export function selectNode(node, displayStatus, triggerEl = null) {
   incrementSelectionEpoch();
   setHistoryOffset(0);
+  setInspectedOperationId(null);
   setSelectedNodeId(node.id);
+  if (triggerEl) {
+    setInventoryReturnFocus(triggerEl);
+  }
 
   const status = displayStatus || node.observation_state || "NOT_CHECKED";
 
@@ -126,22 +138,45 @@ export function selectNode(node, displayStatus) {
     badge.style.display = "inline-flex";
   }
 
+  const statusPill = document.getElementById("ops-target-status-pill");
+  if (statusPill) {
+    statusPill.textContent = status;
+    statusPill.className = `status-badge badge-${status.toLowerCase()}`;
+  }
+
   const targetAlert = document.getElementById("ops-target-alert");
   if (targetAlert) {
     targetAlert.style.display = (status !== "REACHABLE") ? "block" : "none";
   }
 
-  const opResultBox = document.getElementById("op-result-box");
-  if (opResultBox) opResultBox.style.display = "none";
+  // Node-specific dispatch button state (do not inherit lock from another node)
+  updateExecButtonState(node.id);
 
-  const historyList = document.getElementById("history-list");
-  if (historyList) historyList.textContent = "Loading history...";
+  // Inspector state: show latest execution result for this node if present, else standby
+  const latestResult = getLatestNodeResult(node.id);
+  if (latestResult) {
+    displayOperationResult(latestResult, false);
+  } else {
+    showStandbyInspector();
+  }
 
   fetchNodeOperationsHistory(node.id);
 
   document.querySelectorAll("#nodes-table-body tr").forEach(row => {
     row.className = row.dataset.nodeId === String(node.id) ? "selected-row" : "";
   });
+
+  // Scroll workbench into view and move keyboard focus appropriately
+  const workbench = document.getElementById("operations-workbench");
+  if (workbench) {
+    const reducedMotion = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    workbench.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+  }
+
+  const returnBtn = document.getElementById("return-to-inventory-btn");
+  if (returnBtn && typeof returnBtn.focus === "function") {
+    returnBtn.focus();
+  }
 }
 
 /**

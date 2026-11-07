@@ -51,8 +51,14 @@ async function harness(search = '', fetcher = async () => ({ nodes: [] })) {
       return elements.get(id);
     },
     createElement(tag) { const e = new Element(tag); e.ownerDocument = document; return e; },
+    querySelector(selector) {
+      const all = this.querySelectorAll(selector);
+      return all[0] || null;
+    },
     querySelectorAll(selector) {
-      return selector.startsWith('#nodes-table-body') ? document.getElementById('nodes-table-body').children : [];
+      if (selector.startsWith('#nodes-table-body')) return document.getElementById('nodes-table-body').children;
+      if (selector.includes('history-table-body') || selector.includes('history-item')) return document.getElementById('history-table-body').children;
+      return [];
     },
     addEventListener(name, fn) { (this.listeners[name] ||= []).push(fn); }
   };
@@ -425,4 +431,232 @@ test('back navigation cannot restore URL credentials and scrubs stale token para
   for (const listener of h.windowListeners.pageshow || []) listener({ persisted: true });
   await settle(); assert.equal(h.module('state').getOperatorToken(), null);
   assert.equal(h.window.location.search.includes('token'), false);
+});
+
+test('command preview matches backend catalog compilation and validates typed arguments', async () => {
+  const h = await harness();
+  const ops = h.module('operations');
+
+  // 1. system.uptime
+  assert.equal(ops.getCommandPreview('system.uptime', '/', 'ssh'), 'uptime');
+
+  // 2. system.memory
+  assert.equal(ops.getCommandPreview('system.memory', '/', 'ssh'), 'free -m');
+
+  // 3. system.disk validation
+  assert.equal(ops.validateDiskPath('/').valid, true);
+  assert.equal(ops.validateDiskPath('/var/log').valid, true);
+  assert.equal(ops.validateDiskPath('/data_2026/test.txt').valid, true);
+  assert.equal(ops.getCommandPreview('system.disk', '/var/log', 'ssh'), 'df -h -P -- /var/log');
+
+  // Rejections
+  assert.equal(ops.validateDiskPath('').valid, false);
+  assert.equal(ops.validateDiskPath('relative/path').valid, false);
+  assert.equal(ops.validateDiskPath('/has space').valid, false);
+  assert.equal(ops.validateDiskPath('/traversal/../etc').valid, false);
+  assert.equal(ops.validateDiskPath('/invalid$char').valid, false);
+  assert.equal(ops.getCommandPreview('system.disk', 'invalid/path', 'ssh'), 'df -h -P -- [invalid path]');
+
+  // 4. service.status validation
+  assert.equal(ops.validateServiceName('ssh').valid, true);
+  assert.equal(ops.validateServiceName('nginx').valid, true);
+  assert.equal(ops.validateServiceName('prometheus-node-exporter').valid, true);
+  assert.equal(ops.validateServiceName('unit@0.service').valid, true);
+  assert.equal(ops.getCommandPreview('service.status', '/', 'nginx'), 'systemctl --no-pager status -- nginx');
+
+  // Rejections
+  assert.equal(ops.validateServiceName('').valid, false);
+  assert.equal(ops.validateServiceName('-leading-hyphen').valid, false);
+  assert.equal(ops.validateServiceName('has space').valid, false);
+  assert.equal(ops.validateServiceName('a'.repeat(65)).valid, false);
+  assert.equal(ops.validateServiceName('bad;rm').valid, false);
+  assert.equal(ops.getCommandPreview('service.status', '/', '-bad'), 'systemctl --no-pager status -- [invalid service]');
+});
+
+test('duration formatting handles valid timestamps and rejects invalid or missing dates', async () => {
+  const h = await harness();
+  const ops = h.module('operations');
+
+  // Valid durations
+  assert.equal(ops.formatDuration('2026-11-07T10:00:00.000Z', '2026-11-07T10:00:00.450Z'), '450ms');
+  assert.equal(ops.formatDuration('2026-11-07T10:00:00.000Z', '2026-11-07T10:00:02.500Z'), '2.50s');
+
+  // Missing or invalid
+  assert.equal(ops.formatDuration(null, '2026-11-07T10:00:02.500Z'), '—');
+  assert.equal(ops.formatDuration('2026-11-07T10:00:00.000Z', null), '—');
+  assert.equal(ops.formatDuration('', ''), '—');
+  assert.equal(ops.formatDuration('not-a-date', 'also-not-a-date'), '—');
+  assert.equal(ops.formatDuration('2026-11-07T10:00:05.000Z', '2026-11-07T10:00:01.000Z'), '—');
+});
+
+test('result inspector renders SUCCESS, FAILURE, TIMEOUT, UNCERTAIN with safe output and badges', async () => {
+  const h = await harness();
+  const ops = h.module('operations');
+  const state = h.module('state');
+  state.setSelectedNodeId(1);
+
+  // 1. SUCCESS record
+  const successRec = {
+    id: 'op-001',
+    node_id: 1,
+    action: 'system.uptime',
+    arguments: {},
+    requested_at: '2026-11-07T12:00:00Z',
+    started_at: '2026-11-07T12:00:00.100Z',
+    completed_at: '2026-11-07T12:00:00.350Z',
+    outcome: 'SUCCESS',
+    failure_category: null,
+    exit_code: 0,
+    stdout: 'up 14 days, load average: 0.05, 0.02',
+    stderr: '',
+    output_truncated: false,
+    audit_metadata: { operator_digest_prefix: 'test-digest' }
+  };
+
+  ops.displayOperationResult(successRec, false);
+  assert.equal(h.element('op-result-box').style.display, 'block');
+  assert.equal(h.element('inspector-standby').style.display, 'none');
+  assert.equal(h.element('result-outcome-badge').textContent, 'SUCCESS');
+  assert.equal(h.element('result-exit-code').textContent, 'Exit Code: 0');
+  assert.equal(h.element('result-duration').textContent, '250ms');
+  assert.equal(h.element('inspector-mode-tag').textContent, 'Live Execution');
+  assert.equal(h.element('result-stdout').textContent, 'up 14 days, load average: 0.05, 0.02');
+  assert.equal(h.element('result-stderr-section').style.display, 'none');
+  assert.equal(h.element('result-uncertain-warning').style.display, 'none');
+
+  // 2. FAILURE record with STDERR
+  const failRec = {
+    id: 'op-002',
+    node_id: 1,
+    action: 'service.status',
+    arguments: { service_name: 'missing-svc' },
+    requested_at: '2026-11-07T12:05:00Z',
+    started_at: '2026-11-07T12:05:00.000Z',
+    completed_at: '2026-11-07T12:05:01.000Z',
+    outcome: 'FAILURE',
+    failure_category: 'COMMAND_ERROR',
+    exit_code: 3,
+    stdout: '',
+    stderr: 'Unit missing-svc.service could not be found.',
+    output_truncated: false,
+    audit_metadata: {}
+  };
+
+  ops.displayOperationResult(failRec, false);
+  assert.equal(h.element('result-outcome-badge').textContent, 'FAILURE');
+  assert.equal(h.element('result-exit-code').textContent, 'Exit Code: 3');
+  assert.equal(h.element('result-failure-category').textContent, 'COMMAND_ERROR');
+  assert.equal(h.element('result-stderr-section').style.display, 'block');
+  assert.equal(h.element('result-stderr').textContent, 'Unit missing-svc.service could not be found.');
+
+  // 3. UNCERTAIN record
+  const uncertainRec = {
+    ...successRec,
+    id: 'op-003',
+    outcome: 'UNCERTAIN',
+    exit_code: null
+  };
+  ops.displayOperationResult(uncertainRec, false);
+  assert.equal(h.element('result-outcome-badge').textContent, 'UNCERTAIN');
+  assert.equal(h.element('result-uncertain-warning').style.display, 'block');
+
+  // 4. Historical mode label
+  ops.displayOperationResult(successRec, true);
+  assert.equal(h.element('inspector-mode-tag').textContent, 'Historical Record');
+});
+
+test('independent node execution states: running node does not lock other nodes', async () => {
+  const h = await harness();
+  const ops = h.module('operations');
+  const state = h.module('state');
+
+  // Node 1 in flight
+  state.setSelectedNodeId(1);
+  ops.updateExecButtonState(1);
+  assert.equal(h.element('exec-btn').disabled, false);
+
+  // Switch to node 2
+  state.setSelectedNodeId(2);
+  ops.updateExecButtonState(2);
+  assert.equal(h.element('exec-btn').disabled, false);
+});
+
+test('stale response protection discards mismatched node execution results', async () => {
+  const h = await harness();
+  const ops = h.module('operations');
+  const state = h.module('state');
+
+  // Current selected node is 2
+  state.setSelectedNodeId(2);
+  h.element('result-op-id').textContent = 'initial';
+
+  // Attempt to display result for node 1
+  ops.displayOperationResult({
+    id: 'op-node1',
+    node_id: 1,
+    action: 'system.uptime',
+    outcome: 'SUCCESS'
+  });
+
+  // Must not overwrite
+  assert.equal(h.element('result-op-id').textContent, 'initial');
+});
+
+test('audit history semantic table renders records with honest pagination and empty page recovery', async () => {
+  let offsetRequested = 0;
+  const mockOperations = Array.from({ length: 20 }, (_, i) => ({
+    id: 'op-' + i,
+    node_id: 1,
+    action: 'system.uptime',
+    arguments: {},
+    requested_at: '2026-11-07T12:00:00Z',
+    started_at: '2026-11-07T12:00:00Z',
+    completed_at: '2026-11-07T12:00:01Z',
+    outcome: 'SUCCESS',
+    exit_code: 0,
+    failure_category: null
+  }));
+
+  const h = await harness('', url => {
+    if (url.includes('/operations?')) {
+      const u = new URL(url, 'http://localhost');
+      offsetRequested = parseInt(u.searchParams.get('offset') || '0', 10);
+      if (offsetRequested === 0) return { operations: mockOperations };
+      if (offsetRequested === 20) return { operations: mockOperations.slice(0, 5) };
+      return { operations: [] };
+    }
+    return {};
+  });
+
+  const history = h.module('history');
+  const state = h.module('state');
+  state.setOperatorToken('test-token');
+  state.setSelectedNodeId(1);
+
+  // Initial page (0-20)
+  state.setHistoryOffset(0);
+  await history.fetchNodeOperationsHistory(1);
+  assert.equal(h.element('history-table-body').children.length, 20);
+  assert.equal(h.element('history-prev-btn').disabled, true);
+  assert.equal(h.element('history-next-btn').disabled, false);
+  assert.equal(h.element('history-page-label').textContent, 'Showing records 1–20');
+
+  // Next page (offset 20: 5 records)
+  state.setHistoryOffset(20);
+  await history.fetchNodeOperationsHistory(1);
+  assert.equal(h.element('history-table-body').children.length, 5);
+  assert.equal(h.element('history-prev-btn').disabled, false);
+  assert.equal(h.element('history-next-btn').disabled, true); // < 20 disables next
+  assert.equal(h.element('history-page-label').textContent, 'Showing records 21–25');
+});
+
+test('return to inventory restores focus to invoking element', async () => {
+  const h = await harness();
+  const state = h.module('state');
+
+  const invBtn = h.document.createElement('button');
+  invBtn.textContent = 'Operations';
+  state.setInventoryReturnFocus(invBtn);
+
+  assert.equal(state.getInventoryReturnFocus(), invBtn);
 });

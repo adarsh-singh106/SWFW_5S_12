@@ -253,6 +253,17 @@ def test_dashboard_contains_redesigned_console_elements() -> None:
     assert 'role="dialog"' in html
     assert 'aria-modal="true"' in html
     assert 'role="region"' in html
+    assert "Operations Workbench" in html
+    assert "Dispatch Console" in html
+    assert "Result Inspector" in html
+    assert "Allowlisted Command Preview" in html
+    assert 'id="command-preview-text"' in html
+    assert 'id="return-to-inventory-btn"' in html
+    assert 'id="audit-history-table"' in html
+    assert 'id="history-pagination-nav"' in html
+    assert 'id="workbench-announcer"' in html
+    assert "terminal-dots" not in html
+    assert "terminal-dot" not in html
 
 
 def test_dashboard_no_remote_assets_or_forbidden_storage() -> None:

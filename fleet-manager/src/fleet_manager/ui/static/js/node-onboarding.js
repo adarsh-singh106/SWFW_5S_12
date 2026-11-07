@@ -238,7 +238,16 @@ export async function scanHostKey(id) {
       announce("Untrusted key presented by server. Compare its fingerprint through a trusted channel before acknowledging.");
     }
   } catch (error) { if (owns(id, epoch) && revision === scanRevision) { resetScan(); errorMessage(error.message); } }
-  finally { if (owns(id, epoch)) { button.disabled = false; byId("onboarding-primary-btn").disabled = false; } }
+  finally {
+    if (owns(id, epoch)) {
+      button.disabled = false;
+      byId("onboarding-primary-btn").disabled = false;
+      const modal = document.getElementById("onboarding-modal");
+      if (modal && !modal.contains(document.activeElement)) {
+        button.focus();
+      }
+    }
+  }
 }
 
 export async function trustHostKey(id, fingerprint, confirmation, epoch = generation, revision = scanRevision) {

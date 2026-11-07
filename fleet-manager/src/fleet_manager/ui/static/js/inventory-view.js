@@ -104,7 +104,7 @@ function renderRow(item, ttlSeconds, actions) {
   check.onclick = event => { event.stopPropagation(); actions.check(node.id, check); };
   const operations = textElement("button", "btn btn-primary btn-sm", "Operations");
   operations.type = "button";
-  operations.onclick = event => { event.stopPropagation(); actions.selectNode(node, status); };
+  operations.onclick = event => { event.stopPropagation(); actions.selectNode(node, status, operations); };
   const setupAction = setup === "READY" ? "View setup" :
     setup === "CONFIGURATION_ERROR" || item.observation?.outcome === "HOST_KEY_MISMATCH" ? "Review setup issue" : "Continue setup";
   const setupButton = textElement("button", "btn btn-secondary btn-sm", setupAction);

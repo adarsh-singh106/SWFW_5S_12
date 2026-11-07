@@ -333,18 +333,20 @@
         </div>
       </div>
 
-      <!-- Right Column: Controlled Operations Console & History -->
-      <div class="column-right">
-        <div class="card" role="region" aria-labelledby="ops-card-title">
-          <div class="card-header">
+      <!-- Controlled Operations Workbench & Audit History -->
+      <div class="column-right" id="operations-workbench">
+        <div class="card workbench-card" role="region" aria-labelledby="ops-card-title">
+          <div class="card-header workbench-header">
             <div class="card-title" id="ops-card-title">
               <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#terminal"></use></svg>
-              <span>Remote Operations Console</span>
+              <span>Operations Workbench</span>
             </div>
-            <span id="selected-node-badge" class="presentation-1 status-badge badge-not_checked"></span>
+            <div class="workbench-header-actions">
+              <span id="selected-node-badge" class="presentation-1 status-badge badge-not_checked"></span>
+            </div>
           </div>
 
-          <div class="card-body">
+          <div class="card-body workbench-body">
             <!-- Empty state when no node is selected -->
             <div id="ops-empty-state" class="empty-state">
               <div class="empty-state-icon"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#bolt"></use></svg></div>
@@ -352,110 +354,328 @@
               <div>Select a node from the inventory table to execute controlled operations and inspect audit logs.</div>
             </div>
 
-            <!-- Active Operations Console -->
-            <div id="ops-active-panel" class="presentation-1">
-              <div class="ops-target-banner">
+            <!-- Active Operations Workbench -->
+            <div id="ops-active-panel" class="presentation-1 workbench-active-panel">
+              <!-- Target context banner -->
+              <div class="ops-target-banner" id="workbench-target-banner">
                 <div class="ops-target-info">
-                  <div id="ops-node-title" class="presentation-28">Operations</div>
-                  <div id="ops-node-subtitle" class="presentation-29"></div>
+                  <div class="ops-target-name-row">
+                    <span id="ops-node-title" class="presentation-28 ops-target-title">Operations</span>
+                    <span id="ops-target-status-pill" class="status-badge badge-not_checked">NOT_CHECKED</span>
+                  </div>
+                  <div id="ops-node-subtitle" class="presentation-29 ops-target-subtitle"></div>
+                </div>
+                <div class="ops-target-actions">
+                  <button type="button" id="return-to-inventory-btn" class="btn btn-secondary btn-sm" title="Return to fleet inventory table and restore focus">
+                    <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#server"></use></svg>
+                    <span>Return to Inventory</span>
+                  </button>
                 </div>
               </div>
 
               <!-- Unreachable Warning Alert -->
-              <div id="ops-target-alert" class="presentation-30 alert alert-warning">
+              <div id="ops-target-alert" class="presentation-30 alert alert-warning" role="alert">
                 <div>
                   <strong>Target Status Warning:</strong> This endpoint is currently not in REACHABLE status. Remote execution may time out or fail if the host is down or credentials are unauthorized.
                 </div>
               </div>
 
-              <!-- Operation Form -->
-              <form id="execute-op-form">
-                <div class="form-group">
-                  <label class="form-label" for="action-select">Allowlisted Action</label>
-                  <select id="action-select" class="form-control">
-                    <option value="system.uptime">system.uptime (Read-only: /proc/uptime &amp; load average)</option>
-                    <option value="system.memory">system.memory (Read-only: free -m memory breakdown)</option>
-                    <option value="system.disk">system.disk (Read-only: df -h storage usage)</option>
-                    <option value="service.status">service.status (Read-only: systemctl status service)</option>
-                  </select>
-                </div>
+              <!-- Two-Column Workbench Layout: Dispatch Console (42%) and Result Inspector (58%) -->
+              <div class="workbench-grid">
 
-                <!-- Dynamic Arguments -->
-                <div id="arg-disk-container" class="presentation-1 form-group">
-                  <label class="form-label" for="arg-disk-path">Filesystem Path (Absolute POSIX path)</label>
-                  <input type="text" id="arg-disk-path" class="form-control" value="/" placeholder="/" required>
-                </div>
+                <!-- Column 1 (42%): Dispatch Console -->
+                <div class="workbench-dispatch card" role="region" aria-labelledby="dispatch-console-heading">
+                  <div class="card-header dispatch-header">
+                    <div class="card-title dispatch-title" id="dispatch-console-heading">
+                      <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#play"></use></svg>
+                      <span>Dispatch Console</span>
+                    </div>
+                    <span class="tag tag-allowlist">Allowlist</span>
+                  </div>
 
-                <div id="arg-service-container" class="presentation-1 form-group">
-                  <label class="form-label" for="arg-service-name">Service Name (Systemd unit name)</label>
-                  <input type="text" id="arg-service-name" class="form-control" value="ssh" placeholder="ssh or prometheus-node-exporter" required>
-                </div>
+                  <div class="dispatch-body">
+                    <form id="execute-op-form" novalidate>
+                      <!-- Accessible native radio controls styled as action tiles -->
+                      <fieldset class="action-fieldset">
+                        <legend class="form-label" id="action-legend">Allowlisted Action</legend>
 
-                <div id="arg-note-fixed" class="presentation-31">
-                  <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#info"></use></svg> This action takes no additional arguments and executes safe kernel query commands.
-                </div>
+                        <!-- Hidden select to preserve backwards-compatibility for any query -->
+                        <select id="action-select" class="visually-hidden" aria-hidden="true" tabindex="-1">
+                          <option value="system.uptime">system.uptime</option>
+                          <option value="system.memory">system.memory</option>
+                          <option value="system.disk">system.disk</option>
+                          <option value="service.status">service.status</option>
+                        </select>
 
-                <button type="submit" class="presentation-10 btn btn-primary" id="exec-btn">
-                  <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#play"></use></svg><span>Execute Remote Operation</span>
-                </button>
-              </form>
+                        <div class="action-tiles-grid" role="radiogroup" aria-labelledby="action-legend">
+                          <label class="action-tile" for="action-uptime">
+                            <input type="radio" name="action" id="action-uptime" value="system.uptime" checked>
+                            <span class="tile-content">
+                              <span class="tile-header">
+                                <span class="tile-name">system.uptime</span>
+                                <span class="tile-tag tag">Read-only</span>
+                              </span>
+                              <span class="tile-desc">System uptime &amp; load average (/proc/uptime)</span>
+                            </span>
+                          </label>
 
-              <!-- Terminal Execution Result Inspector -->
-              <div id="op-result-box" class="presentation-1">
-                <div class="terminal-container">
-                  <div class="terminal-header">
-                    <div class="presentation-32">
-                      <div class="terminal-dots">
-                        <div class="terminal-dot"></div>
-                        <div class="terminal-dot"></div>
-                        <div class="terminal-dot"></div>
+                          <label class="action-tile" for="action-memory">
+                            <input type="radio" name="action" id="action-memory" value="system.memory">
+                            <span class="tile-content">
+                              <span class="tile-header">
+                                <span class="tile-name">system.memory</span>
+                                <span class="tile-tag tag">Read-only</span>
+                              </span>
+                              <span class="tile-desc">Memory breakdown in megabytes (free -m)</span>
+                            </span>
+                          </label>
+
+                          <label class="action-tile" for="action-disk">
+                            <input type="radio" name="action" id="action-disk" value="system.disk">
+                            <span class="tile-content">
+                              <span class="tile-header">
+                                <span class="tile-name">system.disk</span>
+                                <span class="tile-tag tag">Read-only</span>
+                              </span>
+                              <span class="tile-desc">Filesystem storage usage (df -h -P)</span>
+                            </span>
+                          </label>
+
+                          <label class="action-tile" for="action-service">
+                            <input type="radio" name="action" id="action-service" value="service.status">
+                            <span class="tile-content">
+                              <span class="tile-header">
+                                <span class="tile-name">service.status</span>
+                                <span class="tile-tag tag">Read-only</span>
+                              </span>
+                              <span class="tile-desc">Systemd unit runtime status (systemctl status)</span>
+                            </span>
+                          </label>
+                        </div>
+                      </fieldset>
+
+                      <!-- Contextual Arguments -->
+                      <div class="dispatch-arguments-section">
+                        <div id="arg-disk-container" class="presentation-1 form-group">
+                          <label class="form-label" for="arg-disk-path">Filesystem Path (Absolute POSIX path)</label>
+                          <input type="text" id="arg-disk-path" class="form-control" value="/" placeholder="/" spellcheck="false" autocomplete="off" disabled>
+                          <div id="arg-disk-error" class="form-error" role="alert" aria-live="polite"></div>
+                          <div class="form-help">Must start with '/' and contain no whitespace, directory traversal ('..'), or shell metacharacters.</div>
+                        </div>
+
+                        <div id="arg-service-container" class="presentation-1 form-group">
+                          <label class="form-label" for="arg-service-name">Service Name (Systemd unit name)</label>
+                          <input type="text" id="arg-service-name" class="form-control" value="ssh" placeholder="ssh or prometheus-node-exporter" spellcheck="false" autocomplete="off" disabled>
+                          <div id="arg-service-error" class="form-error" role="alert" aria-live="polite"></div>
+                          <div class="form-help">1 to 64 chars. Allowed: alphanumeric, '_', '-', '.', '@'. No leading hyphen or whitespace.</div>
+                        </div>
+
+                        <div id="arg-note-fixed" class="presentation-31 arg-note-box">
+                          <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#info"></use></svg>
+                          <span>This action takes no additional arguments and executes safe kernel query commands.</span>
+                        </div>
                       </div>
-                      <span class="presentation-33">Execution Terminal</span>
+
+                      <!-- Live Read-only Command Preview -->
+                      <div class="command-preview-card">
+                        <div class="command-preview-header">
+                          <span class="command-preview-label">
+                            <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#terminal"></use></svg>
+                            <span>Allowlisted Command Preview</span>
+                          </span>
+                          <span class="preview-badge tag">Read-only</span>
+                        </div>
+                        <div class="command-preview-container">
+                          <code id="command-preview-text">uptime</code>
+                        </div>
+                        <div class="command-preview-note">Preview of allowlisted command compiled by backend catalog. Not an interactive terminal.</div>
+                      </div>
+
+                      <button type="submit" class="presentation-10 btn btn-primary btn-block" id="exec-btn">
+                        <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#play"></use></svg>
+                        <span id="exec-btn-label">Execute Remote Operation</span>
+                      </button>
+                    </form>
+                  </div>
+                </div>
+
+                <!-- Column 2 (58%): Result Inspector -->
+                <div class="workbench-inspector card" role="region" aria-labelledby="result-inspector-heading">
+                  <div class="card-header inspector-header">
+                    <div class="card-title inspector-title" id="result-inspector-heading">
+                      <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#eye"></use></svg>
+                      <span>Result Inspector</span>
                     </div>
-                    <div class="presentation-32">
-                      <span id="result-exit-code" class="presentation-34">Exit Code: 0</span>
-                      <span id="result-outcome-badge" class="status-badge badge-success">SUCCESS</span>
-                      <span id="result-truncated-tag" class="presentation-35 tag">TRUNCATED (64 KiB)</span>
-                      <button type="button" id="copy-output-btn" class="presentation-36 btn btn-secondary btn-sm">Copy</button>
+                    <div class="inspector-header-tags">
+                      <span id="inspector-mode-tag" class="tag tag-mode">Awaiting Execution</span>
+                      <span id="result-outcome-badge" class="status-badge badge-not_checked">STANDBY</span>
                     </div>
                   </div>
 
-                  <!-- Uncertain Outcome Warning -->
-                  <div id="result-uncertain-warning" class="presentation-37 alert alert-uncertain">
-                    <div>
-                      <strong>Uncertain Execution Outcome:</strong> Transport terminated or control plane restarted during execution. Remote process state may have completed or aborted. Do not automatically re-execute non-idempotent operations.
+                  <div class="inspector-body">
+                    <!-- Standby placeholder before execution -->
+                    <div id="inspector-standby" class="inspector-standby-state">
+                      <div class="empty-state-icon"><svg class="icon" aria-hidden="true"><use href="/static/icons.svg#terminal"></use></svg></div>
+                      <div class="standby-title">No Execution Result to Inspect</div>
+                      <div class="standby-desc">Select an allowlisted action from the Dispatch Console to execute remotely, or select an audit record from the history table below to inspect past output.</div>
+                    </div>
+
+                    <!-- Active Result Content Box -->
+                    <div id="op-result-box" class="presentation-1 inspector-active-box">
+
+                      <!-- Execution Summary Metadata Grid -->
+                      <div class="inspector-meta-grid">
+                        <div class="meta-item">
+                          <span class="meta-label">Operation ID</span>
+                          <span class="meta-value font-mono" id="result-op-id">—</span>
+                        </div>
+                        <div class="meta-item">
+                          <span class="meta-label">Target Node</span>
+                          <span class="meta-value" id="result-node-context">—</span>
+                        </div>
+                        <div class="meta-item">
+                          <span class="meta-label">Action &amp; Arguments</span>
+                          <span class="meta-value font-mono" id="result-action-context">—</span>
+                        </div>
+                        <div class="meta-item">
+                          <span class="meta-label">Execution Duration</span>
+                          <span class="meta-value" id="result-duration">—</span>
+                        </div>
+                        <div class="meta-item">
+                          <span class="meta-label">Exit Code</span>
+                          <span class="meta-value font-mono" id="result-exit-code">Exit Code: —</span>
+                        </div>
+                        <div class="meta-item">
+                          <span class="meta-label">Failure Category</span>
+                          <span class="meta-value" id="result-failure-category">—</span>
+                        </div>
+                        <div class="meta-item meta-item-timestamps">
+                          <span class="meta-label">Timestamps</span>
+                          <div class="timestamps-list">
+                            <span>Requested: <time id="result-requested-at">—</time></span>
+                            <span>Started: <time id="result-started-at">—</time></span>
+                            <span>Completed: <time id="result-completed-at">—</time></span>
+                          </div>
+                        </div>
+                        <div class="meta-item meta-item-actions">
+                          <span id="result-truncated-tag" class="presentation-35 tag tag-warning">TRUNCATED (64 KiB)</span>
+                          <button type="button" id="copy-output-btn" class="presentation-36 btn btn-secondary btn-sm" title="Copy standard output and error streams">
+                            <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#box"></use></svg>
+                            <span id="copy-btn-text">Copy Output</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Uncertain Outcome Warning -->
+                      <div id="result-uncertain-warning" class="presentation-37 alert alert-uncertain" role="alert">
+                        <div>
+                          <strong>Uncertain Execution Outcome:</strong> Transport terminated or control plane restarted during execution. Remote process state may have completed or aborted. Do not automatically re-execute non-idempotent operations.
+                        </div>
+                      </div>
+
+                      <!-- Admitted Operation 503 Rejection Box -->
+                      <div id="result-admitted-alert" class="alert alert-warning" style="display: none;" role="alert">
+                        <div id="result-admitted-msg"></div>
+                        <button type="button" id="inspect-admitted-btn" class="btn btn-secondary btn-sm" style="margin-top: 0.5rem;">Inspect Admitted Record</button>
+                      </div>
+
+                      <!-- Standard Output Stream -->
+                      <div class="stream-block">
+                        <div class="stream-header">
+                          <span class="stream-title">Standard Output (STDOUT)</span>
+                          <span class="stream-tag tag">stdout</span>
+                        </div>
+                        <pre id="result-stdout" class="terminal-box" tabindex="0">(no standard output)</pre>
+                      </div>
+
+                      <!-- Standard Error Stream (Rendered only when non-empty) -->
+                      <div id="result-stderr-section" class="presentation-1 stream-block stream-stderr-block">
+                        <div class="stream-header">
+                          <span class="presentation-38 stream-title stream-title-err">STANDARD ERROR (STDERR)</span>
+                          <span class="stream-tag tag tag-danger">stderr</span>
+                        </div>
+                        <pre id="result-stderr" class="terminal-box terminal-err" tabindex="0"></pre>
+                      </div>
+
+                      <!-- Terminal Footer Metadata -->
+                      <div class="terminal-meta-footer">
+                        <span id="result-metadata">Job ID: —</span>
+                        <span>Bounded Paramiko SSHv2 Engine</span>
+                      </div>
                     </div>
                   </div>
+                </div>
 
-                  <!-- Standard Output Stream -->
-                  <pre id="result-stdout" class="terminal-box"></pre>
+              </div>
 
-                  <!-- Standard Error Stream (Rendered only when non-empty) -->
-                  <div id="result-stderr-section" class="presentation-1">
-                    <div class="presentation-38">
-                      STANDARD ERROR (STDERR)
-                    </div>
-                    <pre id="result-stderr" class="terminal-box terminal-err"></pre>
+              <!-- Full-Width Operation History Audit Log (Below Two Columns) -->
+              <div class="workbench-history card" role="region" aria-labelledby="audit-history-heading">
+                <div class="card-header history-header">
+                  <div class="card-title" id="audit-history-heading">
+                    <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#activity"></use></svg>
+                    <span>Audit History</span>
+                  </div>
+                  <div class="history-header-actions">
+                    <span id="history-count-badge" class="history-count-label">Awaiting history</span>
+                    <button type="button" id="refresh-history-btn" class="presentation-36 btn btn-secondary btn-sm" title="Refresh audit history">
+                      <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#refresh"></use></svg>
+                      <span>Refresh</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="history-body">
+                  <!-- History Error Banner -->
+                  <div id="history-error-banner" class="alert alert-danger" style="display: none;" role="alert">
+                    <span id="history-error-text">Failed to load audit history.</span>
+                    <button type="button" id="history-retry-btn" class="btn btn-secondary btn-sm" style="margin-left: 0.75rem;">Retry</button>
                   </div>
 
-                  <!-- Terminal Footer Metadata -->
-                  <div class="terminal-meta-footer">
-                    <span id="result-metadata">Job ID: —</span>
-                    <span>Bounded Paramiko SSHv2 Engine</span>
+                  <!-- Semantic Audit History Table -->
+                  <div class="table-responsive history-table-responsive">
+                    <table class="history-table" id="audit-history-table">
+                      <caption class="visually-hidden">Audit log of controlled remote operations executed on this target node</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">Requested</th>
+                          <th scope="col">Action</th>
+                          <th scope="col">Arguments / Context</th>
+                          <th scope="col">Duration</th>
+                          <th scope="col">Exit Code</th>
+                          <th scope="col">Failure Category</th>
+                          <th scope="col">Outcome</th>
+                          <th scope="col">Inspection</th>
+                        </tr>
+                      </thead>
+                      <tbody id="history-table-body">
+                        <tr class="history-item">
+                          <td colspan="8" class="empty-state">
+                            Select a node to view historical operations.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Backward-compatible container for existing tests expecting #history-list -->
+                  <div id="history-list" class="visually-hidden" aria-hidden="true"></div>
+
+                  <!-- History Pagination Toolbar -->
+                  <div class="history-nav" id="history-pagination-nav">
+                    <button type="button" id="history-prev-btn" class="btn btn-secondary btn-sm" disabled>
+                      &larr; Previous
+                    </button>
+                    <span id="history-page-label" class="history-page-indicator">Showing records 0–0</span>
+                    <button type="button" id="history-next-btn" class="btn btn-secondary btn-sm" disabled>
+                      Next &rarr;
+                    </button>
                   </div>
                 </div>
               </div>
 
-              <!-- Operation History Audit Log -->
-              <div class="history-card">
-                <div class="presentation-39">
-                  <span class="presentation-40">Audit History</span>
-                  <button type="button" id="refresh-history-btn" class="presentation-36 btn btn-secondary btn-sm">Refresh</button>
-                </div>
-                <div id="history-list">
-                  <div class="presentation-41 empty-state">Select a node to view historical operations.</div>
-                </div>
-              </div>
+              <!-- Accessible Live Announcements -->
+              <div id="workbench-announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
             </div>
           </div>
         </div>

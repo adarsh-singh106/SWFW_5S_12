@@ -11,6 +11,8 @@ let _selectionEpoch = 0;
 let _historySequence = 0;
 let _historyOffset = 0;
 let _modalReturnFocus = null;
+let _inventoryReturnFocus = null;
+let _inspectedOperationId = null;
 let _currentFilter = "ALL";
 let _currentSearch = "";
 let _lastFleetData = null;
@@ -101,6 +103,22 @@ export function getModalReturnFocus() {
 
 export function setModalReturnFocus(el) {
   _modalReturnFocus = el;
+}
+
+export function getInventoryReturnFocus() {
+  return _inventoryReturnFocus;
+}
+
+export function setInventoryReturnFocus(el) {
+  _inventoryReturnFocus = el;
+}
+
+export function getInspectedOperationId() {
+  return _inspectedOperationId;
+}
+
+export function setInspectedOperationId(id) {
+  _inspectedOperationId = id;
 }
 
 export function trackActiveRequest(controller) {
