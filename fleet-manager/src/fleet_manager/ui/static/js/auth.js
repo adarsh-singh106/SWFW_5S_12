@@ -58,6 +58,12 @@ export function switchAuthView(mode) {
       modalSubtitle.textContent = "Fleet Operations Console Access";
     }
   }
+
+  if (document.getElementById("auth-modal")?.style.display === "flex") {
+    const targetId = mode === "setup" ? "setup-password"
+      : mode === "change-password" ? "change-current-password" : "token-input";
+    document.getElementById(targetId)?.focus();
+  }
 }
 
 export function showAuthModal(errMsg = "", initialView = null) {
@@ -412,6 +418,15 @@ export function initAuth({ skipInitialCheck = false } = {}) {
           showAlert("Administrator password updated successfully.", "success");
           fetchFleetStatus();
         } else {
+          if (res.status === 401) {
+            const sessionRes = await boundedFetch("/api/auth/session");
+            if (sessionRes.ok && !(await sessionRes.json()).authenticated) {
+              clearOperatorToken();
+              updateAuthUI();
+              showAuthModal("Session expired. Please sign in again.", "login");
+              return;
+            }
+          }
           if (errBox) {
             errBox.textContent = data.error?.message || "Password update failed";
             errBox.style.display = "block";
@@ -446,9 +461,14 @@ export function initAuth({ skipInitialCheck = false } = {}) {
         const headers = {};
         const csrf = getCsrfToken();
         if (csrf) headers["X-CSRF-Token"] = csrf;
-        await boundedFetch("/api/auth/logout", { method: "POST", headers });
+        const response = await boundedFetch("/api/auth/logout", { method: "POST", headers });
+        if (!response.ok) {
+          showAlert("Logout failed. Please retry.", "danger");
+          return;
+        }
       } catch {
-        // Logout gracefully even on transport failure
+        showAlert("Logout failed. Please retry.", "danger");
+        return;
       }
 
       clearOperatorToken();

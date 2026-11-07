@@ -29,8 +29,8 @@ function scrubCredentialURL() {
 }
 
 function initApp() {
-  const hasUrlToken = scrubCredentialURL();
-  initAuth({ skipInitialCheck: hasUrlToken });
+  scrubCredentialURL();
+  initAuth();
   initFleet();
   initOnboarding();
   initOperations();

@@ -218,6 +218,25 @@ def test_valid_login_and_logout_lifecycle(tmp_path: Path, monkeypatch: pytest.Mo
         assert after_logout.json()["authenticated"] is False
 
 
+def test_logout_rejects_invalid_csrf_without_revoking_session(tmp_path: Path) -> None:
+    app = create_app(database_path=tmp_path / "inventory.db", enable_password_auth=True)
+    with TestClient(app) as client:
+        setup = client.post(
+            "/api/auth/setup",
+            json={"password": "StrongPassword2026!", "confirm_password": "StrongPassword2026!"},
+        )
+        assert setup.status_code == 200
+        rejected = client.post("/api/auth/logout", headers={"Origin": "http://testserver"})
+        assert rejected.status_code == 401
+        assert client.get("/api/auth/session").json()["authenticated"] is True
+        valid = client.post(
+            "/api/auth/logout",
+            headers={"Origin": "http://testserver", "X-CSRF-Token": setup.json()["csrf_token"]},
+        )
+        assert valid.status_code == 200
+        assert client.get("/api/auth/session").json()["authenticated"] is False
+
+
 def test_login_rate_limiting(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     db_path = tmp_path / "inventory.db"
     monkeypatch.delenv("FLEET_MANAGER_INITIAL_PASSWORD", raising=False)
@@ -392,6 +411,13 @@ def test_csrf_protection_on_cookie_authenticated_requests(
             headers={"X-CSRF-Token": csrf_token, "Origin": "https://evil.attacker.com"},
         )
         assert bad_origin.status_code == 401
+
+        wrong_scheme = client.post(
+            "/api/nodes",
+            json={"name": "node-csrf", "address": "10.0.0.1"},
+            headers={"X-CSRF-Token": csrf_token, "Origin": "https://testserver"},
+        )
+        assert wrong_scheme.status_code == 401
 
         # State-changing request with valid CSRF token and matching Origin succeeds
         good = client.post(

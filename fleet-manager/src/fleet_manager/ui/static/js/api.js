@@ -83,7 +83,7 @@ export async function apiRequest(path, options = {}) {
     clearOperatorToken();
     setIsAuthenticated(false);
     updateAuthUI();
-    showAuthModal("Session unauthorized or token expired. Please re-authenticate.");
+    showAuthModal("Session unauthorized or token expired. Please re-authenticate.", "login");
     throw new Error("Unauthorized");
   }
   return response;

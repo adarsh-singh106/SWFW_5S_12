@@ -287,7 +287,7 @@ def logout(request: Request, response: Response) -> Response:
             try:
                 validate_csrf(request, session)
             except Exception:
-                pass
+                return _error(401, "unauthorized", "CSRF verification failed")
         session_store.revoke_session(raw_token)
 
     response.delete_cookie(

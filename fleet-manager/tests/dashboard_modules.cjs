@@ -409,7 +409,7 @@ for (const query of ['?token=secret', '?token=%E0%A4%A&select=1', '?token=&token
     assert.equal(h.module('state').getOperatorToken(), null);
     assert.equal(h.window.location.search.includes('token'), false);
     assert.equal(h.element('auth-modal').style.display, 'flex');
-    assert.equal(h.requests.length, 0);
+    assert.ok(h.requests.some(request => request.url.endsWith('/api/auth/session')));
   });
 }
 
@@ -678,6 +678,27 @@ test('first-run setup form submits matching password and authenticates operator'
   h.element('setup-confirm-password').value = 'AdminPassword2026!';
   await h.element('setup-form').fire('submit');
 
+  assert.equal(h.module('state').isAuthenticated(), true);
+  assert.equal(h.element('auth-modal').style.display, 'none');
+});
+
+test('first-run status focuses the setup password field', async () => {
+  const h = await harness('', url => url.endsWith('/api/auth/status')
+    ? { setup_required: true, password_change_required: false }
+    : { authenticated: false });
+  h.module('app').initApp();
+  await settle();
+  assert.equal(h.element('auth-setup-view').style.display, 'block');
+  assert.equal(h.document.activeElement, h.element('setup-password'));
+});
+
+test('scrubbed URL token still checks an existing cookie session', async () => {
+  const h = await harness('?token=old', url => url.endsWith('/api/auth/session')
+    ? { authenticated: true, must_change_password: false, csrf_token: 'fixture' }
+    : { nodes: [] });
+  h.module('app').initApp();
+  await settle();
+  assert.equal(h.window.location.search, '');
   assert.equal(h.module('state').isAuthenticated(), true);
   assert.equal(h.element('auth-modal').style.display, 'none');
 });

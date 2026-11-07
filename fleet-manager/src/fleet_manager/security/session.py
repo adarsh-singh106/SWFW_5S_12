@@ -194,13 +194,13 @@ def validate_csrf(request: Request, session: SessionData) -> None:
     expected_host = request.url.netloc
     if origin:
         parsed_origin = urlparse(origin)
-        if parsed_origin.netloc != expected_host:
+        if parsed_origin.scheme != request.url.scheme or parsed_origin.netloc != expected_host:
             from fleet_manager.errors import AuthenticationError
 
             raise AuthenticationError
     elif referer:
         parsed_referer = urlparse(referer)
-        if parsed_referer.netloc != expected_host:
+        if parsed_referer.scheme != request.url.scheme or parsed_referer.netloc != expected_host:
             from fleet_manager.errors import AuthenticationError
 
             raise AuthenticationError

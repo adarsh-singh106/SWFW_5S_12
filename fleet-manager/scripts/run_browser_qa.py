@@ -59,6 +59,7 @@ class FakeOperations:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--inject-failure", action="store_true")
+    parser.add_argument("--first-run", action="store_true")
     args = parser.parse_args()
     run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S") + "-" + secrets.token_hex(4)
     output = ROOT / ".local" / "browser-qa" / run_id
@@ -87,7 +88,8 @@ def main() -> int:
         app = create_app(
             database_path=work / "inventory.db",
             api_token=token,
-            initial_password="CHANGEME",
+            initial_password="" if args.first_run else "CHANGEME",
+            enable_password_auth=True,
             ssh_settings=settings,
             ssh_transport=FakeSSH(controls),
             operation_transport=FakeOperations(),
@@ -101,7 +103,10 @@ def main() -> int:
             if request.url.path == "/__qa/control":
                 if request.headers.get("authorization") != "Bearer " + token:
                     return JSONResponse({}, status_code=401)
-                controls.update(await request.json())
+                changes = await request.json()
+                if changes.pop("expire_sessions", False):
+                    app.state.session_store.clear()
+                controls.update(changes)
                 return JSONResponse({"ok": True})
             if request.url.path.startswith("/api/") and controls["outage"]:
                 return JSONResponse({"error": {"message": "QA controlled outage"}}, status_code=503)
@@ -214,6 +219,7 @@ def main() -> int:
                     "debugPort": debug_port,
                     "output": str(output),
                     "injectFailure": args.inject_failure,
+                    "firstRun": args.first_run,
                 }
             )
             stdout, stderr = driver.communicate(payload, timeout=150)

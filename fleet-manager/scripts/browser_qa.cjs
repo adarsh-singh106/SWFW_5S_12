@@ -1,7 +1,7 @@
 ﻿const fs=require('node:fs'), path=require('node:path'), assert=require('node:assert/strict');
 let input=''; process.stdin.on('data',x=>input+=x); process.stdin.on('end',()=>run(JSON.parse(input)));
 async function run(c){
- const report={assertions:[],screenshots:[],consoleErrors:[],failedRequests:[],navigationFailures:[]};
+ const report={assertions:[],screenshots:[],consoleErrors:[],failedRequests:[],navigationFailures:[],loginRequestFields:[]};
  let ws,id=0,expected=false;const pending=new Map();
  function send(method,params={}){return new Promise((resolve,reject)=>{const n=++id;const timer=setTimeout(()=>{pending.delete(n);reject(Error('CDP timeout '+method))},10000);pending.set(n,{resolve:x=>{clearTimeout(timer);resolve(x)},reject:x=>{clearTimeout(timer);reject(x)}});ws.send(JSON.stringify({id:n,method,params}))})}
  async function ev(expression){const x=await send('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(x.exceptionDetails)throw Error(x.exceptionDetails.exception?.description||x.exceptionDetails.text);return x.result?.value}
@@ -21,28 +21,37 @@ async function run(c){
    if(x.method==='Runtime.consoleAPICalled'&&['error','assert'].includes(x.params.type))report.consoleErrors.push({type:'console',data:x.params,expected:false});
    if(x.method==='Log.entryAdded'&&x.params.entry.level==='error')report.consoleErrors.push({type:'log',data:x.params.entry,expected:(expected && x.params.entry.source==='network')||x.params.entry.url?.endsWith('/favicon.ico')});
    if(x.method==='Network.loadingFailed')report.failedRequests.push({type:'transport',data:x.params,expected:false});
+   if(x.method==='Network.requestWillBeSent'&&x.params.request.url.endsWith('/api/auth/login')&&x.params.request.postData){try{report.loginRequestFields.push(Object.keys(JSON.parse(x.params.request.postData)))}catch{report.loginRequestFields.push(['unparseable'])}}
    if(x.method==='Network.responseReceived'&&x.params.response.status>=400)report.failedRequests.push({type:'http',url:x.params.response.url,status:x.params.response.status,expected:expected||x.params.response.url.endsWith('/favicon.ico')});
   };
   for(const d of ['Page','Runtime','Log','Network'])await send(d+'.enable');
   const nav=await send('Page.navigate',{url:c.base+'/dashboard'});if(nav.errorText){report.navigationFailures.push(nav.errorText);throw Error(nav.errorText)}
   await until(`document.readyState==='complete' && document.getElementById('auth-modal') && ${vis('auth-modal')}`,'auth modal rendered');await send('Page.bringToFront');await sleep(250);
   if(c.injectFailure)throw Error('Injected failure for cleanup verification');
-  await ev(`(async()=>{const auth=await import('/static/js/auth.js');auth.switchAuthView('setup')})()`);
-  await until(vis('auth-setup-view'),'first-run setup view displayed');
-  await shot('01-first-run-setup');
-  await ev(`(async()=>{const auth=await import('/static/js/auth.js');auth.switchAuthView('login')})()`);
-  await until(vis('auth-login-view'),'login view displayed');
-  expected=true;await type('token-input','invalid-fixture');await click('#auth-submit-btn');await until(`document.getElementById('auth-error').textContent.includes('Invalid')`,'invalid authentication feedback');await sleep(100);expected=false;
-  await type('token-input','CHANGEME');
-  await shot('02-changeme-initial-login');
-  await click('#auth-submit-btn');
-  await until(vis('auth-change-password-view'),'mandatory password change view displayed');
-  await shot('03-mandatory-password-change');
-  await type('change-new-password',adminPassword);
-  await type('change-confirm-password',adminPassword);
-  await click('#change-password-submit-btn');
-  await until(`!(${vis('auth-modal')}) && document.querySelectorAll('#nodes-table-body tr[data-node-id]').length===3`,'password change establishes admin password and loads inventory');
+  expected=true;
+  report.validation422=await ev(`(async()=>{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});const body=await r.json();return {status:r.status,error:body.error||null,detail:(body.detail||[]).map(x=>({loc:x.loc,type:x.type}))}})()`);
+  assert.equal(report.validation422.status,422);assert.ok(report.validation422.error||report.validation422.detail.length);
+  report.assertions.push('actual browser 422 validation response inspected');expected=false;
+  if(c.firstRun){
+   await until(`${vis('auth-setup-view')} && document.activeElement===document.getElementById('setup-password')`,'first-run setup view and focus');
+   await shot('01-first-run-setup');
+   await type('setup-password',adminPassword);await type('setup-confirm-password',adminPassword);
+   await click('#setup-submit-btn');
+   await until(`!(${vis('auth-modal')}) && document.querySelectorAll('#nodes-table-body tr[data-node-id]').length===3`,'first-run setup issues browser session and loads inventory');
+  }else{
+   await until(vis('auth-login-view'),'login view displayed');
+   expected=true;await type('token-input','invalid-fixture');await click('#auth-submit-btn');await until(`document.getElementById('auth-error').textContent.includes('Invalid')`,'invalid authentication feedback');await sleep(100);expected=false;
+   await type('token-input','CHANGEME');await shot('02-changeme-initial-login');
+   await click('#auth-submit-btn');await until(vis('auth-change-password-view'),'mandatory password change view displayed');await shot('03-mandatory-password-change');
+   await type('change-new-password',adminPassword);await type('change-confirm-password',adminPassword);await click('#change-password-submit-btn');
+   await until(`!(${vis('auth-modal')}) && document.querySelectorAll('#nodes-table-body tr[data-node-id]').length===3`,'password change establishes admin password and loads inventory');
+  }
   await shot('05-authenticated-dashboard');
+  await send('Page.reload');
+  await until(`document.readyState==='complete' && !(${vis('auth-modal')}) && document.querySelectorAll('#nodes-table-body tr[data-node-id]').length===3`,'dashboard refresh preserves active browser session and inventory');
+  expected=true;
+  const csrfRejection=await ev(`(async()=>{const r=await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'});return {status:r.status,active:(await(await fetch('/api/auth/session')).json()).authenticated}})()`);
+  assert.deepEqual(csrfRejection,{status:401,active:true});report.assertions.push('invalid CSRF cannot revoke browser session');expected=false;
   await click('#logout-btn');
   await until(vis('auth-modal'),'session locking on logout');
   await until(vis('auth-login-view'),'normal login view displayed after logout');
@@ -104,6 +113,7 @@ async function run(c){
   await until(`document.getElementById('onboarding-feedback').textContent.includes('differs') && document.getElementById('scanned-fingerprint-content').textContent.startsWith('SHA256:') && document.getElementById('step-trust-btn').disabled && !document.getElementById('scan-host-key-btn').disabled`,'mismatched key blocks trust and permits rescan');await shot('onboarding-mismatch');
   await control({scan_mismatch:false});await click('#scan-host-key-btn');
   await until(`!document.getElementById('fingerprint-acknowledgement').checked && document.getElementById('step-trust-btn').disabled && !(${vis('step-fp-box')})`,'deliberate rescan clears acknowledgement');
+  await ev(`document.getElementById('close-onboarding-btn').focus()`);
   await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await until(`!(${vis('onboarding-modal')})`,'Escape dismisses onboarding');
   await until(`!document.querySelector('.app-header').inert && !document.getElementById('auth-modal').inert`,'closing onboarding restores background interaction');
   await control({delay:0.5});await click('[data-node-id="2"] td:last-child button:last-child');await sleep(100);await click('#close-onboarding-btn');await click('[data-node-id="3"] td:last-child button:last-child');await sleep(700);await until(`document.getElementById('onboarding-node-title').textContent.includes('gamma') && ${vis('step-complete-box')} && document.getElementById('onboarding-setup-state').textContent!=='Loading' && typeof document.getElementById('scan-host-key-btn').onclick==='function'`,'delayed response keeps current node and visible status panel');await click('#scan-host-key-btn');await until(vis('step-trust-btn'),'current modal handlers remain valid');await click('#close-onboarding-btn');await control({delay:0});
@@ -139,6 +149,13 @@ async function run(c){
    await shot('onboarding-'+width+'x'+height);
    await click('#close-onboarding-btn');
   }
+  await control({expire_sessions:true});
+  expected=true;await click('#refresh-btn');await until(vis('auth-modal'),'expired session prompts re-authentication');
+  const unauthorizedCount=()=>report.failedRequests.filter(x=>x.status===401&&x.url.endsWith('/api/nodes/status')).length;
+  const firstUnauthorized=unauthorizedCount();assert.equal(firstUnauthorized,1,'one status request detects expiry');
+  await sleep(11000);assert.equal(unauthorizedCount(),firstUnauthorized,'no repeated unauthorized polling');report.assertions.push('no repeated unauthorized polling after expiry');
+  await login();expected=false;
+  await until(`document.querySelectorAll('#nodes-table-body tr[data-node-id]').length===3`,'re-authentication restores inventory');
   assert.equal(report.consoleErrors.filter(x=>!x.expected).length,0,'unexpected console/module errors');assert.equal(report.failedRequests.filter(x=>!x.expected).length,0,'unexpected failed requests');report.assertions.push('console/network/module/navigation inspection');report.passed=true;
  }catch(e){report.passed=false;report.failure=e.stack;process.exitCode=1;try{if(ws?.readyState===1)await shot('failure')}catch{}}
  finally{fs.writeFileSync(path.join(c.output,'browser.json'),JSON.stringify(report,null,2),{flag:'wx'});try{if(ws?.readyState===1)await send('Browser.close')}catch{}ws?.close();console.log(JSON.stringify({passed:report.passed,assertions:report.assertions,failure:report.failure},null,2))}
