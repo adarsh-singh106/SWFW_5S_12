@@ -56,7 +56,9 @@ class SQLiteNodeRepository:
                         ).fetchone()
                         is not None
                     )
-                    if (exists and version not in (1, 2, 3, 4, 5)) or (not exists and version != 0):
+                    if (exists and version not in (1, 2, 3, 4, 5, 6)) or (
+                        not exists and version != 0
+                    ):
                         raise StorageError("Inventory schema requires an explicit migration")
                     if not exists:
                         connection.execute(_SCHEMA)

@@ -10,19 +10,27 @@ import { initOperations } from "./operations.js";
 import { initHistory } from "./history.js";
 import {
   getOperatorToken,
-  clearOperatorToken
+  clearOperatorToken,
+  isAuthenticated
 } from "./state.js";
 
 function scrubCredentialURL() {
-  const url = new URL(window.location.href);
-  if (url.searchParams.has("token")) {
-    url.searchParams.delete("token");
-    window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+  try {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("token")) {
+      url.searchParams.delete("token");
+      window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+      return true;
+    }
+  } catch {
+    // Ignore URL parse errors
   }
+  return false;
 }
 
 function initApp() {
-  initAuth();
+  const hasUrlToken = scrubCredentialURL();
+  initAuth({ skipInitialCheck: hasUrlToken });
   initFleet();
   initOnboarding();
   initOperations();
@@ -30,12 +38,11 @@ function initApp() {
 
   // Periodic auto-refresh every 10 seconds if authenticated
   setInterval(() => {
-    if (getOperatorToken()) {
+    if (isAuthenticated() || getOperatorToken()) {
       fetchFleetStatus();
     }
   }, 10000);
 
-  scrubCredentialURL();
   window.addEventListener("popstate", scrubCredentialURL);
   window.addEventListener("pageshow", (event) => {
     scrubCredentialURL();

@@ -87,6 +87,7 @@ def main() -> int:
         app = create_app(
             database_path=work / "inventory.db",
             api_token=token,
+            initial_password="CHANGEME",
             ssh_settings=settings,
             ssh_transport=FakeSSH(controls),
             operation_transport=FakeOperations(),

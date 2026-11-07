@@ -1,10 +1,13 @@
 /**
- * Centralized API request handling with bounded timeouts and ephemeral auth.
+ * Centralized API request handling with bounded timeouts, cookie credentials, and CSRF protection.
  */
 
 import {
   getOperatorToken,
   clearOperatorToken,
+  isAuthenticated,
+  setIsAuthenticated,
+  getCsrfToken,
   trackActiveRequest,
   removeActiveRequest
 } from "./state.js";
@@ -13,6 +16,7 @@ import { showAuthModal, updateAuthUI } from "./auth.js";
 /**
  * Bounded fetch wrapper ensuring requests cannot hang indefinitely.
  * Includes response consumption within the deadline.
+ * Sends credentials (cookies) with same-origin requests.
  */
 export async function boundedFetch(path, options = {}, timeoutMs = 20000) {
   const controller = new AbortController();
@@ -20,7 +24,12 @@ export async function boundedFetch(path, options = {}, timeoutMs = 20000) {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch(path, { ...options, signal: controller.signal });
+    const fetchOptions = {
+      credentials: "same-origin",
+      ...options,
+      signal: controller.signal
+    };
+    const response = await fetch(path, fetchOptions);
     const body = await response.text();
     return {
       ok: response.ok,
@@ -41,17 +50,30 @@ export async function boundedFetch(path, options = {}, timeoutMs = 20000) {
 }
 
 /**
- * Perform an authenticated API request using the in-memory bearer token.
+ * Perform an authenticated API request using session cookies and CSRF tokens.
  */
 export async function apiRequest(path, options = {}) {
   const token = getOperatorToken();
-  if (!token) {
+  if (!isAuthenticated() && !token) {
     showAuthModal();
     throw new Error("Authentication required");
   }
 
   const headers = { ...(options.headers || {}) };
-  headers["Authorization"] = "Bearer " + token;
+  // Only attach Bearer token if an explicit non-placeholder manual token is provided (e.g. test harness)
+  if (token && token !== "authenticated") {
+    headers["Authorization"] = "Bearer " + token;
+  }
+
+  // Include CSRF protection on state-changing requests
+  const method = (options.method || "GET").toUpperCase();
+  if (["POST", "PUT", "DELETE", "PATCH"].includes(method)) {
+    const csrfToken = getCsrfToken();
+    if (csrfToken) {
+      headers["X-CSRF-Token"] = csrfToken;
+    }
+  }
+
   if (options.body && typeof options.body === "string" && !headers["Content-Type"]) {
     headers["Content-Type"] = "application/json";
   }
@@ -59,6 +81,7 @@ export async function apiRequest(path, options = {}) {
   const response = await boundedFetch(path, { ...options, headers });
   if (response.status === 401) {
     clearOperatorToken();
+    setIsAuthenticated(false);
     updateAuthUI();
     showAuthModal("Session unauthorized or token expired. Please re-authenticate.");
     throw new Error("Unauthorized");

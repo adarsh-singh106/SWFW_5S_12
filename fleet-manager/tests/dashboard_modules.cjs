@@ -416,7 +416,8 @@ for (const query of ['?token=secret', '?token=%E0%A4%A&select=1', '?token=&token
 test('form authentication is memory-only, logout clears it and reload requires fresh entry', async () => {
   const h = await harness(); h.module('app').initApp(); h.element('token-input').value = 'test-only';
   await h.element('auth-form').fire('submit');
-  assert.equal(h.module('state').getOperatorToken(), 'test-only');
+  assert.equal(h.module('state').isAuthenticated(), true);
+  assert.equal(h.module('state').getOperatorToken(), null);
   await h.element('logout-btn').fire('click'); assert.equal(h.module('state').getOperatorToken(), null);
   assert.equal(h.element('auth-modal').style.display, 'flex');
   const reloaded = await harness(); reloaded.module('app').initApp();
@@ -659,4 +660,89 @@ test('return to inventory restores focus to invoking element', async () => {
   state.setInventoryReturnFocus(invBtn);
 
   assert.equal(state.getInventoryReturnFocus(), invBtn);
+});
+
+test('first-run setup form submits matching password and authenticates operator', async () => {
+  const h = await harness('', async (url) => {
+    if (url.endsWith('/api/auth/setup')) {
+      return { ok: true, csrf_token: 'csrf-1234', message: 'Setup completed' };
+    }
+    return { nodes: [] };
+  });
+  h.module('app').initApp();
+  const auth = h.module('auth');
+  auth.switchAuthView('setup');
+  assert.equal(h.element('auth-setup-view').style.display, 'block');
+
+  h.element('setup-password').value = 'AdminPassword2026!';
+  h.element('setup-confirm-password').value = 'AdminPassword2026!';
+  await h.element('setup-form').fire('submit');
+
+  assert.equal(h.module('state').isAuthenticated(), true);
+  assert.equal(h.element('auth-modal').style.display, 'none');
+});
+
+test('inline validation enforces 12-char minimum and matching password in setup', async () => {
+  const h = await harness();
+  h.module('app').initApp();
+  const auth = h.module('auth');
+  auth.switchAuthView('setup');
+
+  const pw = h.element('setup-password');
+  const confirm = h.element('setup-confirm-password');
+  const msg = h.element('setup-validation-msg');
+
+  pw.value = 'short';
+  await pw.fire('input');
+  assert.equal(msg.style.display, 'block');
+  assert.match(msg.textContent, /at least 12 characters/);
+
+  pw.value = 'ValidPassword123!';
+  confirm.value = 'MismatchPassword123!';
+  await confirm.fire('input');
+  assert.equal(msg.style.display, 'block');
+  assert.match(msg.textContent, /do not match/);
+
+  confirm.value = 'ValidPassword123!';
+  await confirm.fire('input');
+  assert.equal(msg.style.display, 'none');
+});
+
+test('mandatory password change flow triggers and establishes permanent credential', async () => {
+  const h = await harness('', async (url) => {
+    if (url.endsWith('/api/auth/login')) {
+      return { ok: true, must_change_password: true, csrf_token: 'csrf-bootstrap' };
+    }
+    if (url.endsWith('/api/auth/change-password')) {
+      return { ok: true, must_change_password: false, csrf_token: 'csrf-permanent' };
+    }
+    return { nodes: [] };
+  });
+  h.module('app').initApp();
+  h.element('token-input').value = 'CHANGEME';
+  await h.element('auth-form').fire('submit');
+
+  assert.equal(h.module('state').getMustChangePassword(), true);
+  assert.equal(h.element('auth-change-password-view').style.display, 'block');
+  assert.equal(h.element('change-current-password').value, 'CHANGEME');
+
+  h.element('change-new-password').value = 'BrandNewPermanentPass2026!';
+  h.element('change-confirm-password').value = 'BrandNewPermanentPass2026!';
+  await h.element('change-password-form').fire('submit');
+
+  assert.equal(h.module('state').getMustChangePassword(), false);
+  assert.equal(h.element('auth-modal').style.display, 'none');
+});
+
+test('password visibility toggles switch input type between password and text', async () => {
+  const h = await harness();
+  h.module('app').initApp();
+  const tokenInput = h.element('token-input');
+  const toggleBtn = h.element('toggle-token-btn');
+
+  tokenInput.type = 'password';
+  await toggleBtn.fire('click');
+  assert.equal(tokenInput.type, 'text');
+  await toggleBtn.fire('click');
+  assert.equal(tokenInput.type, 'password');
 });

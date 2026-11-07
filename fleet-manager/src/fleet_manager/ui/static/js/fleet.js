@@ -4,6 +4,7 @@
 
 import {
   getOperatorToken,
+  isAuthenticated,
   setSelectedNodeId,
   isFleetPending,
   setFleetPending,
@@ -38,8 +39,7 @@ function refreshLabel(prefix) {
  * Fetch fleet status and update the inventory table and overview counters.
  */
 export async function fetchFleetStatus() {
-  const token = getOperatorToken();
-  if (!token || isFleetPending()) return;
+  if (!isAuthenticated() || isFleetPending()) return;
 
   setFleetPending(true);
   const lastUpdatedEl = document.getElementById("last-updated");
@@ -52,7 +52,7 @@ export async function fetchFleetStatus() {
     if (!res.ok) throw new Error("Failed to load status");
     const data = await res.json();
 
-    if (getOperatorToken() === token) {
+    if (isAuthenticated()) {
       setLastFleetData(data);
       renderFleet(data);
       lastSuccessfulRefreshAt = new Date();

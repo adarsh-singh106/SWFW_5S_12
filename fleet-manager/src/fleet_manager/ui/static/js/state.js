@@ -1,10 +1,15 @@
 /**
  * Centralized state ownership and lifecycle guarantees.
- * Token is retained strictly in-memory within this module's closure.
- * Persistent storage mechanisms are forbidden.
+ * Ephemeral session and UI state is retained strictly in-memory within this module's closure.
+ * Forbidden storage mechanisms (web storage / client-side persistent cookies) are not used.
  */
 
 let _operatorToken = null;
+let _isAuthenticated = false;
+let _csrfToken = null;
+let _mustChangePassword = false;
+let _authMode = "login"; // "setup" | "login" | "change-password"
+
 let _selectedNodeId = null;
 let _fleetPending = false;
 let _selectionEpoch = 0;
@@ -25,10 +30,51 @@ export function getOperatorToken() {
 
 export function setOperatorToken(token) {
   _operatorToken = token;
+  _isAuthenticated = Boolean(token);
 }
 
 export function clearOperatorToken() {
   _operatorToken = null;
+  _isAuthenticated = false;
+  _csrfToken = null;
+  _mustChangePassword = false;
+}
+
+export function isAuthenticated() {
+  return _isAuthenticated || Boolean(_operatorToken);
+}
+
+export function setIsAuthenticated(auth) {
+  _isAuthenticated = Boolean(auth);
+  if (!_isAuthenticated) {
+    _operatorToken = null;
+    _csrfToken = null;
+    _mustChangePassword = false;
+  }
+}
+
+export function getCsrfToken() {
+  return _csrfToken;
+}
+
+export function setCsrfToken(token) {
+  _csrfToken = token || null;
+}
+
+export function getMustChangePassword() {
+  return _mustChangePassword;
+}
+
+export function setMustChangePassword(val) {
+  _mustChangePassword = Boolean(val);
+}
+
+export function getAuthMode() {
+  return _authMode;
+}
+
+export function setAuthMode(mode) {
+  _authMode = mode;
 }
 
 export function getSelectedNodeId() {

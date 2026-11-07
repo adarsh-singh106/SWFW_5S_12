@@ -218,7 +218,7 @@ def test_v1_inventory_migrates_without_changing_node_and_persists_observation(
         checked = client.post(f"/api/nodes/{saved.id}/connectivity-check")
         assert checked.status_code == 200
     with sqlite3.connect(database_path) as connection:
-        assert connection.execute("PRAGMA user_version").fetchone()[0] in (2, 3, 4, 5)
+        assert connection.execute("PRAGMA user_version").fetchone()[0] in (2, 3, 4, 5, 6)
         assert connection.execute("SELECT count(*) FROM nodes").fetchone()[0] == 1
     with TestClient(create_app(database_path, api_token=api_token), headers=auth_headers) as client:
         assert client.get(f"/api/nodes/{saved.id}/connectivity").json() == {

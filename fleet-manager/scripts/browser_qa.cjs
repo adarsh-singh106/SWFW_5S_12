@@ -10,7 +10,8 @@ async function run(c){
  const vis=id=>`getComputedStyle(document.getElementById(${JSON.stringify(id)})).display!=='none'`;
  const click=s=>ev(`document.querySelector(${JSON.stringify(s)}).focus();document.querySelector(${JSON.stringify(s)}).click()`);
  async function type(id,text){await ev(`document.getElementById(${JSON.stringify(id)}).focus();document.getElementById(${JSON.stringify(id)}).value=''`);await send('Input.insertText',{text});await ev(`document.getElementById(${JSON.stringify(id)}).dispatchEvent(new Event('input',{bubbles:true}))`)}
- async function login(){await type('token-input',c.token);await click('#auth-submit-btn');await until(`!(${vis('auth-modal')}) && document.querySelectorAll('#nodes-table-body tr[data-node-id]').length===3`,'form authentication loads inventory')}
+ const adminPassword='AdminPassword2026!';
+ async function login(){await type('token-input',adminPassword);await click('#auth-submit-btn');await until(`!(${vis('auth-modal')}) && document.querySelectorAll('#nodes-table-body tr[data-node-id]').length===3`,'form authentication loads inventory')}
  async function control(data){assert.equal((await fetch(c.base+'/__qa/control',{method:'POST',headers:{Authorization:'Bearer '+c.token,'Content-Type':'application/json'},body:JSON.stringify(data)})).status,200)}
  async function shot(name){const data=await send('Page.captureScreenshot',{format:'png'});const file=path.join(c.output,name+'.png');fs.writeFileSync(file,Buffer.from(data.data,'base64'),{flag:'wx'});report.screenshots.push(file)}
  try{
@@ -26,7 +27,27 @@ async function run(c){
   const nav=await send('Page.navigate',{url:c.base+'/dashboard'});if(nav.errorText){report.navigationFailures.push(nav.errorText);throw Error(nav.errorText)}
   await until(`document.readyState==='complete' && document.getElementById('auth-modal') && ${vis('auth-modal')}`,'auth modal rendered');await send('Page.bringToFront');await sleep(250);
   if(c.injectFailure)throw Error('Injected failure for cleanup verification');
+  await ev(`(async()=>{const auth=await import('/static/js/auth.js');auth.switchAuthView('setup')})()`);
+  await until(vis('auth-setup-view'),'first-run setup view displayed');
+  await shot('01-first-run-setup');
+  await ev(`(async()=>{const auth=await import('/static/js/auth.js');auth.switchAuthView('login')})()`);
+  await until(vis('auth-login-view'),'login view displayed');
   expected=true;await type('token-input','invalid-fixture');await click('#auth-submit-btn');await until(`document.getElementById('auth-error').textContent.includes('Invalid')`,'invalid authentication feedback');await sleep(100);expected=false;
+  await type('token-input','CHANGEME');
+  await shot('02-changeme-initial-login');
+  await click('#auth-submit-btn');
+  await until(vis('auth-change-password-view'),'mandatory password change view displayed');
+  await shot('03-mandatory-password-change');
+  await type('change-new-password',adminPassword);
+  await type('change-confirm-password',adminPassword);
+  await click('#change-password-submit-btn');
+  await until(`!(${vis('auth-modal')}) && document.querySelectorAll('#nodes-table-body tr[data-node-id]').length===3`,'password change establishes admin password and loads inventory');
+  await shot('05-authenticated-dashboard');
+  await click('#logout-btn');
+  await until(vis('auth-modal'),'session locking on logout');
+  await until(vis('auth-login-view'),'normal login view displayed after logout');
+  await ev(`document.getElementById('auth-error').style.display='none'`);
+  await shot('04-normal-login');
   await login();
   const fleetContract=await(await fetch(c.base+'/api/nodes/status',{headers:{Authorization:'Bearer '+c.token}})).json();
   await until(`document.getElementById('observation-ttl').textContent.includes('${fleetContract.observation_ttl_seconds}s') && document.getElementById('last-updated').textContent.includes('Last successful browser refresh')`,'API TTL and browser refresh time remain separate');

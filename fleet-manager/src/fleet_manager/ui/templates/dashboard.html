@@ -14,7 +14,7 @@
   <!-- Global Alert Banner -->
   <div id="global-alert" role="alert" class="presentation-1 alert alert-info"></div>
 
-  <!-- Operator Authentication Modal (Ephemeral in-memory token) -->
+  <!-- Operator Authentication Modal (Single Administrator Password Experience) -->
   <div id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" class="presentation-1 modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -23,32 +23,93 @@
         </div>
         <div>
           <h2 id="auth-modal-title" class="presentation-2">Operator Authentication</h2>
-          <p class="presentation-3">Fleet Operations Console Access</p>
+          <p class="presentation-3" id="auth-modal-subtitle">Fleet Operations Console Access</p>
         </div>
       </div>
-      <p class="presentation-4">
-        Authenticate with an authorized bearer token to access loopback control plane endpoints.
+      <p class="presentation-4" id="auth-modal-desc">
+        Authenticate with the administrator credential to access loopback control plane endpoints.
       </p>
-      <div class="presentation-5 alert alert-warning">
+      <div class="presentation-5 alert alert-warning" id="auth-storage-notice">
         <div>
           <strong>Ephemeral Storage:</strong> Token is retained in JavaScript memory only. It is never stored in localStorage, sessionStorage, or cookies.
         </div>
       </div>
-      <div id="auth-error" role="alert" class="presentation-1 alert alert-danger"></div>
-      <form id="auth-form">
-        <div class="form-group">
-          <label class="form-label" for="token-input">Operator Bearer Token</label>
-          <div class="presentation-6">
-            <input type="password" id="token-input" class="presentation-7 form-control" placeholder="32-128 character URL-safe token" required autofocus autocomplete="off">
-            <button type="button" id="toggle-token-btn" title="Toggle token visibility" aria-label="Toggle token visibility" class="presentation-8">
-              <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#eye"></use></svg>
-            </button>
+      <div id="auth-error" role="alert" class="presentation-1 alert alert-danger" style="display:none;"></div>
+      <div id="auth-success" role="status" class="alert alert-success" style="display:none;"></div>
+
+      <!-- View 1: First-Run Administrator Setup -->
+      <div id="auth-setup-view" style="display:none;">
+        <p class="presentation-4" style="margin-bottom: 1rem;">
+          No administrator password has been configured yet. Create a secure administrator password (minimum 12 characters) to initialize this Fleet Manager instance.
+        </p>
+        <form id="setup-form">
+          <div class="form-group">
+            <label class="form-label" for="setup-password">Create Administrator Password</label>
+            <div class="presentation-6">
+              <input type="password" id="setup-password" class="presentation-7 form-control" placeholder="Minimum 12 characters" required autocomplete="new-password">
+              <button type="button" id="toggle-setup-password-btn" title="Toggle password visibility" aria-label="Toggle password visibility" class="presentation-8">
+                <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#eye"></use></svg>
+              </button>
+            </div>
           </div>
+          <div class="form-group">
+            <label class="form-label" for="setup-confirm-password">Confirm Administrator Password</label>
+            <input type="password" id="setup-confirm-password" class="presentation-7 form-control" placeholder="Re-enter password" required autocomplete="new-password">
+            <div id="setup-validation-msg" class="validation-msg" style="display:none; color: #e06c75; font-size: 0.85rem; margin-top: 0.35rem;"></div>
+          </div>
+          <div class="presentation-9">
+            <button type="submit" class="presentation-10 btn btn-primary" id="setup-submit-btn">Complete Setup & Sign In</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- View 2: Normal / Initial Login -->
+      <div id="auth-login-view">
+        <form id="auth-form">
+          <div class="form-group">
+            <label class="form-label" for="token-input">Administrator Password</label>
+            <div class="presentation-6">
+              <input type="password" id="token-input" class="presentation-7 form-control" placeholder="Enter administrator password" required autofocus autocomplete="current-password">
+              <button type="button" id="toggle-token-btn" title="Toggle password visibility" aria-label="Toggle password visibility" class="presentation-8">
+                <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#eye"></use></svg>
+              </button>
+            </div>
+          </div>
+          <div class="presentation-9">
+            <button type="submit" class="presentation-10 btn btn-primary" id="auth-submit-btn">Sign In</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- View 3: Mandatory First-Login Password Change -->
+      <div id="auth-change-password-view" style="display:none;">
+        <div class="alert alert-warning" id="bootstrap-change-warning" style="margin-bottom: 1rem;">
+          <strong>Password Change Required:</strong> You signed in using a temporary or bootstrap password (e.g. CHANGEME). You must establish a secure new password (at least 12 characters) before accessing the dashboard.
         </div>
-        <div class="presentation-9">
-          <button type="submit" class="presentation-10 btn btn-primary" id="auth-submit-btn">Authenticate Session</button>
-        </div>
-      </form>
+        <form id="change-password-form">
+          <div class="form-group">
+            <label class="form-label" for="change-current-password">Current / Bootstrap Password</label>
+            <input type="password" id="change-current-password" class="presentation-7 form-control" placeholder="Current password" required autocomplete="current-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="change-new-password">New Administrator Password</label>
+            <div class="presentation-6">
+              <input type="password" id="change-new-password" class="presentation-7 form-control" placeholder="Minimum 12 characters" required autocomplete="new-password">
+              <button type="button" id="toggle-change-password-btn" title="Toggle password visibility" aria-label="Toggle password visibility" class="presentation-8">
+                <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#eye"></use></svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="change-confirm-password">Confirm New Password</label>
+            <input type="password" id="change-confirm-password" class="presentation-7 form-control" placeholder="Re-enter new password" required autocomplete="new-password">
+            <div id="change-validation-msg" class="validation-msg" style="display:none; color: #e06c75; font-size: 0.85rem; margin-top: 0.35rem;"></div>
+          </div>
+          <div class="presentation-9">
+            <button type="submit" class="presentation-10 btn btn-primary" id="change-password-submit-btn">Save New Password & Continue</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -190,8 +251,11 @@
       <button id="refresh-btn" class="btn btn-secondary" title="Trigger Full Fleet Status Refresh">
         <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#refresh"></use></svg><span>Refresh</span>
       </button>
-      <button id="logout-btn" class="presentation-1 btn btn-danger" title="Wipe In-Memory Bearer Token and Lock Console">
-        <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#lock"></use></svg><span>Lock Session</span>
+      <button id="change-password-nav-btn" class="btn btn-secondary" style="display:none;" title="Change Administrator Password">
+        <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#lock"></use></svg><span>Password</span>
+      </button>
+      <button id="logout-btn" class="presentation-1 btn btn-danger" title="Sign out and terminate session">
+        <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#lock"></use></svg><span>Logout</span>
       </button>
       </div>
     </nav>

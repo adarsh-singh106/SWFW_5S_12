@@ -348,12 +348,13 @@ def validate_application_schema(db_path: Path) -> None:
     from fleet_manager.connectivity.repository import _VALIDATION_SCHEMA
     from fleet_manager.inventory.repository import _SCHEMA as nodes_schema
     from fleet_manager.operations.repository import _SCHEMA as operations_schema
+    from fleet_manager.security.repository import _SCHEMA as credentials_schema
 
     actual = sqlite3.connect(db_path.as_uri() + "?mode=ro", uri=True)
     expected = sqlite3.connect(":memory:")
     try:
         version = actual.execute("PRAGMA user_version").fetchone()[0]
-        if version not in (1, 2, 3, 4, 5):
+        if version not in (1, 2, 3, 4, 5, 6):
             raise RuntimeError("Unsupported application schema version")
         expected.executescript(nodes_schema + ";")
         if version >= 2:
@@ -362,6 +363,8 @@ def validate_application_schema(db_path: Path) -> None:
             expected.executescript(operations_schema)
         if version >= 5:
             expected.executescript(_VALIDATION_SCHEMA)
+        if version >= 6:
+            expected.executescript(credentials_schema)
         tables = expected.execute("SELECT name, sql FROM sqlite_master WHERE type='table'")
         for name, sql in tables:
             row = actual.execute(

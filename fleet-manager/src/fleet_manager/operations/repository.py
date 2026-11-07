@@ -92,7 +92,7 @@ class SQLiteOperationsRepository:
                             if statement.strip():
                                 connection.execute(statement)
                         connection.execute("PRAGMA user_version = 3")
-                    elif version not in (3, 4, 5) or not exists:
+                    elif version not in (3, 4, 5, 6) or not exists:
                         raise StorageError("Inventory schema requires an explicit migration")
                     if version in (2, 3):
                         connection.execute(

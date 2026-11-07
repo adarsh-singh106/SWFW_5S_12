@@ -1,7 +1,9 @@
 """Application composition, lifecycle, and shared HTTP error mapping."""
 
+import os
+import sqlite3
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, closing
 from datetime import timedelta
 from pathlib import Path
 
@@ -61,6 +63,10 @@ from fleet_manager.operations.repository import SQLiteOperationsRepository
 from fleet_manager.operations.router import router as operations_router
 from fleet_manager.operations.service import OperationService
 from fleet_manager.operations.transport import OperationTransport
+from fleet_manager.security.passwords import hash_password
+from fleet_manager.security.repository import SQLiteAuthRepository
+from fleet_manager.security.router import router as auth_router
+from fleet_manager.security.session import LoginRateLimiter, SessionStore
 from fleet_manager.ui.router import STATIC_DIR
 from fleet_manager.ui.router import router as ui_router
 
@@ -72,9 +78,30 @@ def _error(status_code: int, code: str, message: str) -> JSONResponse:
     )
 
 
+def _has_admin_credential(db_path: Path) -> bool:
+    """Check if administrator credentials table exists and has a configured record."""
+    if not db_path.is_file():
+        return False
+    try:
+        with closing(sqlite3.connect(f"file:{db_path.resolve()}?mode=ro", uri=True)) as conn:
+            cursor = conn.cursor()
+            table = cursor.execute(
+                "SELECT 1 FROM sqlite_master "
+                "WHERE type='table' AND name='administrator_credentials'"
+            ).fetchone()
+            if table is None:
+                return False
+            row = cursor.execute("SELECT 1 FROM administrator_credentials WHERE id = 1").fetchone()
+            return row is not None
+    except Exception:
+        return False
+
+
 def create_app(
     database_path: Path | None = None,
     api_token: str | None = None,
+    enable_password_auth: bool | None = None,
+    initial_password: str | None = None,
     ssh_transport: SSHTransport | None = None,
     ssh_settings: SSHSettings | None = None,
     ssh_executor: SSHCheckExecutor | None = None,
@@ -100,7 +127,31 @@ def create_app(
         active_op_executor: OperationExecutor | None = None
 
         try:
-            settings = load_settings(database_path, api_token)
+            init_pw = (
+                initial_password
+                if initial_password is not None
+                else os.getenv("FLEET_MANAGER_INITIAL_PASSWORD")
+            )
+            default_db = Path(__file__).resolve().parents[2] / ".local" / "inventory.db"
+            configured_db_env = os.getenv("FLEET_MANAGER_DATABASE_PATH")
+            probe_db = database_path or (
+                Path(configured_db_env) if configured_db_env else default_db
+            )
+
+            password_auth_active = (
+                enable_password_auth
+                if enable_password_auth is not None
+                else (
+                    os.getenv("FLEET_MANAGER_ENABLE_PASSWORD_AUTH", "").lower()
+                    in ("1", "true", "yes")
+                    or bool(init_pw)
+                    or _has_admin_credential(probe_db)
+                )
+            )
+
+            settings = load_settings(
+                database_path, api_token, require_api_token=not password_auth_active
+            )
             limits = load_connectivity_limits()
             active_operation_limits = (
                 operation_limits if operation_limits is not None else load_operation_limits()
@@ -119,7 +170,13 @@ def create_app(
             telemetry = Telemetry()
             application.state.telemetry = telemetry
 
-            # Initialize SQLite repositories in explicit dependency order (v1 -> v2 -> v3)
+            # Initialize single-worker in-memory session store & rate limiter
+            session_store = SessionStore()
+            application.state.session_store = session_store
+            login_rate_limiter = LoginRateLimiter()
+            application.state.login_rate_limiter = login_rate_limiter
+
+            # Initialize SQLite repositories in explicit dependency order (v1 -> v2 -> v3 -> v6)
             inventory_repository = SQLiteNodeRepository(settings.database_path)
             inventory_repository.initialize()
             application.state.inventory_repository = inventory_repository
@@ -131,6 +188,22 @@ def create_app(
             operations_repository = SQLiteOperationsRepository(settings.database_path)
             operations_repository.initialize()
             application.state.operations_repository = operations_repository
+
+            auth_repository = SQLiteAuthRepository(settings.database_path)
+            auth_repository.initialize()
+            application.state.auth_repository = auth_repository
+
+            # First-run bootstrap lifecycle:
+            if not auth_repository.has_credential() and init_pw:
+                if init_pw.strip() == "CHANGEME":
+                    configured_host = os.getenv("FLEET_MANAGER_HOST", "127.0.0.1")
+                    if configured_host not in ("127.0.0.1", "localhost", "::1", ""):
+                        raise RuntimeError(
+                            "Unsafe external bootstrap configuration: "
+                            "FLEET_MANAGER_INITIAL_PASSWORD=CHANGEME "
+                            "is restricted to loopback access"
+                        )
+                auth_repository.create_credential(hash_password(init_pw), must_change_password=True)
 
             # SINGLE-WORKER CRASH RECOVERY:
             # Reconcile orphaned RUNNING operations to UNCERTAIN before accepting HTTP requests.
@@ -330,6 +403,7 @@ def create_app(
     async def http_error(_request: Request, exc: StarletteHTTPException) -> JSONResponse:
         return _error(exc.status_code, "http_error", str(exc.detail))
 
+    application.include_router(auth_router)
     application.include_router(inventory_router)
     application.include_router(connectivity_router)
     application.include_router(operations_router)

@@ -52,20 +52,30 @@ run `uv sync --locked --no-binary-package mypy --reinstall-package mypy`, and us
 environment variable and `--no-binary-package mypy` on its first sync. This builds
 the locked mypy release from source; it does not change the lockfile.
 
-The API contract is generated at `/openapi.json`. The inventory API requires
-`Authorization: Bearer <token>`. Configure a 32-128 character URL-safe token
-outside the repository before starting the server. For a disposable local token,
-the following PowerShell assignment captures a cryptographically random value
-without printing it:
+The API contract is generated at `/openapi.json`.
+
+### Dashboard Administrator Authentication
+
+The web dashboard uses single-administrator password authentication backed by Argon2id password hashing (`pwdlib[argon2]`) and server-managed `HttpOnly` sessions:
+
+- **First-run setup**: If no administrator credential exists in persistent SQLite storage, navigating to the dashboard presents a first-run setup wizard (restricted to loopback) to establish the initial administrator password (minimum 12 characters).
+- **Environment bootstrap**: Setting `FLEET_MANAGER_INITIAL_PASSWORD` enables automated initial provisioning. If set to `CHANGEME` for local demo purposes, access is strictly confined to loopback and an immediate password change is enforced upon first login before accessing the dashboard. Once stored, this variable is ignored on subsequent startups.
+- **Session management**: Authenticated browser requests receive a server-managed opaque session cookie (`fleet_session`) with `HttpOnly`, `Path=/`, and `SameSite=Lax`. Sessions enforce idle (30 minutes) and absolute (12 hours) timeouts. State-changing requests are protected by CSRF validation (strict Origin/Referer check and `X-CSRF-Token`). Password changes revoke other active sessions and rotate the current session.
+- **Forgotten password recovery**: A dedicated local maintenance CLI allows operators to safely reset the administrator password without deleting inventory, audit records, or SSH trust:
+  ```powershell
+  uv run python scripts/reset_admin_password.py [--db /path/to/inventory.db]
+  ```
+
+### Programmatic API Bearer Token
+
+For external scripts, automation, or Prometheus integrations, the application continues to support programmatic Bearer token authentication independently:
 
 ```powershell
 $env:FLEET_MANAGER_API_TOKEN = uv run --no-sync python -c "import secrets; print(secrets.token_urlsafe(32))"
 uv run --no-sync python -m uvicorn fleet_manager.main:app --host 127.0.0.1 --port 8000
 ```
 
-In another shell, supply the same token through a secure local channel and send
-it in the header. Never place it in a tracked file, URL, command-line argument,
-or example value:
+In another shell, send the token in the `Authorization` header:
 
 ```powershell
 $headers = @{ Authorization = "Bearer $env:FLEET_MANAGER_API_TOKEN" }

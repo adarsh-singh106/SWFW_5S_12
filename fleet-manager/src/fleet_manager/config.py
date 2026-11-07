@@ -16,7 +16,7 @@ _TOKEN_PATTERN = re.compile(r"[A-Za-z0-9_-]{32,128}", re.ASCII)
 @dataclass(frozen=True, slots=True)
 class Settings:
     database_path: Path
-    operator_token_digest: bytes
+    operator_token_digest: bytes | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,15 +48,25 @@ class MonitoringSettings:
     enabled: bool = True
 
 
-def load_settings(database_path: Path | None = None, api_token: str | None = None) -> Settings:
-    """Fail closed on missing token; retain only its digest in application state."""
-    token = api_token if api_token is not None else os.getenv(TOKEN_ENV)
-    if token is None or _TOKEN_PATTERN.fullmatch(token) is None:
+def load_settings(
+    database_path: Path | None = None,
+    api_token: str | None = None,
+    require_api_token: bool = True,
+) -> Settings:
+    """Validate process settings; retain only API token digest in application state."""
+    raw_token = api_token if api_token is not None else os.getenv(TOKEN_ENV)
+    token_digest: bytes | None = None
+    if raw_token is not None:
+        if _TOKEN_PATTERN.fullmatch(raw_token) is None:
+            raise RuntimeError(f"{TOKEN_ENV} must be a 32-128 character URL-safe token")
+        token_digest = hashlib.sha256(raw_token.encode("ascii")).digest()
+    elif require_api_token:
         raise RuntimeError(f"{TOKEN_ENV} must be a 32-128 character URL-safe token")
+
     default_path = Path(__file__).resolve().parents[2] / ".local" / "inventory.db"
     configured_path = os.getenv("FLEET_MANAGER_DATABASE_PATH")
     selected_path = database_path or (Path(configured_path) if configured_path else default_path)
-    return Settings(selected_path, hashlib.sha256(token.encode("ascii")).digest())
+    return Settings(selected_path, token_digest)
 
 
 def load_ssh_settings() -> SSHSettings:

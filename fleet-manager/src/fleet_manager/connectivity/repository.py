@@ -70,7 +70,7 @@ class SQLiteConnectivityRepository:
                     if version == 1 and not exists:
                         connection.execute(_SCHEMA)
                         connection.execute("PRAGMA user_version = 2")
-                    elif version not in (2, 3, 4, 5) or not exists:
+                    elif version not in (2, 3, 4, 5, 6) or not exists:
                         raise StorageError("Inventory schema requires an explicit migration")
                     connection.execute(
                         _VALIDATION_SCHEMA.replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS")
