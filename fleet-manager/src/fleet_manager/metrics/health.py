@@ -6,6 +6,7 @@ import asyncio
 import json
 import math
 import os
+import re
 import time
 from typing import Any
 
@@ -37,6 +38,22 @@ METRICS = {
 }
 UP = 'up{job="node_exporter",node_id="%s"}'
 STALE_AFTER_SECONDS = 90
+HISTORY_SECONDS = 3600
+STEP_SECONDS = 150
+
+
+def _valid(key: str, value: float) -> bool:
+    return math.isfinite(value) and value >= 0 and (not key.endswith("percent") or value <= 100)
+
+
+def _source(expression: str) -> str:
+    """Oldest contributing source sample, not the expression evaluation time."""
+    selectors = re.findall(r"node_[a-zA-Z0-9_]+\{[^}]*\}", expression)
+    stamps = [f"min(timestamp({selector}))" for selector in selectors]
+    result = stamps[0]
+    for stamp in stamps[1:]:
+        result = f"(({result}) + ({stamp}) - abs(({result}) - ({stamp}))) / 2"
+    return result
 
 
 def _sample(raw: Any) -> tuple[float, float] | None:
@@ -46,7 +63,9 @@ def _sample(raw: Any) -> tuple[float, float] | None:
         stamp, value = float(raw[0]), float(raw[1])
     except (TypeError, ValueError):
         return None
-    if not math.isfinite(stamp) or not math.isfinite(value):
+    if isinstance(raw[0], bool) or isinstance(raw[1], bool):
+        return None
+    if not math.isfinite(stamp) or not math.isfinite(value) or not 0 < stamp <= time.time():
         return None
     return stamp, value
 
@@ -87,13 +106,19 @@ class PrometheusHealth:
         self.transport = transport
 
     async def _query(
-        self, client: httpx.AsyncClient, expression: str, range_query: bool = False
+        self,
+        client: httpx.AsyncClient,
+        expression: str,
+        range_query: bool = False,
+        end: float | None = None,
     ) -> list[dict[str, Any]]:
         path = "/api/v1/query_range" if range_query else "/api/v1/query"
-        params: dict[str, str | int] = {"query": expression}
+        params: dict[str, str | int | float] = {"query": expression, "timeout": "2s"}
+        end = end if end is not None else time.time()
         if range_query:
-            end = int(time.time())
-            params.update({"start": end - 3600, "end": end, "step": 150})
+            params.update({"start": end - HISTORY_SECONDS, "end": end, "step": STEP_SECONDS})
+        else:
+            params["time"] = end
         response = await client.get(path, params=params)
         response.raise_for_status()
         if len(response.content) > 262144:
@@ -101,6 +126,12 @@ class PrometheusHealth:
         return _vector(response.json(), "matrix" if range_query else "vector")
 
     async def node(self, node_id: int, address: str, name: str) -> dict[str, Any]:
+        try:
+            return await asyncio.wait_for(self._node(node_id, address, name), timeout=12.0)
+        except TimeoutError:
+            return {"status": "unavailable", "observed_at": None, "metrics": {}, "trends": {}}
+
+    async def _node(self, node_id: int, address: str, name: str) -> dict[str, Any]:
         if self.base_url is None:
             return {"status": "unavailable", "observed_at": None, "metrics": {}, "trends": {}}
         timeout = httpx.Timeout(2.5)
@@ -158,7 +189,19 @@ class PrometheusHealth:
                         "metrics": {},
                         "trends": {},
                     }
-                stamp, up = target_sample
+                _, up = target_sample
+                source_rows = await self._query(
+                    client, f'timestamp(up{{job="node_exporter",instance={quoted_instance}}})'
+                )
+                source = _sample(source_rows[0].get("value")) if len(source_rows) == 1 else None
+                if source is None or not 0 < source[1] <= time.time() or up not in (0, 1):
+                    return {
+                        "status": "unavailable",
+                        "observed_at": None,
+                        "metrics": {},
+                        "trends": {},
+                    }
+                stamp = source[1]
                 if not 0 <= time.time() - stamp <= STALE_AFTER_SECONDS:
                     status = "stale"
                 else:
@@ -166,9 +209,10 @@ class PrometheusHealth:
                 if status != "up":
                     return {"status": status, "observed_at": stamp, "metrics": {}, "trends": {}}
                 keys = list(METRICS)
+                end = time.time()
                 results = await asyncio.wait_for(
                     asyncio.gather(
-                        *(self._query(client, expressions[key]) for key in keys),
+                        *(self._observation(client, expressions[key], end=end) for key in keys),
                         return_exceptions=True,
                     ),
                     timeout=3.0,
@@ -176,7 +220,7 @@ class PrometheusHealth:
                 metrics: dict[str, float | None] = {}
                 for key, result_rows in zip(keys, results, strict=True):
                     sample = (
-                        _sample(result_rows[0].get("value"))
+                        result_rows[0]
                         if isinstance(result_rows, list) and len(result_rows) == 1
                         else None
                     )
@@ -186,9 +230,7 @@ class PrometheusHealth:
                         else None
                     )
                     metric_value = metrics[key]
-                    if metric_value is not None and (
-                        metric_value < 0 or (key == "cpu_percent" and metric_value > 100)
-                    ):
+                    if metric_value is not None and (not _valid(key, metric_value)):
                         metrics[key] = None
                 if (
                     metrics["memory_total_bytes"]
@@ -210,28 +252,81 @@ class PrometheusHealth:
                     )
                 else:
                     metrics["root_percent"] = None
-                trends: dict[str, list[list[float]]] = {}
-                if status == "up":
-                    for key in ("cpu_percent", "memory_available_bytes"):
-                        try:
-                            rows = await self._query(client, expressions[key], range_query=True)
-                            points = rows[0].get("values") if len(rows) == 1 else None
-                            trends[key] = (
-                                [
-                                    list(sample)
-                                    for raw in points
-                                    if (sample := _sample(raw)) and time.time() - sample[0] <= 3600
-                                ]
-                                if isinstance(points, list)
-                                else []
-                            )
-                        except (httpx.HTTPError, ValueError, TimeoutError):
-                            trends[key] = []
+                expressions["memory_percent"] = (
+                    f"100 * (1 - ({expressions['memory_available_bytes']})"
+                    f" / ({expressions['memory_total_bytes']}))"
+                )
+                trend_keys = [
+                    "cpu_percent",
+                    "memory_percent",
+                    "receive_bytes_per_second",
+                    "transmit_bytes_per_second",
+                ]
+                histories = await asyncio.gather(
+                    *(
+                        self._observation(client, expressions[key], end=end, history=True)
+                        for key in trend_keys
+                    ),
+                    return_exceptions=True,
+                )
+                trends: dict[str, list[list[float | None]]] = {}
+                for key, history in zip(trend_keys, histories, strict=True):
+                    trends[key] = []
+                    previous = 0.0
+                    if not isinstance(history, list):
+                        continue
+                    for source_stamp, history_value in history:
+                        if source_stamp <= previous:
+                            continue
+                        previous = source_stamp
+                        trends[key].append(
+                            [source_stamp, history_value if _valid(key, history_value) else None]
+                        )
                 return {
                     "status": status,
                     "observed_at": stamp,
                     "metrics": metrics,
                     "trends": trends,
+                    "window": {"start": end - HISTORY_SECONDS, "end": end, "step": STEP_SECONDS},
                 }
         except (httpx.HTTPError, ValueError, TimeoutError):
             return {"status": "unavailable", "observed_at": None, "metrics": {}, "trends": {}}
+
+    async def _observation(
+        self, client: httpx.AsyncClient, expression: str, *, end: float, history: bool = False
+    ) -> list[tuple[float, float]]:
+        values, sources = await asyncio.gather(
+            self._query(client, expression, history, end),
+            self._query(client, _source(expression), history, end),
+        )
+        if len(values) != 1 or len(sources) != 1:
+            return []
+        field = "values" if history else "value"
+        raw_values, raw_sources = values[0].get(field), sources[0].get(field)
+        if not history:
+            instant_value, source = _sample(raw_values), _sample(raw_sources)
+            if (
+                instant_value
+                and source
+                and end - STALE_AFTER_SECONDS <= source[1] <= min(end, instant_value[0])
+            ):
+                return [(source[1], instant_value[1])]
+            return []
+        if not isinstance(raw_values, list) or not isinstance(raw_sources, list):
+            return []
+        source_map = {sample[0]: sample[1] for raw in raw_sources if (sample := _sample(raw))}
+        output = []
+        for raw in raw_values:
+            sample = _sample(raw)
+            if sample is None:
+                # Keep an invalid measurement as a gap at its valid source timestamp.
+                position = _sample([raw[0], "0"]) if isinstance(raw, list) and raw else None
+                if position is None:
+                    continue
+                sample = (position[0], math.nan)
+            evaluation, value = sample
+            stamp = source_map.get(evaluation)
+            if stamp is not None and end - HISTORY_SECONDS <= stamp <= min(end, evaluation):
+                if evaluation - stamp <= STALE_AFTER_SECONDS:
+                    output.append((stamp, value))
+        return output

@@ -67,6 +67,22 @@ async function run(c){
   await ev(`(async()=>{const api=await import('/static/js/api.js');api.showAlert('Saved','success',40)})()`);await until(`!(${vis('global-alert')})`,'success toast auto dismisses');
   await ev(`window.scrollTo({top:document.getElementById('fleet-health').offsetTop-190,behavior:'instant'})`);await shot('fleet-health');
   await ev(`window.scrollTo({top:document.getElementById('health-detail').offsetTop-190,behavior:'instant'})`);await shot('fleet-health-detail');
+  await until(`document.querySelectorAll('#health-detail .health-trend svg').length===4 && document.querySelectorAll('#health-detail circle').length>20`,'four varying source-time charts with reporting samples');
+  await ev(`document.querySelector('#health-detail circle').focus()`);
+  await until(`document.querySelector('#health-detail .health-sample').textContent.includes('%')`,'keyboard sample inspection shows timestamp and unit');
+  for(const mode of ['constant','missing','stale','unavailable','varying']){
+   await control({health_mode:mode});
+   await ev(`import('/static/js/health.js').then(m=>m.refreshHealth([{id:1,name:'alpha',address:'127.0.0.1'},{id:2,name:'beta',address:'127.0.0.1'},{id:3,name:'gamma',address:'127.0.0.1'}]))`);
+   if(mode==='constant'){
+    await until(`document.querySelector('#health-detail .health-chart-state').textContent.includes('insufficient') && document.querySelectorAll('#health-detail .health-trend:first-child circle').length===2`,'two valid identical samples show collecting state');
+    await until(`(()=>{const p=[...document.querySelectorAll('#health-detail .health-trend:first-child circle')];return p[0].getAttribute('cy')===p[1].getAttribute('cy')})()`,'constant samples remain flat');
+   } else if(mode==='missing'){
+    await until(`document.querySelectorAll('#health-detail .health-trend:first-child path').length===2 && document.querySelector('#health-detail .health-chart-state').textContent.includes('gaps')`,'missing samples split paths without interpolation');
+   } else if(mode==='stale'||mode==='unavailable'){
+    await until(`document.querySelector('#health-detail h3').textContent.includes('${mode.toUpperCase()}') && document.querySelectorAll('#health-detail circle').length===0`,'honest '+mode+' telemetry without invented points');
+   }
+   await shot('health-'+mode);
+  }
   await send('Page.reload');
   await until(`document.readyState==='complete' && !(${vis('auth-modal')}) && document.querySelectorAll('#nodes-table-body tr[data-node-id]').length===3`,'dashboard refresh preserves active browser session and inventory');
   expected=true;
@@ -152,6 +168,14 @@ async function run(c){
    if(width===768)await until(`document.querySelector('.table-responsive').scrollWidth>document.querySelector('.table-responsive').clientWidth && getComputedStyle(document.querySelector('.inventory-table td:nth-child(3)')).display!=='none'`,'768 semantic table has internal scroll with connectivity visible');
    if(width===390)await until(`getComputedStyle(document.querySelector('#nodes-table-body tr[data-node-id]')).display==='grid' && document.querySelector('#nodes-table-body tr[data-node-id]').textContent.includes('Operations')`,'390 node record layout and primary action');
    await until(`document.querySelectorAll('.health-card').length===3 && [...document.querySelectorAll('.health-card')].every(x=>x.getBoundingClientRect().right<=innerWidth) && document.getElementById('global-alert').getBoundingClientRect().width<=380`,'health cards and toast fit viewport '+width);
+   await until(`[...document.querySelectorAll('#health-detail .health-trend svg')].length===4 && [...document.querySelectorAll('#health-detail .health-trend svg')].every(x=>{const r=x.getBoundingClientRect();return r.width>200&&r.height>=160&&r.left>=0&&r.right<=innerWidth})`,'chart plot geometry fits and remains readable at '+width);
+   await ev(`document.querySelector('#health-detail .health-trend').scrollIntoView({block:'center',behavior:'instant'})`);
+   if(width===390){
+    await ev(`document.querySelector('#health-detail circle').dispatchEvent(new PointerEvent('click',{bubbles:true,pointerType:'touch'}))`);
+    await until(`document.querySelector('#health-detail .health-sample').textContent.includes('%')`,'mobile tap sample inspection');
+   }
+   await shot('health-'+width+'x'+height);
+   await ev('window.scrollTo(0,0)');
    await shot('dashboard-'+width+'x'+height);
    await ev(`document.getElementById('operations-workbench').scrollIntoView({behavior:'instant',block:'start'})`);
    await sleep(100);
@@ -179,6 +203,8 @@ async function run(c){
   await control({expire_sessions:true});
   expected=true;await click('#refresh-btn');await until(vis('auth-modal'),'expired session prompts re-authentication');
   const unauthorizedCount=()=>report.failedRequests.filter(x=>x.status===401&&x.url.endsWith('/api/nodes/status')).length;
+  // DOM auth handling can precede delivery of CDP's network response event.
+  for(let attempt=0;attempt<100&&unauthorizedCount()===0;attempt++)await sleep(50);
   const firstUnauthorized=unauthorizedCount();assert.equal(firstUnauthorized,1,'one status request detects expiry');
   await sleep(11000);assert.equal(unauthorizedCount(),firstUnauthorized,'no repeated unauthorized polling');report.assertions.push('no repeated unauthorized polling after expiry');
   await login();expected=false;

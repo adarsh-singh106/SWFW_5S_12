@@ -33,28 +33,78 @@ function line(label, value) {
   return row;
 }
 
-function trend(label, points) {
+function svgElement(tag, attributes, text = "") {
+  const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [key, value] of Object.entries(attributes)) node.setAttribute(key, value);
+  node.textContent = text;
+  return node;
+}
+
+export function chartData(points, window, percent = false) {
+  const end = Math.min(Number(window?.end) || Date.now() / 1000, Date.now() / 1000);
+  const start = Number(window?.start) || end - 3600;
+  const step = Number(window?.step) || 150;
+  const samples = (Array.isArray(points) ? points : []).filter(point =>
+    Array.isArray(point) && Number.isFinite(point[0]) && point[0] >= start && point[0] <= end
+  ).sort((a, b) => a[0] - b[0]);
+  const valid = value => Number.isFinite(value) && value >= 0 && (!percent || value <= 100);
+  const maximum = percent ? 100 : Math.max(1, ...samples.filter(p => valid(p[1])).map(p => p[1])) * 1.1;
+  const segments = [], accepted = [];
+  let segment = [], previous = null;
+  for (const [time, value] of samples) {
+    if (previous !== null && time <= previous) continue;
+    if (!valid(value) || previous !== null && time - previous > step * 1.5) {
+      if (segment.length) segments.push(segment);
+      segment = [];
+    }
+    previous = time;
+    if (!valid(value)) continue;
+    const point = { time, value, x: 48 + (time - start) / Math.max(1, end - start) * 536, y: 134 - value / maximum * 112 };
+    segment.push(point); accepted.push(point);
+  }
+  if (segment.length) segments.push(segment);
+  return { start, end, maximum, segments, samples: accepted, expected: Math.floor((end - start) / step) + 1 };
+}
+
+function trend(label, points, window, percent = false) {
   const box = element("div", "health-trend", "");
   box.appendChild(element("span", "health-metric-label", label));
-  if (!Array.isArray(points) || points.length < 2) {
-    box.appendChild(element("span", "health-unavailable", "Trend unavailable"));
+  const data = chartData(points, window, percent);
+  const format = value => percent ? `${value.toFixed(1)}%` : `${value.toFixed(1)} B/s`;
+  box.appendChild(element("span", "health-coverage", `${data.samples.length}/${data.expected} reporting samples · last hour`));
+  if (!data.samples.length) {
+    box.appendChild(element("span", "health-unavailable", "History unavailable — no valid samples"));
     return box;
   }
-  const values = points.map(point => point[1]).filter(value => Number.isFinite(value));
-  if (values.length < 2) return box;
-  const min = Math.min(...values), max = Math.max(...values);
-  const path = values.map((value, index) => `${index ? "L" : "M"}${(index * 100 / (values.length - 1)).toFixed(2)},${(35 - (value - min) * 30 / (max - min || 1)).toFixed(2)}`).join(" ");
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", "0 0 100 40");
-  svg.setAttribute("role", "img");
+  const svg = svgElement("svg", { viewBox: "0 0 600 170", preserveAspectRatio: "none", role: "group" });
   svg.setAttribute("aria-label", `${label} trend over the last hour`);
-  const stroke = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  stroke.setAttribute("d", path);
-  stroke.setAttribute("fill", "none");
-  stroke.setAttribute("stroke", "currentColor");
-  stroke.setAttribute("stroke-width", "2");
-  svg.appendChild(stroke);
-  box.appendChild(svg);
+  const plot = element("div", "health-plot", "");
+  for (const value of [0, data.maximum / 2, data.maximum]) {
+    const y = 134 - value / data.maximum * 112;
+    svg.appendChild(svgElement("line", { x1: 48, x2: 584, y1: y, y2: y, class: "health-gridline" }));
+    const tick = element("span", "health-y-tick", value.toFixed(0));
+    tick.style.top = `${y / 170 * 100}%`;
+    plot.appendChild(tick);
+  }
+  const times = element("div", "health-time-axis", "");
+  for (const time of [data.start, data.end]) times.appendChild(element("span", "", new Date(time * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })));
+  for (const segment of data.segments) {
+    svg.appendChild(svgElement("path", { d: segment.map((p, i) => `${i ? "L" : "M"}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" "), fill: "none", stroke: "currentColor", "stroke-width": 2, "vector-effect": "non-scaling-stroke" }));
+  }
+  const inspection = element("output", "health-sample", "Inspect a point: hover, tap, or keyboard focus. Local time.");
+  for (const point of data.samples) {
+    const text = `${stamp(point.time)} · ${format(point.value)}`;
+    const dot = svgElement("circle", { cx: point.x, cy: point.y, r: 4, tabindex: 0, role: "img", "aria-label": text });
+    dot.appendChild(svgElement("title", {}, text));
+    for (const event of ["pointerenter", "click", "focus"]) dot.addEventListener(event, () => { inspection.textContent = text; });
+    svg.appendChild(dot);
+  }
+  plot.append(svg, times);
+  box.appendChild(plot);
+  box.appendChild(inspection);
+  const insufficient = data.samples.length < 3;
+  const hasGaps = data.segments.length > 1 || data.samples.length < data.expected;
+  box.appendChild(element("span", "health-chart-state", insufficient ? "Collecting / insufficient history — fewer than 3 samples" : hasGaps ? "Partial coverage — gaps are not interpolated" : "Reporting across the requested window"));
   return box;
 }
 
@@ -83,8 +133,21 @@ function renderDetail() {
     line("Network transmit", number(m.transmit_bytes_per_second, " B/s"))
   );
   const trends = element("div", "health-trends", "");
-  trends.append(trend("CPU", health.trends?.cpu_percent), trend("Memory available", health.trends?.memory_available_bytes));
-  container.replaceChildren(heading, subtitle, grid, trends);
+  trends.append(
+    trend("CPU utilization (%) · 5-minute rate", health.trends?.cpu_percent, health.window, true),
+    trend("Memory used (%)", health.trends?.memory_percent, health.window, true),
+    trend("Network receive (B/s) · 5-minute rate", health.trends?.receive_bytes_per_second, health.window),
+    trend("Network transmit (B/s) · 5-minute rate", health.trends?.transmit_bytes_per_second, health.window)
+  );
+  const capacity = element("div", "health-capacity", "");
+  capacity.appendChild(line("Root filesystem capacity", number(m.root_percent, "% used")));
+  if (Number.isFinite(m.root_percent) && m.root_percent >= 0 && m.root_percent <= 100) {
+    const meter = element("meter", "health-capacity-meter", "");
+    meter.min = 0; meter.max = 100; meter.value = m.root_percent;
+    meter.setAttribute("aria-label", "Root filesystem percent used");
+    capacity.appendChild(meter);
+  }
+  container.replaceChildren(heading, subtitle, grid, capacity, trends);
 }
 
 export function selectHealthNode(id) {

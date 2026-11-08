@@ -51,6 +51,7 @@ async function harness(search = '', fetcher = async () => ({ nodes: [] })) {
       return elements.get(id);
     },
     createElement(tag) { const e = new Element(tag); e.ownerDocument = document; return e; },
+    createElementNS(_namespace, tag) { return this.createElement(tag); },
     querySelector(selector) {
       const all = this.querySelectorAll(selector);
       return all[0] || null;
@@ -100,6 +101,21 @@ const details = (id, state = 'PENDING_SETUP') => ({ node_id: id, setup_state: st
   server_identity: { trust_state: 'UNTRUSTED', presented_fingerprint: 'SHA256:node' + id, key_type: 'ssh-ed25519' },
   client_authentication: { bootstrap_instruction: 'bootstrap for node ' + id } });
 const settle = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
+
+test('health charts use source time, preserve constants, and break invalid or missing history', async () => {
+  const h = await harness();
+  const chart = h.module('health').chartData;
+  const window = { start: 1000, end: 4600, step: 150 };
+  const constant = chart([[4300, 25], [4450, 25]], window, true);
+  assert.equal(constant.samples.length, 2);
+  assert.equal(constant.samples[0].y, constant.samples[1].y);
+  assert.ok(constant.samples[1].x - constant.samples[0].x < 30);
+  const data = chart([[1000, 10], [1150, null], [1300, 20], [1900, 30],
+    [2050, 101], [2200, -1], [2350, NaN], [4601, 25]], window, true);
+  assert.equal(data.samples.length, 3);
+  assert.equal(data.segments.length, 3);
+  assert.equal(chart([], window).samples.length, 0);
+});
 
 test('status filter removes previously rendered nonmatching rows and supports zero results', async () => {
   const h = await harness(); const state = h.module('state'); const render = h.module('fleet').renderFleet;

@@ -12,6 +12,66 @@ from fleet_manager.main import create_app
 from fleet_manager.metrics.health import PrometheusHealth
 
 
+@pytest.mark.parametrize("bad", ["-1", "101", "NaN", "Infinity"])
+def test_history_rejects_invalid_percent_and_uses_source_timestamps(client, bad):
+    node_id = client.post(
+        "/api/nodes", json={"name": "node-a", "address": "node-a", "ssh_port": 22}
+    ).json()["id"]
+    now = time.time()
+
+    def respond(request):
+        query = request.url.params["query"]
+        end = float(request.url.params.get("end", request.url.params.get("time", now)))
+        source = "timestamp(" in query
+        if request.url.path.endswith("query_range"):
+            points = [
+                [end - 300, str(end - 310) if source else "25"],
+                [end - 150, str(end - 160) if source else bad],
+                [end, str(end + 10) if source else "30"],
+            ]
+            return httpx.Response(
+                200,
+                json={
+                    "status": "success",
+                    "data": {"resultType": "matrix", "result": [{"metric": {}, "values": points}]},
+                },
+            )
+        if query.startswith("up{"):
+            return _response()
+        return _response(str(now - 20) if source else "25")
+
+    client.app.state.prometheus_health = PrometheusHealth(transport=httpx.MockTransport(respond))
+    body = client.get(f"/api/nodes/{node_id}/health").json()
+    assert body["observed_at"] == now - 20
+    points = body["trends"]["cpu_percent"]
+    assert points[0] == [body["window"]["end"] - 310, 25]
+    assert all(p[0] <= body["window"]["end"] for p in points)
+    assert all(p[1] is None or 0 <= p[1] <= 100 for p in points)
+    if bad in ("-1", "101", "NaN", "Infinity"):
+        assert points[1][1] is None
+
+
+@pytest.mark.parametrize("age,status", [(200, "stale"), (-200, "unavailable")])
+def test_target_freshness_uses_source_not_current_evaluation(client, age, status):
+    node_id = client.post(
+        "/api/nodes", json={"name": "node-a", "address": "node-a", "ssh_port": 22}
+    ).json()["id"]
+    source_time = time.time() - age
+
+    def respond(request):
+        return (
+            _response(str(source_time))
+            if "timestamp(" in request.url.params["query"]
+            else _response()
+        )
+
+    client.app.state.prometheus_health = PrometheusHealth(transport=httpx.MockTransport(respond))
+    body = client.get(f"/api/nodes/{node_id}/health").json()
+    assert body["status"] == status
+    assert body["metrics"] == {}
+    assert body["observed_at"] == (source_time if age > 0 else None)
+
+
 def _response(value: str = "1", *, empty: bool = False, stale: bool = False) -> httpx.Response:
     stamp = time.time() - (200 if stale else 1)
     rows = (
@@ -39,6 +99,22 @@ def test_health_target_states(client, mode: str) -> None:
 
     def respond(request: httpx.Request) -> httpx.Response:
         query = request.url.params["query"]
+        if "timestamp(" in query:
+            if request.url.path.endswith("query_range"):
+                evaluation = float(request.url.params["end"])
+                return httpx.Response(
+                    200,
+                    json={
+                        "status": "success",
+                        "data": {
+                            "resultType": "matrix",
+                            "result": [
+                                {"metric": {}, "values": [[evaluation, str(evaluation - 2)]]}
+                            ],
+                        },
+                    },
+                )
+            return _response(str(time.time() - (200 if mode == "stale" else 2)))
         captured.append(query)
         assert 'job="node_exporter"' in query
         assert (
@@ -48,7 +124,7 @@ def test_health_target_states(client, mode: str) -> None:
         if mode == "timeout":
             raise httpx.ReadTimeout("test timeout")
         if request.url.path.endswith("query_range"):
-            stamp = time.time() - 1
+            stamp = float(request.url.params["end"])
             return httpx.Response(
                 200,
                 json={
@@ -137,6 +213,8 @@ def test_missing_target_or_metric_is_unavailable_not_zero(client) -> None:
     assert missing == {"status": "unavailable", "observed_at": None, "metrics": {}, "trends": {}}
 
     def missing_metric(request: httpx.Request) -> httpx.Response:
+        if "timestamp(up{" in request.url.params["query"]:
+            return _response(str(time.time() - 2))
         if request.url.path.endswith("query_range"):
             return httpx.Response(
                 200, json={"status": "success", "data": {"resultType": "matrix", "result": []}}
@@ -170,6 +248,8 @@ def test_existing_gcp_node_name_target_maps_hostname_inventory_to_private_export
 
     def respond(request: httpx.Request) -> httpx.Response:
         query = request.url.params["query"]
+        if "timestamp(" in query:
+            return _response(str(time.time() - 2))
         queries.append(query)
         if query.startswith("up{"):
             stamp = time.time()

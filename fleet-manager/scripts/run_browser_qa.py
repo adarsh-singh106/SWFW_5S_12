@@ -86,7 +86,13 @@ def main() -> int:
             format_known_hosts_entry("127.0.0.1", 2201, key.get_name(), key.get_base64())
         )
         settings = SSHSettings("operator", hosts, private)
-        controls = {"outage": False, "delay": 0.0, "ssh_fail": False, "scan_mismatch": False}
+        controls = {
+            "outage": False,
+            "delay": 0.0,
+            "ssh_fail": False,
+            "scan_mismatch": False,
+            "health_mode": "varying",
+        }
         app = create_app(
             database_path=work / "inventory.db",
             api_token=token,
@@ -155,6 +161,27 @@ def main() -> int:
 
             def prometheus_fixture(request: httpx.Request) -> httpx.Response:
                 query = request.url.params.get("query", "")
+                mode = controls["health_mode"]
+                if mode == "unavailable":
+                    raise httpx.ConnectError("QA unavailable")
+                evaluation = float(
+                    request.url.params.get("time", request.url.params.get("end", time.time()))
+                )
+                is_source = "timestamp(" in query
+                if is_source and "timestamp(up{" in query:
+                    data = {
+                        "resultType": "vector",
+                        "result": [
+                            {
+                                "metric": {},
+                                "value": [
+                                    evaluation,
+                                    str(evaluation - (200 if mode == "stale" else 10)),
+                                ],
+                            }
+                        ],
+                    }
+                    return httpx.Response(200, json={"status": "success", "data": data})
                 if query.startswith("up{"):
                     stamp = time.time()
                     rows = [
@@ -174,6 +201,8 @@ def main() -> int:
                             "data": {"resultType": "vector", "result": rows},
                         },
                     )
+                elif query.startswith("100 * (1 - (node_memory"):
+                    value = "50"
                 elif "MemTotal" in query or "filesystem_size" in query:
                     value = "8589934592"
                 elif "MemAvailable" in query or "filesystem_avail" in query:
@@ -186,18 +215,31 @@ def main() -> int:
                     value = "1500"
                 else:
                     value = "27.5"
-                stamp = time.time()
+                stamp = evaluation
                 if request.url.path.endswith("query_range"):
+                    count = 2 if mode == "constant" else 25
+                    values = []
+                    for index in range(count):
+                        tick = stamp - (count - 1 - index) * 150
+                        if mode == "missing" and 8 <= index <= 14:
+                            continue
+                        sample = tick - 10 if is_source else float(value)
+                        if not is_source and mode != "constant":
+                            sample *= 0.5 + (index % 7) / 12
+                        values.append([tick, str(sample)])
                     data = {
                         "resultType": "matrix",
-                        "result": [
-                            {"metric": {}, "values": [[stamp - 150, value], [stamp, value]]}
-                        ],
+                        "result": [{"metric": {}, "values": values}],
                     }
                 else:
                     data = {
                         "resultType": "vector",
-                        "result": [{"metric": {}, "value": [stamp, value]}],
+                        "result": [
+                            {
+                                "metric": {},
+                                "value": [stamp, str(stamp - 10) if is_source else value],
+                            }
+                        ],
                     }
                 return httpx.Response(200, json={"status": "success", "data": data})
 

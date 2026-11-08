@@ -161,9 +161,23 @@
 .health-detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 0.75rem; margin-top: 0.8rem; }
 .health-detail-grid .health-metric { flex-direction: column; background: var(--bg-card); padding: 0.6rem; border-radius: var(--radius-sm); }
 .health-detail-grid .health-metric-value { text-align: left; }
-.health-trends { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 0.75rem; margin-top: 0.8rem; }
+.health-detail .health-trends { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 0.75rem; margin-top: 0.8rem; }
 .health-trend { min-width: 0; display: flex; flex-direction: column; padding: 0.6rem; background: var(--bg-card); border-radius: var(--radius-sm); }
-.health-trend svg { width: 100%; height: 60px; color: var(--accent-primary); }
+.health-trend svg { width: 100%; height: 180px; color: var(--accent-primary); overflow: visible; }
+.health-plot { position: relative; }
+.health-y-tick { position: absolute; right: 93%; transform: translateY(-50%); font-size: 0.65rem; color: var(--text-secondary); }
+.health-time-axis { position: absolute; left: 8%; right: 2.7%; bottom: 0; display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-secondary); }
+.health-gridline { stroke: var(--border-subtle); stroke-width: 1; }
+.health-trend circle { fill: currentColor; cursor: pointer; }
+.health-trend circle:focus { outline: 2px solid var(--text-primary); }
+.health-coverage, .health-chart-state, .health-sample { font-size: 0.72rem; color: var(--text-secondary); overflow-wrap: anywhere; }
+.health-sample { min-height: 2.5em; margin-top: 0.4rem; }
+.health-chart-state { margin-top: 0.3rem; }
+.health-capacity { margin-top: 1rem; }
+.health-capacity-meter { width: 100%; height: 1.1rem; }
+@media (max-width: 600px) {
+  .health-trend svg { height: 164px; }
+}
 .health-note { padding: 0.6rem 1rem 1rem; font-size: 0.73rem; color: var(--text-muted); overflow-wrap: anywhere; }
 
 /* Overview Strip */
