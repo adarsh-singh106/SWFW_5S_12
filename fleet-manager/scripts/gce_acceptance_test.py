@@ -21,8 +21,8 @@ Covers:
     14. Offline SQLite Backup & Pre-Flight Restore Verification
 
 Modes:
-  --mock                   Local authentication and temporary DB checks; other checks SKIPPED.
-  --allow-fault-injection  Compatibility flag only; fault scenarios are NOT IMPLEMENTED.
+  --mock                   Local auth/DB checks and SIMULATED fault contracts; live gates remain.
+  --allow-fault-injection  Compatibility flag only; never enables live fault injection.
 
 Live baseline requires manually onboarded nodes and adds observations/operation audit records.
 Exit codes: 0 complete, 1 failure, 2 incomplete/manual gates. Never run with python -O.
@@ -39,7 +39,7 @@ import shutil
 import sys
 import tempfile
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -52,6 +52,8 @@ from fastapi.testclient import TestClient  # noqa: E402
 from scripts.backup_restore import check_integrity, perform_backup, perform_restore  # noqa: E402
 
 from fleet_manager.config import SSHSettings  # noqa: E402
+from fleet_manager.connectivity.models import ConnectivityOutcome  # noqa: E402
+from fleet_manager.inventory.models import Node  # noqa: E402
 from fleet_manager.main import create_app  # noqa: E402
 
 
@@ -59,7 +61,7 @@ from fleet_manager.main import create_app  # noqa: E402
 class TestResult:
     name: str
     suite: str
-    status: str  # "PASSED", "SKIPPED", "FAILED", "NOT_IMPLEMENTED"
+    status: str  # PASSED, SIMULATED (live gate unmet), SKIPPED, FAILED, NOT_IMPLEMENTED
     duration_ms: float
     details: str = ""
 
@@ -78,6 +80,16 @@ EXPECTED_PROMETHEUS_TARGETS = {
     "node_exporter:fleet-node-b": "10.160.0.3:9100",
     "node_exporter:fleet-node-c": "10.160.0.4:9100",
 }
+
+
+class SimulatedSSHTransport:
+    """Injected outcomes only: no sockets, authentication, or host-key verification."""
+
+    def __init__(self) -> None:
+        self.outcomes: dict[int, ConnectivityOutcome] = {}
+
+    def verify(self, node: Node, settings: SSHSettings) -> ConnectivityOutcome:
+        return self.outcomes.get(node.id, ConnectivityOutcome.CONNECTED)
 
 
 class AcceptanceRunner:
@@ -127,11 +139,15 @@ class AcceptanceRunner:
             known_hosts.chmod(0o600)
 
         ssh_settings = SSHSettings("fleetbootstrap", known_hosts, priv_key)
+        self.simulated_transport = SimulatedSSHTransport()
         app = create_app(
             database_path=db_path,
             api_token=self.token,
             ssh_settings=ssh_settings,
+            ssh_transport=self.simulated_transport,
             enable_scheduler=False,
+            enable_password_auth=False,
+            initial_password="",
         )
         self.test_app = app
         test_client = TestClient(app)
@@ -166,6 +182,7 @@ class AcceptanceRunner:
         )
         symbol_map = {
             "PASSED": "[OK]",
+            "SIMULATED": "[SIM]",
             "SKIPPED": "[SKIP]",
             "FAILED": "[FAIL]",
             "NOT_IMPLEMENTED": "[N/I]",
@@ -384,22 +401,180 @@ class AcceptanceRunner:
         )
 
     def test_08_invalid_ssh_credentials(self) -> None:
-        self._not_implemented("Invalid SSH Credentials Classification")
+        name = "Invalid SSH Credentials Classification"
+        if not self.mock:
+            self._not_implemented(name)
+            return
+        node = self._simulation_nodes()[0]
+        self._simulate_probe(node, ConnectivityOutcome.AUTH_FAILED, "CHECK_ERROR")
+        self._simulation_result(name, "Injected AUTH_FAILED persisted; no credentials rejected")
 
     def test_09_host_key_mismatch_rejection(self) -> None:
-        self._not_implemented("Host-Key Mismatch Rejection")
+        name = "Host-Key Mismatch Rejection"
+        if not self.mock:
+            self._not_implemented(name)
+            return
+        node = self._simulation_nodes()[0]
+        self._simulate_probe(node, ConnectivityOutcome.HOST_KEY_MISMATCH, "CHECK_ERROR")
+        self._simulation_result(name, "Injected mismatch persisted; no real host key verified")
 
     def test_10_timeout_unreachable_node(self) -> None:
-        self._not_implemented("Timeout & Unreachable Node Handling")
+        name = "Timeout & Unreachable Node Handling"
+        if not self.mock:
+            self._not_implemented(name)
+            return
+        node = self._simulation_nodes()[0]
+        for outcome, display in (
+            (ConnectivityOutcome.CONNECTION_TIMEOUT, "UNREACHABLE"),
+            (ConnectivityOutcome.CONNECTION_REFUSED, "UNREACHABLE"),
+            (ConnectivityOutcome.TIMEOUT, "CHECK_ERROR"),
+            (ConnectivityOutcome.EXECUTION_TIMEOUT, "CHECK_ERROR"),
+        ):
+            self._simulate_probe(node, outcome, display)
+        self._simulation_result(name, "Four injected categories; no transport deadline measured")
 
     def test_11_node_recovery(self) -> None:
-        self._not_implemented("Transient Outage Node Recovery")
+        name = "Transient Outage Node Recovery"
+        if not self.mock:
+            self._not_implemented(name)
+            return
+        node = self._simulation_nodes()[0]
+        failed = self._simulate_probe(node, ConnectivityOutcome.CONNECTION_REFUSED, "UNREACHABLE")
+        recovered = self._simulate_probe(node, ConnectivityOutcome.CONNECTED, "REACHABLE")
+        assert recovered["id"] > failed["id"]
+        assert recovered["observed_at"] >= failed["observed_at"]
+        self._simulation_result(name, "New manual injected probe; not automatic scheduler recovery")
 
     def test_12_partial_fleet_failure(self) -> None:
-        self._not_implemented("Partial Fleet Failure Resilience")
+        name = "Partial Fleet Failure Resilience"
+        if not self.mock:
+            self._not_implemented(name)
+            return
+        nodes = self._simulation_nodes()
+        for node in nodes[:2]:
+            self._simulate_probe(node, ConnectivityOutcome.CONNECTED, "REACHABLE")
+        self._simulate_probe(nodes[2], ConnectivityOutcome.CONNECTION_REFUSED, "UNREACHABLE")
+        statuses = self.client.get("/api/nodes/status", headers=self._auth_headers())
+        assert statuses.status_code == 200
+        by_id = {s["node"]["id"]: s["display_status"] for s in statuses.json()["nodes"]}
+        assert [by_id[n["id"]] for n in nodes] == ["REACHABLE", "REACHABLE", "UNREACHABLE"]
+        self._simulation_result(name, "Three local records; no independent host outage/concurrency")
+
+    def _simulation_nodes(self) -> list[dict]:
+        response = self.client.get("/api/nodes", headers=self._auth_headers())
+        assert response.status_code == 200
+        if not response.json()["nodes"]:
+            for node in GCE_NODES:
+                created = self.client.post("/api/nodes", json=node, headers=self._auth_headers())
+                assert created.status_code == 201
+        return self._nodes()
+
+    def _simulate_probe(self, node: dict, outcome: ConnectivityOutcome, display: str) -> dict:
+        self.simulated_transport.outcomes[node["id"]] = outcome
+        response = self.client.post(
+            f"/api/nodes/{node['id']}/connectivity-check", headers=self._auth_headers()
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["outcome"] == outcome.value
+        assert body["error_category"] == (
+            None if outcome == ConnectivityOutcome.CONNECTED else outcome
+        )
+        stored = self.client.get(
+            f"/api/nodes/{node['id']}/connectivity", headers=self._auth_headers()
+        )
+        assert stored.status_code == 200 and stored.json()["observation"] == body
+        statuses = self.client.get("/api/nodes/status", headers=self._auth_headers())
+        assert statuses.status_code == 200
+        status = next(s for s in statuses.json()["nodes"] if s["node"]["id"] == node["id"])
+        assert status["display_status"] == display
+        return body
+
+    def _simulation_result(self, name: str, details: str) -> None:
+        self.record(
+            name,
+            "Offline Simulation",
+            "SIMULATED",
+            0.0,
+            f"SIMULATED ONLY; LIVE GATE UNMET: {details}",
+        )
 
     def test_13_controller_restart_crash_recovery(self) -> None:
-        self._not_implemented("Controller Crash Reconciliation")
+        name = "Controller Crash Reconciliation"
+        if not self.mock:
+            self._not_implemented(name)
+            return
+        from fleet_manager.inventory.models import NewNode
+        from fleet_manager.operations.models import (
+            OperationFailureCategory,
+            OperationOutcome,
+            OperationRecord,
+        )
+
+        with tempfile.TemporaryDirectory(prefix="fm_restart_accept_") as tmp:
+            db_path = Path(tmp) / "restart.db"
+
+            def restart_app():
+                return create_app(
+                    database_path=db_path,
+                    api_token=self.token,
+                    enable_scheduler=False,
+                    enable_password_auth=False,
+                    initial_password="",
+                    ssh_transport=self.simulated_transport,
+                )
+
+            app = restart_app()
+            with TestClient(app):
+                node = app.state.inventory_repository.add_node(
+                    NewNode("simulated", "192.0.2.1", 22)
+                )
+                now = datetime.now(UTC)
+                running = OperationRecord(
+                    id="simulated-running",
+                    node_id=node.id,
+                    action="system.uptime",
+                    arguments={},
+                    requested_at=now,
+                    started_at=now,
+                    completed_at=None,
+                    outcome=OperationOutcome.RUNNING,
+                    failure_category=None,
+                    exit_code=None,
+                    stdout=None,
+                    stderr=None,
+                    output_truncated=False,
+                    audit_metadata={"operator_type": "bearer_token"},
+                )
+                terminal = replace(
+                    running,
+                    id="simulated-success",
+                    outcome=OperationOutcome.SUCCESS,
+                    completed_at=now,
+                    exit_code=0,
+                    stdout="simulated output",
+                )
+                app.state.operations_repository.create(running)
+                app.state.operations_repository.create(terminal)
+            for _ in range(2):
+                app = restart_app()
+                with TestClient(app):
+                    reconciled = app.state.operations_repository.get(running.id)
+                    assert reconciled.outcome == OperationOutcome.UNCERTAIN
+                    assert (
+                        reconciled.failure_category
+                        == OperationFailureCategory.CONTROL_PLANE_RESTARTED
+                    )
+                    assert reconciled.completed_at is not None
+                    assert reconciled.exit_code is None and reconciled.stdout is None
+                    assert app.state.operations_repository.get(terminal.id) == terminal
+                    if _ == 0:
+                        first = reconciled
+                    else:
+                        assert reconciled == first, "Reconciliation must be idempotent"
+        self._simulation_result(
+            name, "Seeded RUNNING record and app lifespan restart; no process crash"
+        )
 
     def test_14_backup_restore_verification(self) -> None:
         """Disaster Recovery: Online SQLite backup, integrity check, and offline restore."""
@@ -448,7 +623,9 @@ class AcceptanceRunner:
     def run_all(self) -> int:
         print("=" * 75)
         print("    SWFW_5S_12: GCE Automated Acceptance Test Suite")
-        fault_mode = "NOT IMPLEMENTED (flag cannot enable scenarios)"
+        fault_mode = (
+            "SIMULATED contracts only" if self.mock else "NOT IMPLEMENTED (manual live gates)"
+        )
         print(f"    Mode: {'MOCK (Isolated)' if self.mock else 'LIVE GCE CLOUD'}")
         print(f"    Fault-Injection: {fault_mode}")
         print("=" * 75)
@@ -477,10 +654,12 @@ class AcceptanceRunner:
         skipped = sum(1 for r in self.results if r.status == "SKIPPED")
         failed = sum(1 for r in self.results if r.status == "FAILED")
         not_impl = sum(1 for r in self.results if r.status == "NOT_IMPLEMENTED")
+        simulated = sum(1 for r in self.results if r.status == "SIMULATED")
 
         print(
             f"Total Tests: {len(self.results)} | Passed: {passed} | "
-            f"Skipped: {skipped} | Failed: {failed} | Not Implemented: {not_impl}"
+            f"Skipped: {skipped} | Failed: {failed} | Not Implemented: {not_impl} | "
+            f"Simulated (live unmet): {simulated}"
         )
         if not_impl > 0:
             print(
@@ -493,7 +672,7 @@ class AcceptanceRunner:
             "Incomplete/manual gates are not acceptance success. "
             "Offline results are not GCE evidence."
         )
-        return 1 if failed else (2 if skipped or not_impl else 0)
+        return 1 if failed else (2 if skipped or not_impl or simulated else 0)
 
 
 def main() -> int:
@@ -519,7 +698,7 @@ def main() -> int:
         "--fault-injection",
         dest="allow_fault_injection",
         action="store_true",
-        help="Reserved compatibility flag; scenarios 08-13 remain NOT IMPLEMENTED/SKIPPED",
+        help="Compatibility flag only; never enables live faults; --mock simulates 08-13",
     )
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose diagnostics")
 

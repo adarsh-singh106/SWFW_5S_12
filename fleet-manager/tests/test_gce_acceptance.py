@@ -9,21 +9,29 @@ import pytest
 from scripts.gce_acceptance_test import GCE_NODES, ROOT, AcceptanceRunner, main
 
 
-def test_acceptance_runner_mock_execution() -> None:
+@pytest.mark.parametrize("opt_in", [False, True])
+def test_acceptance_runner_mock_execution(monkeypatch, opt_in) -> None:
     """Only executed local checks pass; missing live evidence stays incomplete."""
-    runner = AcceptanceRunner(mock=True, allow_fault_injection=True)
+
+    def deny_network(*args, **kwargs):
+        pytest.fail("Offline acceptance must not open a network connection")
+
+    # Block external HTTP and real SSH, not Windows asyncio's internal socketpair.
+    monkeypatch.setattr(httpx.HTTPTransport, "handle_request", deny_network)
+    monkeypatch.setattr("paramiko.SSHClient.connect", deny_network)
+    runner = AcceptanceRunner(mock=True, allow_fault_injection=opt_in)
     exit_code = runner.run_all()
     assert exit_code == 2
-    assert all(r.status == "SKIPPED" for r in runner.results[1:13])
+    assert all(r.status == "SKIPPED" for r in runner.results[1:7])
     assert len(runner.results) == 14
 
-    # Verify no test fabricated a PASS for fault injection in mock mode
+    # Simulated contracts must never masquerade as completed live acceptance.
     for result in runner.results:
-        assert result.status in ("PASSED", "SKIPPED"), (
+        assert result.status in ("PASSED", "SKIPPED", "SIMULATED"), (
             f"Test '{result.name}' has unexpected status '{result.status}' in mock mode"
         )
 
-    # Suite 2 tests 08-13 must be SKIPPED in mock mode (no live transport)
+    # Suite 2 tests 08-13 execute only explicitly labelled deterministic simulations.
     suite2_names = [
         "Invalid SSH Credentials Classification",
         "Host-Key Mismatch Rejection",
@@ -35,14 +43,14 @@ def test_acceptance_runner_mock_execution() -> None:
     for name in suite2_names:
         matching = [r for r in runner.results if r.name == name]
         assert len(matching) == 1, f"Expected exactly 1 result for '{name}'"
-        assert matching[0].status == "SKIPPED", (
-            f"'{name}' should be SKIPPED in mock mode, got '{matching[0].status}'"
-        )
+        assert matching[0].status == "SIMULATED"
+        assert "SIMULATED ONLY; LIVE GATE UNMET" in matching[0].details
 
     # Backup/restore (test 14) should still PASS (real SQLite operations)
     backup_results = [r for r in runner.results if "Backup" in r.name]
     assert len(backup_results) == 1
     assert backup_results[0].status == "PASSED"
+    assert runner.tmp_dir is not None and not runner.tmp_dir.exists()
 
 
 def test_acceptance_runner_requires_token_for_live(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -250,6 +258,14 @@ def test_network_check_runs_on_controller_with_actual_ids(live_runner):
 @pytest.mark.parametrize("opt_in", [False, True])
 def test_unimplemented_scenarios_never_pass(live_runner, opt_in):
     live_runner.allow_fault_injection = opt_in
+
+    def deny_network(request):
+        pytest.fail("Live fault gates must never inject faults or contact endpoints")
+
+    live_runner.client.close()
+    live_runner.client = httpx.Client(
+        base_url="http://test", transport=httpx.MockTransport(deny_network)
+    )
     for method in (
         "test_08_invalid_ssh_credentials",
         "test_09_host_key_mismatch_rejection",
@@ -262,6 +278,44 @@ def test_unimplemented_scenarios_never_pass(live_runner, opt_in):
     assert all(
         r.status == "SKIPPED" and "NOT IMPLEMENTED" in r.details for r in live_runner.results
     )
+
+
+@pytest.mark.parametrize("scenario", ["08", "09", "10", "11", "12", "13"])
+def test_simulated_faults_are_independent_and_fail_closed(monkeypatch, scenario):
+    from fleet_manager.connectivity.models import ConnectivityOutcome
+
+    runner = AcceptanceRunner(mock=True)
+    method = next(n for n in dir(runner) if n.startswith(f"test_{scenario}_"))
+    try:
+        getattr(runner, method)()
+        assert runner.results[-1].status == "SIMULATED"
+        assert "LIVE GATE UNMET" in runner.results[-1].details
+        if scenario != "13":
+            monkeypatch.setattr(
+                runner.simulated_transport,
+                "verify",
+                lambda *args: ConnectivityOutcome.UNKNOWN_ERROR,
+            )
+            with pytest.raises(AssertionError):
+                getattr(runner, method)()
+            assert len(runner.results) == 1, "Failed assertions must not record simulation success"
+    finally:
+        runner.cleanup()
+
+
+def test_simulated_failure_sets_failure_exit_and_cleans_up(monkeypatch):
+    runner = AcceptanceRunner(mock=True)
+
+    def fail():
+        raise AssertionError("sensitive diagnostic")
+
+    monkeypatch.setattr(runner, "test_13_controller_restart_crash_recovery", fail)
+    assert runner.run_all() == 1
+    assert len(runner.results) == 14
+    failed = [r for r in runner.results if r.status == "FAILED"]
+    assert len(failed) == 1
+    assert "sensitive" not in failed[0].details
+    assert not runner.tmp_dir.exists()
 
 
 def test_onboarding_never_silently_enrolls(live_runner):
