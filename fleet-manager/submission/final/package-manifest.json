@@ -1,0 +1,1355 @@
+{
+  "checksums": {
+    "Adarsh_Singh_SWFW_5S_12.pdf": "710b1bcc47eee3242b115148de39a7f9021f2d282f732c307c4d7adf2110d39a",
+    "Adarsh_Singh_SWFW_5S_12_PROJECT-FILES.zip": "cc95c992e3f1bdfe88cc96cc20b0d935ae9541df529220ccc77a00d156f736c5"
+  },
+  "file_count": 269,
+  "integrity": "CRC + clean extraction + SHA-256 + extracted source syntax PASS",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c4af637e92d2cbe531ca2695ba426f4e9b2ff0c13c4e70d0d0f0fa70616b78e0",
+      "bytes": 3536
+    },
+    {
+      "path": "README.md",
+      "sha256": "7038f94d785baf7234e3959a491e4c44a73aab002f51ffa20fe1196f264a3d8a",
+      "bytes": 11315
+    },
+    {
+      "path": "deploy/fleet-manager-backup.service",
+      "sha256": "9a280741ac046c52305695856b55f45c08b93e5ecf7d2dbb70793657942ea640",
+      "bytes": 1270
+    },
+    {
+      "path": "deploy/fleet-manager-backup.timer",
+      "sha256": "c8281eadc6ffc37b18fae18215b515acdd75bd5b0d1625d75c943b40835142c2",
+      "bytes": 450
+    },
+    {
+      "path": "deploy/fleet-manager.env.example",
+      "sha256": "326ba5320083cfbf8c7a45138374c190eb492e1ba3cd259c85deed859b08a4eb",
+      "bytes": 4309
+    },
+    {
+      "path": "deploy/fleet-manager.service",
+      "sha256": "b5ee10c2ba3c389f0c1f7f2fd272093c8bb65658a3b0ea18d5c408a1b2fac6d9",
+      "bytes": 1784
+    },
+    {
+      "path": "deploy/gce/00-config.env",
+      "sha256": "46b3cc6a2b393e775c1900dc070b0862dee8c5f223e10456eedb805f369944c2",
+      "bytes": 1150
+    },
+    {
+      "path": "deploy/gce/01-start-vms.sh",
+      "sha256": "20171dd7634187c336b36e69cd9d750e6a0753932648ea59f1354e002c46b86b",
+      "bytes": 2425
+    },
+    {
+      "path": "deploy/gce/02-setup-nodes.sh",
+      "sha256": "6c612efdbc4775fbab66e2a37391275aad3383e63979335bae35edad6fb97335",
+      "bytes": 2187
+    },
+    {
+      "path": "deploy/gce/03-setup-controller.sh",
+      "sha256": "aff8cd9e62529d4260da333b93cc0b99b01f1e2932058004f8a552ff4f6865d6",
+      "bytes": 4795
+    },
+    {
+      "path": "deploy/gce/04-deploy-app.sh",
+      "sha256": "cb7d9bb4917f74d88b99aeb8edbd6b6c520517776f293a181797eabf82f601b2",
+      "bytes": 7325
+    },
+    {
+      "path": "deploy/gce/05-transfer-keys.sh",
+      "sha256": "20933e45acd52662abc7e74e9414643633738446cd24a11eb2f4974044d724eb",
+      "bytes": 3462
+    },
+    {
+      "path": "deploy/gce/06-start-tunnel.sh",
+      "sha256": "40d5d98b288503643967ffce4310038497c414c24f8d9603e1467c821f45d0d9",
+      "bytes": 2146
+    },
+    {
+      "path": "deploy/gce/07-cleanup-vms.sh",
+      "sha256": "dbb3570f28842a95c52167f411337e6bb7ae4e05b399a8c4730706c39517fc9f",
+      "bytes": 4501
+    },
+    {
+      "path": "deploy/gce/deploy-all.sh",
+      "sha256": "165c95fad86e6c5ed1f9ea0997e4ecc12cc3644b0915276c68fa3ccfebacf67a",
+      "bytes": 4820
+    },
+    {
+      "path": "docs/DEPLOYMENT-RUNBOOK.md",
+      "sha256": "ca0ecbe2ca63cc244587cec338d9b172a9940161266d1d9b36b3aa791d989d37",
+      "bytes": 51569
+    },
+    {
+      "path": "docs/LEARNING-STATE.md",
+      "sha256": "f5f531b4ddb7fecc030f95b3a671a9177482ae94f9ac22da53901e291a15edc2",
+      "bytes": 90371
+    },
+    {
+      "path": "docs/PROJECT-CHARTER.md",
+      "sha256": "595de9ce4b3784790f3a6255728b3523e7bba883a4c39eed3ffb639a7e6dbdd7",
+      "bytes": 7656
+    },
+    {
+      "path": "docs/README.md",
+      "sha256": "288d1a8b30b3e2fe9577ba525dccd5a3b1054d61a1b0410a876679a7b238e17e",
+      "bytes": 2964
+    },
+    {
+      "path": "docs/ROADMAP.md",
+      "sha256": "ea7d2bcbb78b0bcb3fafe62cf11dc78fd72309757630e9fe64773e8a6e7d0bec",
+      "bytes": 3623
+    },
+    {
+      "path": "docs/VIDEO-PLAN.md",
+      "sha256": "89e3ed293ee285d58c5f5f4542e2bacf73e6d592ab8e38304e1a7d3b5f37dc85",
+      "bytes": 1934
+    },
+    {
+      "path": "docs/decisions/0001-inventory-backend.md",
+      "sha256": "3ca0b98353f6d683eb2daffa0872316eb786acff2c02b24640930b53c203a281",
+      "bytes": 3981
+    },
+    {
+      "path": "docs/decisions/0002-local-inventory-authentication.md",
+      "sha256": "d414fdc18ed2fa66b9e03ed42aee149802eaf6952b060e3406523a4d24d96feb",
+      "bytes": 3650
+    },
+    {
+      "path": "docs/decisions/0003-verified-ssh-observations.md",
+      "sha256": "8fb607353ed6f7dc4962f06030c414c466f0cbf3e0404a8e26591557ff9b6858",
+      "bytes": 5443
+    },
+    {
+      "path": "docs/decisions/0004-observation-freshness-and-automatic-monitoring.md",
+      "sha256": "86d79d946880f7b7e430b247c0b03bfa7302942ab248232a7765d7d86eab3f1d",
+      "bytes": 3889
+    },
+    {
+      "path": "docs/decisions/0005-prometheus-grafana-metrics-pipeline.md",
+      "sha256": "8fc9d8780c4c6e205264cbc53e6bdc7728fa002f8a3ef0ef422ddf4433a8e570",
+      "bytes": 3863
+    },
+    {
+      "path": "docs/decisions/0006-controlled-remote-operations.md",
+      "sha256": "79bf740f74c6b9dac1c4ab82d33664ba62d4a2f705b7298a5b5f30852b6a4fac",
+      "bytes": 2841
+    },
+    {
+      "path": "docs/decisions/0007-three-node-integration-topology.md",
+      "sha256": "e428ca6442f3349e0583b8d382505cdcb1c1df757118786c659b6a41d2907298",
+      "bytes": 2768
+    },
+    {
+      "path": "docs/engineering-learning/00-python-foundation.md",
+      "sha256": "c1d11f8199e954e67b5d528c501d4d2c8b7902a99c3d4554fd1970c6fe5c0ae7",
+      "bytes": 24102
+    },
+    {
+      "path": "docs/engineering-learning/01-inventory-persistence.md",
+      "sha256": "aba016dd86650ecd2b83ab85774537d6cb46af104c512ff31b23a4f65457d735",
+      "bytes": 24365
+    },
+    {
+      "path": "docs/engineering-learning/02-configuration-authentication.md",
+      "sha256": "d25a02e5e63cf127fb79f7df301997f8e1136bfdac45d0168d5d61285cccc82a",
+      "bytes": 24316
+    },
+    {
+      "path": "docs/engineering-learning/03-ssh-connectivity.md",
+      "sha256": "04aed7845605a6468d3e7a1bf34ff24984559284cb307cf6c981f1ba0b30d389",
+      "bytes": 14773
+    },
+    {
+      "path": "docs/engineering-learning/04-health-monitoring-scheduling.md",
+      "sha256": "a888191147de4061dccd9c051b83ed638cb43082dc2e4d646a6d88d9bc8bad88",
+      "bytes": 14830
+    },
+    {
+      "path": "docs/engineering-learning/05-controlled-remote-operations.md",
+      "sha256": "627c53126f4d3510d4368d522ef09249d32573b89671f935d3ca61fcecfd9f55",
+      "bytes": 18460
+    },
+    {
+      "path": "docs/engineering-learning/06-observability-prometheus-grafana.md",
+      "sha256": "803a1b4948c1e8d46693731f39eb77a8abbc59829d921fe65d22e16c0fa0e575",
+      "bytes": 25315
+    },
+    {
+      "path": "docs/engineering-learning/07-application-composition-http-api.md",
+      "sha256": "3973b3112e0408a6ef34768f847de53db9fe85351ccbbe9e57a964951c1815d9",
+      "bytes": 35175
+    },
+    {
+      "path": "docs/engineering-learning/08-linux-deployment-backup-recovery.md",
+      "sha256": "c331e41dd1217b949ae44da4710cdbb1210963431257c9a3323ab2c5be6be185",
+      "bytes": 28120
+    },
+    {
+      "path": "docs/engineering-learning/README.md",
+      "sha256": "05b1530017b066874ab63062253be51b01bf766114f015eefa79a2de0543eee1",
+      "bytes": 3600
+    },
+    {
+      "path": "docs/learn/README.md",
+      "sha256": "df34c7b1cd0812e9d83f9ba73cbc25004457afbceb434cb82020c26eb3bf8b5e",
+      "bytes": 5899
+    },
+    {
+      "path": "docs/learn/connectivity-probing/08-linux-probing-and-handshakes.md",
+      "sha256": "8a1b3017a73e9ab6e4deb25cdd95d622f77caf2f87a540b06c1d714557ab250f",
+      "bytes": 18503
+    },
+    {
+      "path": "docs/learn/connectivity-probing/09-periodic-probing-and-dashboard.md",
+      "sha256": "8658a6f5048e9fd74e9adeb1511a2707ccf76a2766570dc807198c8d30d4a468",
+      "bytes": 4149
+    },
+    {
+      "path": "docs/learn/connectivity-probing/practice/practice-05-probe-engine.md",
+      "sha256": "74a3963af936ab018521b7fb85f7313c87cb44f8534c6f5690a4b6258f6be20a",
+      "bytes": 9401
+    },
+    {
+      "path": "docs/learn/connectivity-probing/practice/probe_engine.py",
+      "sha256": "15f531a6b35d097bb1cc5e0d17506280157fbb33ec53568568c0a4c427755bdd",
+      "bytes": 1996
+    },
+    {
+      "path": "docs/learn/connectivity-probing/practice/test_probe.py",
+      "sha256": "85c146a42f4c76473b3a3c2354e615adddb807eecc250092d1085f96909117d5",
+      "bytes": 3579
+    },
+    {
+      "path": "docs/learn/connectivity-probing/terms-1.png",
+      "sha256": "5c816eb84608e6dfd2a3c9909a3b6318948725c5c1e41d82350e617352177f10",
+      "bytes": 58733
+    },
+    {
+      "path": "docs/learn/connectivity-probing/terms-2.png",
+      "sha256": "854503cb41e0851b83a9d33279d3c0753af01eeb4f9c174f2938f8af0598193f",
+      "bytes": 66488
+    },
+    {
+      "path": "docs/learn/foundation/01-vision-and-first-principles.md",
+      "sha256": "a4d3a0b496e5faa5b7a22d2710fe7ae58224c19661bfa579ddcd3e59a7b1ed17",
+      "bytes": 3669
+    },
+    {
+      "path": "docs/learn/foundation/02-engineering-pillars-and-portfolio.md",
+      "sha256": "04547fa634d683b102ba5825c7525a534d23379410495d425aa50b3b1715da91",
+      "bytes": 5928
+    },
+    {
+      "path": "docs/learn/metrics-observability/10-linux-metrics-and-node-exporter.md",
+      "sha256": "9744556b8d396f54f9761320621c1cbbff19906a27f15896f235b77c1c2cd506",
+      "bytes": 11095
+    },
+    {
+      "path": "docs/learn/metrics-observability/11-prometheus-and-grafana-pipeline.md",
+      "sha256": "50d81cf456336d5e3d3fb4a42aa29bcaf3fa8a5fc52a738cf0d0d5094ce94677",
+      "bytes": 8079
+    },
+    {
+      "path": "docs/learn/metrics-observability/practice/practice-06-prometheus-integration.md",
+      "sha256": "f82d9ef9befcef886ade71b4b24ea7b44f4613e2f5ade78d73187443c3d12728",
+      "bytes": 7067
+    },
+    {
+      "path": "docs/learn/metrics-observability/practice/prometheus.yml",
+      "sha256": "fd252971c0904bdc943f3744b0760f26d0898853961a9ec068e8f78c7c52bdfe",
+      "bytes": 534
+    },
+    {
+      "path": "docs/learn/metrics-observability/practice/targets_generator.py",
+      "sha256": "6c8aa0804b924e3e8a0a7af742194687a1a710801bf3c803197ca663efdb4d5d",
+      "bytes": 2924
+    },
+    {
+      "path": "docs/learn/metrics-observability/practice/test_targets_generator.py",
+      "sha256": "8fa98451cee6f4f87643085350ba727e2d1f1c35b5f4ca6359220de544029a48",
+      "bytes": 3944
+    },
+    {
+      "path": "docs/learn/node-inventory/03-registration-flow.md",
+      "sha256": "fb8845fc75e80e968d996ffedb9751eedfb5ec36a1c886297364104fe9357d84",
+      "bytes": 5252
+    },
+    {
+      "path": "docs/learn/node-inventory/04-input-validation-contract.md",
+      "sha256": "30719acb4db81656f1c0b7f1f361e87b5c28fa0c7b347b6483ded0f1c32ade54",
+      "bytes": 5853
+    },
+    {
+      "path": "docs/learn/node-inventory/05-database-persistence.md",
+      "sha256": "cebcceb1bf876dde3fee5433c9504ba9bbe0c4b75420d6cc01d9011dd098e4a0",
+      "bytes": 6575
+    },
+    {
+      "path": "docs/learn/node-inventory/06-service-layer-integration.md",
+      "sha256": "d913046ca4a13523164acac6e6c7290afbe10f2388c46a151ce35fa156a2cac2",
+      "bytes": 5373
+    },
+    {
+      "path": "docs/learn/node-inventory/07-http-api-layer.md",
+      "sha256": "20b63eb624fb70d078ac23611f83430ea3973fe121e77194085dfe0562865159",
+      "bytes": 10276
+    },
+    {
+      "path": "docs/learn/node-inventory/README.md",
+      "sha256": "ae87f00e59aab3ce3486419b60b7e55d5dc01c3eb8fa1791ce0118aa6ea569b4",
+      "bytes": 4090
+    },
+    {
+      "path": "docs/learn/node-inventory/milestone-01-story-and-revision.md",
+      "sha256": "5aa3b6c351100061f34f86c65e99431a57caa1f6e8a775277cccbe0251ef1c3c",
+      "bytes": 22698
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/app.py",
+      "sha256": "b69e06ca74a8bd7818de5ef0562919f06f4ab7c3acf56a6fdd2444975bcb4f03",
+      "bytes": 4284
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/command_dispatcher.py",
+      "sha256": "505fe4d72aa5d3378e055be5f0387a4e7dac7b3f115f38385150b50979a662d5",
+      "bytes": 7110
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/db_storage.py",
+      "sha256": "f684152122321420f085ba1087bf28bf6cb34cb3668719d436ffd6fa18da6f40",
+      "bytes": 4085
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/demo_milestone_01.py",
+      "sha256": "1eb808c40d9d9f1ab4b43ffa04bc44f20d66f30a661cdbca2d301ae0e3619955",
+      "bytes": 2740
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/node_service.py",
+      "sha256": "40949082f12c6107a06f214ca7484f261c2a22ef6746412d16b98a27ac3f3176",
+      "bytes": 3259
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/practice-01-port-review.md",
+      "sha256": "e36f581c9cce73178ac92d792d6474d9cfe472b8081d84c6f82a99d950661958",
+      "bytes": 8082
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/practice-02-sqlite-storage.md",
+      "sha256": "d8d5227399b1d2e427a47c3926c9919a566111ba6e700e81beb36211cea16833",
+      "bytes": 7174
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/practice-03-service-layer.md",
+      "sha256": "7afa524cdc29c580be51a7a50abb056aa41c78cf158db776ece15beaf77d00fd",
+      "bytes": 5648
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/practice-04-http-api.md",
+      "sha256": "cc6a823e56a7182deb32798692e451a028fc0450db4967ee54a63c2ce98b3651",
+      "bytes": 2942
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/probe_engine.py",
+      "sha256": "15f531a6b35d097bb1cc5e0d17506280157fbb33ec53568568c0a4c427755bdd",
+      "bytes": 1996
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/static/index.html",
+      "sha256": "65ca7813ba0be956e07a02f9c7099639e9bdd0d4dfeea6e5b460c245ab41debf",
+      "bytes": 24270
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/targets.json",
+      "sha256": "fdbe608a5d571867784edadc396e0824e3cb3d25ab93435ecdef91c3da776008",
+      "bytes": 210
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/targets_generator.py",
+      "sha256": "6c8aa0804b924e3e8a0a7af742194687a1a710801bf3c803197ca663efdb4d5d",
+      "bytes": 2924
+    },
+    {
+      "path": "docs/learn/node-inventory/practice/validate_port.py",
+      "sha256": "2741c35cd0b58d71d4c7f478bad80110d05a62cc699719ac907679041bbc8b9b",
+      "bytes": 855
+    },
+    {
+      "path": "docs/learn/node-inventory/references.md",
+      "sha256": "760981f060b4bab47abcae691427ef673b7ef5d5527d902f649b178c959e23d5",
+      "bytes": 3385
+    },
+    {
+      "path": "docs/learn/remote-execution/12-controlled-remote-command-execution.md",
+      "sha256": "c850d803c57aecc793695a482b6e553cf1dcbe6c8b5b4bc3cfd85dd1f116fddf",
+      "bytes": 8766
+    },
+    {
+      "path": "docs/learn/remote-execution/practice/command_dispatcher.py",
+      "sha256": "505fe4d72aa5d3378e055be5f0387a4e7dac7b3f115f38385150b50979a662d5",
+      "bytes": 7110
+    },
+    {
+      "path": "docs/learn/remote-execution/practice/practice-07-command-dispatcher.md",
+      "sha256": "c973f4021f6e0faf5e05b018690fd89bcd6d6d1e4f66b27f53a4b8d618e3dfb8",
+      "bytes": 5051
+    },
+    {
+      "path": "docs/learn/remote-execution/practice/test_command_dispatcher.py",
+      "sha256": "d76317453c66aa448186301de4379e5b276a4e89be9ec9730eb4b40212c109c8",
+      "bytes": 4432
+    },
+    {
+      "path": "docs/learn/remote-execution/practice/verify_milestone_04.py",
+      "sha256": "9da4b15336532d25a7d4709efd686709a9ec00d3d7fd4722c613ea4f35e6d391",
+      "bytes": 3309
+    },
+    {
+      "path": "monitoring/grafana/dashboards/fleet-monitoring.json",
+      "sha256": "a2bf37912b97a3d860f25460683f139a732f7ef12dc3f0f97136ba81695f6956",
+      "bytes": 19229
+    },
+    {
+      "path": "monitoring/grafana/provisioning/dashboards/dashboards.yaml",
+      "sha256": "427ea20b7a54a2853110e1590eeb70338cc3640b72089ad684269eb03a1c6752",
+      "bytes": 236
+    },
+    {
+      "path": "monitoring/grafana/provisioning/datasources/prometheus.yaml",
+      "sha256": "0516d4e376f1da398381d539dcc03a9683d3eaa0806bd2b4811f8229356fef17",
+      "bytes": 179
+    },
+    {
+      "path": "monitoring/prometheus/prometheus.yml",
+      "sha256": "252d46c68da75a0b7e2bc563a1d0f6236f2a822d2c407da1d01af3defb043da7",
+      "bytes": 726
+    },
+    {
+      "path": "monitoring/prometheus/targets.json",
+      "sha256": "a28c04d8536c28b02b5ee39cc7433bc6699a67366209f71abe9c40d1713b7b55",
+      "bytes": 178
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "d41f76a28e77f248cb006b37a19cf226bc65f9f2368036d037d647f8db3153e4",
+      "bytes": 898
+    },
+    {
+      "path": "scripts/backup_restore.py",
+      "sha256": "7c1daed1a41c56a73fdeab26bea9ff431c2ba34b830d665034f6b048aff1a6eb",
+      "bytes": 28625
+    },
+    {
+      "path": "scripts/benchmark_fleet_performance.py",
+      "sha256": "21c73630c896b4e0375713b91b1d3c0cf94d5a58b4ebf4504027d5a6c56b5e5d",
+      "bytes": 61788
+    },
+    {
+      "path": "scripts/browser_qa.cjs",
+      "sha256": "94d431528239e95ca8f3a6174addc4c466a6e81e528dbc7a1aa36ed486cf27c4",
+      "bytes": 33666
+    },
+    {
+      "path": "scripts/capture_visual_qa.py",
+      "sha256": "584a8e5e8ba56e5483cbdea878b8c50befc7b8c80bc736810d4cf0fcf68d6543",
+      "bytes": 8617
+    },
+    {
+      "path": "scripts/compile_submission.py",
+      "sha256": "791c5059212a777e3461eaa6735faab056d9a4bdc7c3c2a312e25ebd26fbdfb2",
+      "bytes": 10356
+    },
+    {
+      "path": "scripts/gce_acceptance_test.py",
+      "sha256": "d3092cdaacbbbeef914f6f16bb9c2190aa2c4aa7afda4f57707aa26ddeb79bc2",
+      "bytes": 32557
+    },
+    {
+      "path": "scripts/inspect_submission_pdf.ps1",
+      "sha256": "6f5bbe617d92be8c170080b92c144a03e21ac1adc488c24772c51b11d353065c",
+      "bytes": 3846
+    },
+    {
+      "path": "scripts/package_source_bundle.py",
+      "sha256": "34d093dc6c8da36b6ee453030d74d5275a719dc4bdec55256513ac2099ee01e1",
+      "bytes": 12143
+    },
+    {
+      "path": "scripts/reset_admin_password.py",
+      "sha256": "5ed01b83c7794f18e9e684ab5b2b816a3dfc723f6102aa5f3eed173df832f307",
+      "bytes": 2991
+    },
+    {
+      "path": "scripts/run_browser_qa.py",
+      "sha256": "d43a5f257ac65b51a955998ac358067827ea6579acd748f0b7a47e5c2a133e1d",
+      "bytes": 14925
+    },
+    {
+      "path": "scripts/setup_three_endpoints.py",
+      "sha256": "abdf65c7a4543f2df4bcd39baf512550555c5f36d2856323cecd71de45383cd8",
+      "bytes": 14619
+    },
+    {
+      "path": "scripts/smoke_test.py",
+      "sha256": "ae128af2dc977ef26ddf9755c2705e964a744a8b156d0d46ea30d52abe2f87f2",
+      "bytes": 12689
+    },
+    {
+      "path": "scripts/verify_dashboard_live.py",
+      "sha256": "a5e2aa048e95d4ac9ed376a55ac2b885e8adc5e8f290300acb4dab2cd35722bc",
+      "bytes": 7748
+    },
+    {
+      "path": "scripts/verify_live_monitoring.py",
+      "sha256": "10b0339ea652d49464f33eea0b93123af7cd24f5db9e05d8f9cf81dd1c3b2185",
+      "bytes": 14179
+    },
+    {
+      "path": "scripts/verify_remote_operations.py",
+      "sha256": "7aed838a0d12abb01c0a38a366e21ce5cf353559489808e7c34853fa16db0ae2",
+      "bytes": 11250
+    },
+    {
+      "path": "scripts/verify_three_endpoints.py",
+      "sha256": "c7df06ae4f90ccc3b4c0c05ba313d1b0a4833c166108653083915de4c248ce34",
+      "bytes": 24360
+    },
+    {
+      "path": "src/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "bytes": 1
+    },
+    {
+      "path": "src/fleet_manager/__init__.py",
+      "sha256": "dadc3c4575d4303129442f6ccd6974ad89a9649dd2dbc48ef8dfbff5076333d6",
+      "bytes": 41
+    },
+    {
+      "path": "src/fleet_manager/config.py",
+      "sha256": "9946c117fdcf92af3575e062944a7a70d2f7a2e8738ea8c1182bb7fefb694208",
+      "bytes": 9710
+    },
+    {
+      "path": "src/fleet_manager/connectivity/__init__.py",
+      "sha256": "a2be256549e1528f7607136207861a5a008bdbbc2e00bb5782553a9f8f1d515f",
+      "bytes": 70
+    },
+    {
+      "path": "src/fleet_manager/connectivity/executor.py",
+      "sha256": "a32a7304e24dc4e82d3ea84e56398c146aba7119a1b607e53d47264c39014637",
+      "bytes": 5620
+    },
+    {
+      "path": "src/fleet_manager/connectivity/freshness.py",
+      "sha256": "3e14f3f4c47f05e5cf164c30330583c72a71bdc6ea6cb0825d3efaa8286d021b",
+      "bytes": 2957
+    },
+    {
+      "path": "src/fleet_manager/connectivity/models.py",
+      "sha256": "4590f7e34b43f29b48f0aa07bab8913083c730fe8bbdc2ac1fc53dbbd8ebd97b",
+      "bytes": 836
+    },
+    {
+      "path": "src/fleet_manager/connectivity/onboarding.py",
+      "sha256": "08e67bfa0a3225a4159fdd0aa8550e9f68123443df27e34c665d079de4a18c2b",
+      "bytes": 1712
+    },
+    {
+      "path": "src/fleet_manager/connectivity/readiness.py",
+      "sha256": "cd291be71d5f602964c6c445a056097de6479d99cf0b35f50cc305c5eb3d2327",
+      "bytes": 3318
+    },
+    {
+      "path": "src/fleet_manager/connectivity/repository.py",
+      "sha256": "5cfbee6dd4f25bcd377ea96d34b3b910d302ef5eba2c09c69ca02601dde91267",
+      "bytes": 8352
+    },
+    {
+      "path": "src/fleet_manager/connectivity/router.py",
+      "sha256": "1111cb31afde8f5d5551dc86742d3c6a2b85f94d5f8f370223b55704ea194f1b",
+      "bytes": 10997
+    },
+    {
+      "path": "src/fleet_manager/connectivity/scheduler.py",
+      "sha256": "b7ce39f000e88bfe568b314288ff11d8b4ce8775e420a9c6b0cc99e216565f42",
+      "bytes": 12864
+    },
+    {
+      "path": "src/fleet_manager/connectivity/schemas.py",
+      "sha256": "829472a51db968dcd079208ec2682f785c985845e389625458fc19b8db77c940",
+      "bytes": 1559
+    },
+    {
+      "path": "src/fleet_manager/connectivity/service.py",
+      "sha256": "c4b44a3c2259bd7760076a8dcca4d16996e1574447659c675ecf1054222efa2e",
+      "bytes": 7837
+    },
+    {
+      "path": "src/fleet_manager/connectivity/transport.py",
+      "sha256": "de1f413ed8d8eb8fba89d299d7398a3fa6d809a2357484dc2d79e1f3ae33ae28",
+      "bytes": 7166
+    },
+    {
+      "path": "src/fleet_manager/connectivity/trust.py",
+      "sha256": "92333a6fc57d36e3654d503ec6a0486c297e3e6918195c8d054ab6704f558603",
+      "bytes": 12435
+    },
+    {
+      "path": "src/fleet_manager/connectivity/worker.py",
+      "sha256": "49018d0dbfed74c5916918aedd2849da0ef2bec22d35b18ffad1a49e8ffdde1b",
+      "bytes": 1453
+    },
+    {
+      "path": "src/fleet_manager/errors.py",
+      "sha256": "cc78cbce40764b607ab4737100d414764f171ff2142dc2673734c10942afa5ae",
+      "bytes": 1636
+    },
+    {
+      "path": "src/fleet_manager/inventory/__init__.py",
+      "sha256": "5249f5790a716ea5b535c12aa7b7cf98a545f6d104fc1134105fc5a59af0ef1d",
+      "bytes": 30
+    },
+    {
+      "path": "src/fleet_manager/inventory/models.py",
+      "sha256": "a787f69c244af3ebb811f31dd9f9bd8e19c1f23cf93ab9b8a106feba0fe9ec21",
+      "bytes": 2191
+    },
+    {
+      "path": "src/fleet_manager/inventory/repository.py",
+      "sha256": "6a34e213253f9a2a9550180ef91e2896c7204cb8474705dbd175e96541fc6152",
+      "bytes": 5622
+    },
+    {
+      "path": "src/fleet_manager/inventory/router.py",
+      "sha256": "f9f0cf64674b9d853fb12a421172ebd60c0a509bd1ace5d3e9880ab31430d5ca",
+      "bytes": 1508
+    },
+    {
+      "path": "src/fleet_manager/inventory/schemas.py",
+      "sha256": "597fe7f8e96045e8855898edaeec45b8b7379623c6a5ef6e1ba989402a40449e",
+      "bytes": 1361
+    },
+    {
+      "path": "src/fleet_manager/inventory/service.py",
+      "sha256": "260a5420cbb7b9527ab882d3484a613902829db79b197a7ee75d8ae3a125a7cf",
+      "bytes": 577
+    },
+    {
+      "path": "src/fleet_manager/main.py",
+      "sha256": "ced72bd0740fa005a3b227c42e22477001d1d372b45080162bdc0c5eb92b1e8d",
+      "bytes": 18724
+    },
+    {
+      "path": "src/fleet_manager/metrics/__init__.py",
+      "sha256": "9cfd0c4003ed15d8b459c9f7114b2e0d5ee7105e91679d3727829037cdce43ad",
+      "bytes": 296
+    },
+    {
+      "path": "src/fleet_manager/metrics/health.py",
+      "sha256": "40f1e574752dadd6eb59148d69082f42fd61297673a1dec06ed8a39adb623a15",
+      "bytes": 14453
+    },
+    {
+      "path": "src/fleet_manager/metrics/health_router.py",
+      "sha256": "cd07103fb55d4e841f6d7f867dad143992b36bca8fb8cc2e44cd455718d1c6e4",
+      "bytes": 1110
+    },
+    {
+      "path": "src/fleet_manager/metrics/registry.py",
+      "sha256": "8e6451605ac03fda843485f28836b9a2d0c3ac67c7721d548d1693d75904395f",
+      "bytes": 11072
+    },
+    {
+      "path": "src/fleet_manager/metrics/router.py",
+      "sha256": "fc83cc73d3189b9556cdf677b722bcd9d1812bda12be89c79b9794c27e18df95",
+      "bytes": 1227
+    },
+    {
+      "path": "src/fleet_manager/metrics/telemetry.py",
+      "sha256": "85ee63f52b77b86c0bd98c6e067caeebae99658b77884a66e6a8b01b98031237",
+      "bytes": 7925
+    },
+    {
+      "path": "src/fleet_manager/operations/__init__.py",
+      "sha256": "933f078d1454321bdb590b7a2f76b341718d8238fdd124740131e4765b79431c",
+      "bytes": 50
+    },
+    {
+      "path": "src/fleet_manager/operations/catalog.py",
+      "sha256": "5b285d42ef1802840e77f8f8fa7def3928051f2387bade6096022365962cc96c",
+      "bytes": 4832
+    },
+    {
+      "path": "src/fleet_manager/operations/executor.py",
+      "sha256": "32f5377f60d9a59dd45414f1cd7dac708d688148a742a6958d3e84ae4329f723",
+      "bytes": 8805
+    },
+    {
+      "path": "src/fleet_manager/operations/models.py",
+      "sha256": "63361fc0348e1f687b0a11a3e861854c058f9ea692a3217a7a3c6846b018b20a",
+      "bytes": 1521
+    },
+    {
+      "path": "src/fleet_manager/operations/repository.py",
+      "sha256": "ae28d3147dfb28c6536d96df6f8fa8c53fd9c614f0a987c5ca1527563eb7b234",
+      "bytes": 10721
+    },
+    {
+      "path": "src/fleet_manager/operations/router.py",
+      "sha256": "3ab7fd4a2b9279a6a59c311b611157e03ae55be977de90456ca5c972e6a64dc2",
+      "bytes": 3998
+    },
+    {
+      "path": "src/fleet_manager/operations/schemas.py",
+      "sha256": "38fca8465218bea3b3bac047e6598f23504771467eae87ff5cc1e48a82cc73ce",
+      "bytes": 1753
+    },
+    {
+      "path": "src/fleet_manager/operations/service.py",
+      "sha256": "b76f02ccd234952f100a24b7e37676431abdb8e7ef520c1114f1aaa362874240",
+      "bytes": 11045
+    },
+    {
+      "path": "src/fleet_manager/operations/transport.py",
+      "sha256": "b122879edca58eb11c1fac67b9ceec979b7ad454053e1ab2257fee4491c9c82e",
+      "bytes": 14959
+    },
+    {
+      "path": "src/fleet_manager/operations/worker.py",
+      "sha256": "e942b8450d7650c271760cb8031cb127636fb6f803ad2f8d8b24beac11555b00",
+      "bytes": 2657
+    },
+    {
+      "path": "src/fleet_manager/security/__init__.py",
+      "sha256": "439d41e3baac112ccca43c89c57ea5ef7bd4f9889be5eb523c759712b599f41d",
+      "bytes": 41
+    },
+    {
+      "path": "src/fleet_manager/security/auth.py",
+      "sha256": "8fb6cff48dddcd791a8577000f612bd9e28820999ce98f2a2d76635aad043c5e",
+      "bytes": 3119
+    },
+    {
+      "path": "src/fleet_manager/security/models.py",
+      "sha256": "81d857bb749c828d2ec81761e54330b69bad976e918db3a806632e8c831a760f",
+      "bytes": 526
+    },
+    {
+      "path": "src/fleet_manager/security/passwords.py",
+      "sha256": "6c7d2f8ea8faa6160486ef4cce163f8deb66e96271e8cbdff5ac54a93351c2b5",
+      "bytes": 1121
+    },
+    {
+      "path": "src/fleet_manager/security/repository.py",
+      "sha256": "edf23e0f18c0da3a8c09007c0d34f536c924f55924a807ff6ff8d21fc8881568",
+      "bytes": 6511
+    },
+    {
+      "path": "src/fleet_manager/security/router.py",
+      "sha256": "86676a3998ba908e90f4570455aaa3b65a12c9b834df59635f04eefe2b03d455",
+      "bytes": 10589
+    },
+    {
+      "path": "src/fleet_manager/security/schemas.py",
+      "sha256": "bd878d45be0d26186b1a5a2b5e76307e5ebf0c3c9d5dac03f8ae9f44de515d57",
+      "bytes": 1332
+    },
+    {
+      "path": "src/fleet_manager/security/session.py",
+      "sha256": "cd2e0ce6eda9c9d753817a923ef1c8d015dedd5e50fa090451309594df3034f1",
+      "bytes": 8056
+    },
+    {
+      "path": "src/fleet_manager/ui/__init__.py",
+      "sha256": "af3102202221aa3b934313a3964a019a7eacd76f43a8f30776c2990b80d44873",
+      "bytes": 49
+    },
+    {
+      "path": "src/fleet_manager/ui/index.html",
+      "sha256": "43b31ec2fb8ece739076c5e84a407a4765e8a25d401139f0235bb584e39b1f80",
+      "bytes": 225
+    },
+    {
+      "path": "src/fleet_manager/ui/router.py",
+      "sha256": "49bf44274b8120dc9f91197a3025fcc6213df598e283664a655d5975c5644d51",
+      "bytes": 1289
+    },
+    {
+      "path": "src/fleet_manager/ui/static/css/components.css",
+      "sha256": "c1ad150bfb3fd353e33f26b24eaf96eb87de06645c8d075511a9031a68efa756",
+      "bytes": 40650
+    },
+    {
+      "path": "src/fleet_manager/ui/static/css/layout.css",
+      "sha256": "55243f9b93524ccc09d754267ba9dd44f73a3c2f844bcd40f8a059511459f6a0",
+      "bytes": 3658
+    },
+    {
+      "path": "src/fleet_manager/ui/static/css/responsive.css",
+      "sha256": "d505e5591fb637aa193288660c85385c3b335971c216e57b071ad1fd01c931ba",
+      "bytes": 4880
+    },
+    {
+      "path": "src/fleet_manager/ui/static/css/tokens.css",
+      "sha256": "5b0cd90b5526edad3cd05363ea45e7f74b5b2d22af6bef0b5a40ca9a9e58e588",
+      "bytes": 2371
+    },
+    {
+      "path": "src/fleet_manager/ui/static/icons.svg",
+      "sha256": "b19108e58cb3cea519f4ff161e6bd02c8c0f64c7bf42f08f6fc304cfb2a490db",
+      "bytes": 1695
+    },
+    {
+      "path": "src/fleet_manager/ui/static/js/api.js",
+      "sha256": "e6f9b2865f45471d193091e2546a9e094eecde71293bccda3b5544de52081aaa",
+      "bytes": 4109
+    },
+    {
+      "path": "src/fleet_manager/ui/static/js/app.js",
+      "sha256": "d777287c57c599f99190b7b8c4e9e5756e43d4a6125b73139baac5a9289e9efc",
+      "bytes": 1652
+    },
+    {
+      "path": "src/fleet_manager/ui/static/js/auth.js",
+      "sha256": "b541e41738d460719618a560e87437b743f4e1cf8b589722cd2637b8f26dd941",
+      "bytes": 19842
+    },
+    {
+      "path": "src/fleet_manager/ui/static/js/dialog-ownership.js",
+      "sha256": "c9c56dd3e108ecb650927f7c431024e1c452d3893b80fd9e11a95706c3e12cf4",
+      "bytes": 1936
+    },
+    {
+      "path": "src/fleet_manager/ui/static/js/fleet.js",
+      "sha256": "a933c7af70e86006a772d68542c5044c06a208f33c5412d8a373475066f88982",
+      "bytes": 8993
+    },
+    {
+      "path": "src/fleet_manager/ui/static/js/health.js",
+      "sha256": "0c7d612761a131e6243519f58bba2041ed260c76ca22da65d55fae56f6f62c4c",
+      "bytes": 10494
+    },
+    {
+      "path": "src/fleet_manager/ui/static/js/history.js",
+      "sha256": "894e10ef821a6938e01852026b8f73f723ab10ce3a7ae2730b25dbba91cd9c4b",
+      "bytes": 9301
+    },
+    {
+      "path": "src/fleet_manager/ui/static/js/inventory-view.js",
+      "sha256": "556d779daa09a839cf59aae3f5ce393aa80b7fd7f3f40d8d4742d9d0653e869e",
+      "bytes": 8087
+    },
+    {
+      "path": "src/fleet_manager/ui/static/js/node-onboarding.js",
+      "sha256": "fe0685bd8b2a19ad8371224695594df56df131415c35c1922281ec86d609214f",
+      "bytes": 18017
+    },
+    {
+      "path": "src/fleet_manager/ui/static/js/operations.js",
+      "sha256": "55035ffa9fee10355df57e9f704dea0f074f3658773a01103aeef4f399e0be7b",
+      "bytes": 21160
+    },
+    {
+      "path": "src/fleet_manager/ui/static/js/state.js",
+      "sha256": "258ef62481feb494539acabce103374033665c13f6763085ae87b38f68ade377",
+      "bytes": 4000
+    },
+    {
+      "path": "src/fleet_manager/ui/templates/dashboard.html",
+      "sha256": "abfb41a2b65fbb43b241f8dfab1a3f94afa0b0c675e98cc23fc8079591cc1194",
+      "bytes": 47029
+    },
+    {
+      "path": "submission/Adarsh_Singh_SWFW_5S_12_FINAL_REPORT.md",
+      "sha256": "d5937b0d029049bd8c0f0fbc57942d87204e5144e348b74640b3c8a04bfe8a18",
+      "bytes": 29857
+    },
+    {
+      "path": "submission/FINAL-EXECUTION-REPORT.md",
+      "sha256": "2983768e043450cdf35ea05d431ac18da3fe2601dba7309483c1ad2a28ac26fd",
+      "bytes": 6762
+    },
+    {
+      "path": "submission/MANUAL-ACCEPTANCE-CHECKLIST.md",
+      "sha256": "36cebdbb199d27975094caaf2c0f0439d1a9c8dc01c2f9c1bd40b89d97640326",
+      "bytes": 9125
+    },
+    {
+      "path": "submission/diagrams/architecture.svg",
+      "sha256": "1edb5351e51b1261cfe0d0b71835b92bb87c0c1dc428c1119387ffab3899a643",
+      "bytes": 3222
+    },
+    {
+      "path": "submission/diagrams/system-flow.svg",
+      "sha256": "0b92d3281ca2ac4f85695f676c12a358f0960444c0eb65d40de3dddcd64c1792",
+      "bytes": 3365
+    },
+    {
+      "path": "submission/evidence/acceptance-final.json",
+      "sha256": "616bb3bd21efdc8fd1f6cce14ea76144870aa8aa9c4a5713c91ef251e3ca2a06",
+      "bytes": 204
+    },
+    {
+      "path": "submission/evidence/acceptance-final.txt",
+      "sha256": "a426be1a2e06d34aa49b154947e30605f5b08a6f9ec0f313692c927f39b1f12e",
+      "bytes": 3823
+    },
+    {
+      "path": "submission/evidence/acceptance-matrix.md",
+      "sha256": "28793e5905a04d2e22c1dc1ae99673d077e7eff20ddfcb9b1f948d164b0dccfc",
+      "bytes": 3335
+    },
+    {
+      "path": "submission/evidence/acceptance-mock-flag.txt",
+      "sha256": "56594d24b2ee8075679714c35e90f6fb813fb54cda4182397f10347cdcf03ad4",
+      "bytes": 3824
+    },
+    {
+      "path": "submission/evidence/acceptance-mock.txt",
+      "sha256": "d925bdea9f0542375624ca16ab13dd7ebb4dc39c3acedc372e978404e0489070",
+      "bytes": 3823
+    },
+    {
+      "path": "submission/evidence/build-cached-pythonpath.txt",
+      "sha256": "fc3526d96fed3d114136dc4ce8f4c1865ac1bd1ccd437a7e07f3f4798b9854ba",
+      "bytes": 500
+    },
+    {
+      "path": "submission/evidence/cloud-sanitized.json",
+      "sha256": "491508be4a4700e1c192096aa49ac26dc96b6df9712d3939cdc64896beafc516",
+      "bytes": 14762
+    },
+    {
+      "path": "submission/evidence/cloud-summary.md",
+      "sha256": "982ab767fec9daa8cabe8490e70fe886822df6a00231e535a26482a0a7593771",
+      "bytes": 4297
+    },
+    {
+      "path": "submission/evidence/final-build-sha256.csv",
+      "sha256": "63062c72e48972798c64313aecb930595a82f68e3d754412d33793c302c9c903",
+      "bytes": 718
+    },
+    {
+      "path": "submission/evidence/final-source-sha256.csv",
+      "sha256": "45c14fea0b5483535abdde96dab9a9d260935f80f2268d41d68433b5c3fc4a49",
+      "bytes": 8677
+    },
+    {
+      "path": "submission/evidence/final_browser.json",
+      "sha256": "8852b2374a24c5e4b93ab0437f5c3d1461a6a5056adfa7a2293c8083231b893c",
+      "bytes": 388
+    },
+    {
+      "path": "submission/evidence/final_browser.txt",
+      "sha256": "fac031b0306203a6321b197cc4047892ccae94f6d732fcb9df2048406683dab0",
+      "bytes": 771
+    },
+    {
+      "path": "submission/evidence/final_browser_retry.json",
+      "sha256": "4fbd9485dad2b0c37707ad2e0c7a3ce47eac6931a8849e9d6038447acb862811",
+      "bytes": 400
+    },
+    {
+      "path": "submission/evidence/final_browser_retry.txt",
+      "sha256": "496445089ab3c0ce6b7590d38399d2e2cebd79dc0c8c3d1abbb18037b7b0af05",
+      "bytes": 613
+    },
+    {
+      "path": "submission/evidence/final_build.json",
+      "sha256": "123f8e4ac70be6a7336bc5fe87b39c8b01cef760e9b8a89df90e8cc70e812f14",
+      "bytes": 515
+    },
+    {
+      "path": "submission/evidence/final_build.txt",
+      "sha256": "a0762eccc0327ae2ca7c82706db671167858e090e30231f1b518a2dc948e30a9",
+      "bytes": 991
+    },
+    {
+      "path": "submission/evidence/final_diff.json",
+      "sha256": "3336cd200d69e61ed654fedbd713adcfae44263410e1d3a098c4c5ec70b225bd",
+      "bytes": 346
+    },
+    {
+      "path": "submission/evidence/final_diff.txt",
+      "sha256": "8e0dde85123432c9d3a20a8648f3c707e7c6575192760f63b9466c7d99238575",
+      "bytes": 1067
+    },
+    {
+      "path": "submission/evidence/final_first_run.json",
+      "sha256": "2ceb525b133d4cb24d69a265cea45dedbdb446fc4795f3139ddcabfc9ba3839c",
+      "bytes": 404
+    },
+    {
+      "path": "submission/evidence/final_first_run.txt",
+      "sha256": "6d2cc949485169838abadf42e0addb2e4830fd6be5ec5b179d565b234bf137db",
+      "bytes": 625
+    },
+    {
+      "path": "submission/evidence/final_format.json",
+      "sha256": "be4045927ffd88e02ae792a34d85621d4c66f0ccfc06bc47dc111543c1945d95",
+      "bytes": 401
+    },
+    {
+      "path": "submission/evidence/final_format.txt",
+      "sha256": "7a3e6f361f9ab091f5a118b4f1f601cdb0152f3479fa9bc592622941ff5b29f2",
+      "bytes": 252
+    },
+    {
+      "path": "submission/evidence/final_frontend.json",
+      "sha256": "fb5826968912c3c3092010c319f7e611483985c46843eec7ce6dda506c96bab2",
+      "bytes": 434
+    },
+    {
+      "path": "submission/evidence/final_frontend.txt",
+      "sha256": "c58c55d26b2a6ca5fc597279870499ded6ef20a04c2e522d4f2b095db00f2829",
+      "bytes": 7523
+    },
+    {
+      "path": "submission/evidence/final_lint.json",
+      "sha256": "98e3b4d2d2cc0338024f2f40e8720b240fea56b700fcf91f514b285dcd40d5c7",
+      "bytes": 388
+    },
+    {
+      "path": "submission/evidence/final_lint.txt",
+      "sha256": "517ad767bd2590468464b82eb5d3c040756581d1c3bf467861eb8b985b343385",
+      "bytes": 234
+    },
+    {
+      "path": "submission/evidence/final_mypy.json",
+      "sha256": "785188c2282817f495eb4a9bfefd2e36c2b3c9946283ca1f22870ce8fc45a186",
+      "bytes": 368
+    },
+    {
+      "path": "submission/evidence/final_mypy.txt",
+      "sha256": "128ddc6cbf61ff121e8cb35556b82931b8b19bace80b0964078ca4bdbddb600f",
+      "bytes": 239
+    },
+    {
+      "path": "submission/evidence/final_python.json",
+      "sha256": "dd13f20786d24f450bf1c3c335081de7693c1e3dbe8c26b053a35e3a4afce3e1",
+      "bytes": 373
+    },
+    {
+      "path": "submission/evidence/final_python.txt",
+      "sha256": "1be5cebc1711566e480c6e66dfc075887974019671ce66ab4e47312a79bc7f85",
+      "bytes": 2231
+    },
+    {
+      "path": "submission/evidence/first-run-browser.json",
+      "sha256": "675e04e8d71d2053dc0265ca7bc2adce3e93a1cdd0d50369e67787abc9b15446",
+      "bytes": 15053
+    },
+    {
+      "path": "submission/evidence/first-run-runner.json",
+      "sha256": "af78d2a22be7c975466664be2eae3dabf10d4af8778e22dea17ef3eefcd7d1ab",
+      "bytes": 403
+    },
+    {
+      "path": "submission/evidence/index.json",
+      "sha256": "fc764d2bd763cbfd9e8e27bd6c236ffe23b1632ed406078bb08ec5e3e40df859",
+      "bytes": 20170
+    },
+    {
+      "path": "submission/evidence/normal-browser.json",
+      "sha256": "f35471322695d1ca370dc2d0aa4d523a888a38a3f0ea533f58dbc19035b6ca69",
+      "bytes": 15757
+    },
+    {
+      "path": "submission/evidence/normal-runner.json",
+      "sha256": "50783b8222a5f62d5cf3d1ccbfa95663118315d24477b34c289364be13a7b8a6",
+      "bytes": 403
+    },
+    {
+      "path": "submission/evidence/preservation-checkpoint.json",
+      "sha256": "b69b443bd6ce5ee5105e29e394a1b1b763f3687b81b526013c837e776af3f5a5",
+      "bytes": 624
+    },
+    {
+      "path": "submission/evidence/qa-summary.md",
+      "sha256": "361b5e01b13387941ae57f57dce2b9ab956c876fe5bae59bfcacf587bf901bdd",
+      "bytes": 4789
+    },
+    {
+      "path": "submission/final/Adarsh_Singh_SWFW_5S_12.pdf",
+      "sha256": "710b1bcc47eee3242b115148de39a7f9021f2d282f732c307c4d7adf2110d39a",
+      "bytes": 1187529
+    },
+    {
+      "path": "submission/screenshots/01-first-run-setup.png",
+      "sha256": "e238265212990f9c86104cbf3d1bcf328706bdf78a927ae6b90e1fed5ea2f784",
+      "bytes": 111090
+    },
+    {
+      "path": "submission/screenshots/04-normal-login.png",
+      "sha256": "4fceaf9b0e5a4f74b81849bc1bfe1b668589f927a53c441a9d6c9c4be0775798",
+      "bytes": 132938
+    },
+    {
+      "path": "submission/screenshots/audit-history.png",
+      "sha256": "ff73930967c78633b9f703c1511896a3cfce0c531e4e3535b495cf7feb3d1bb0",
+      "bytes": 80738
+    },
+    {
+      "path": "submission/screenshots/dashboard-1024x800.png",
+      "sha256": "4c5d577a60afdb3aeb707affaaac40fa8aca57b342aefc32feefd706627d0e3d",
+      "bytes": 55008
+    },
+    {
+      "path": "submission/screenshots/dashboard-1440x900.png",
+      "sha256": "dd30301e179623e077e3b028e61c0baccd86b27598e7350e2d515322d93fbc7a",
+      "bytes": 75840
+    },
+    {
+      "path": "submission/screenshots/health-1440x900.png",
+      "sha256": "42e4c0661cb426991301894e46690d3810208368bd2c189cb73012018a86d7dd",
+      "bytes": 87814
+    },
+    {
+      "path": "submission/screenshots/health-390x844.png",
+      "sha256": "59b9cedd427ab574b0c32397f5509109079fe277e88d4b22d967cf0d590d0bea",
+      "bytes": 43936
+    },
+    {
+      "path": "submission/screenshots/health-missing.png",
+      "sha256": "fdf6cfe0283db89fe4f8f970a498c81fd9c79c32100dc7d96a8adb531758679f",
+      "bytes": 78151
+    },
+    {
+      "path": "submission/screenshots/inventory.png",
+      "sha256": "99b70cc9a91c4bb106c8abb76bb4cfbb5de31464cbcbcbfed50c38ab474d1bce",
+      "bytes": 97590
+    },
+    {
+      "path": "submission/screenshots/onboarding-768x1024.png",
+      "sha256": "2a5a428fb341e3d7008ab6ebe4317aba515f61d40faed2b349d7ff0be4af2f0f",
+      "bytes": 119397
+    },
+    {
+      "path": "submission/screenshots/onboarding-ready.png",
+      "sha256": "ed4806306654abb26e50411096c5a58fdf44251a40ebd93b4d7a78486ce96b19",
+      "bytes": 178787
+    },
+    {
+      "path": "submission/screenshots/operations-workbench.png",
+      "sha256": "8eb0a72be1f4fee2d3c992e24c4fcdb6ccebc24154c82d042af0e20c91d9bb9d",
+      "bytes": 109245
+    },
+    {
+      "path": "tests/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "bytes": 1
+    },
+    {
+      "path": "tests/conftest.py",
+      "sha256": "c38405cf2d2a779459167f4c7e92660a1fca0ea89ea8b7263a9f6e31e827925b",
+      "bytes": 933
+    },
+    {
+      "path": "tests/dashboard_modules.cjs",
+      "sha256": "85b69fe734205573cfe4e82f89b9c6829040a8303a6600f186862424436acf41",
+      "bytes": 41141
+    },
+    {
+      "path": "tests/dashboard_regression.cjs",
+      "sha256": "74fee9f351450c18bb86144d06001b9d163f907aac3894542879e22ca4038758",
+      "bytes": 103
+    },
+    {
+      "path": "tests/test_api.py",
+      "sha256": "2c92940d022d95116550ee1fc561ec96ed90b6904e719450f1a959f7e10b27a6",
+      "bytes": 5520
+    },
+    {
+      "path": "tests/test_app_lifecycle.py",
+      "sha256": "5346b2f59a50551e423aaf708ab92e2c6b3aacc99778236d5bed711ff1a442e9",
+      "bytes": 11748
+    },
+    {
+      "path": "tests/test_auth.py",
+      "sha256": "fab4e5507c3b1e9d8bb7ad0d979ff9c3b4f72e57d035e3cec5368e28c22467ef",
+      "bytes": 5013
+    },
+    {
+      "path": "tests/test_auth_redesign.py",
+      "sha256": "09ff29f6c0217ccfaf5747e13da2d06a7571b8a040fc58cb030b95ee58f11b15",
+      "bytes": 23750
+    },
+    {
+      "path": "tests/test_auth_unit.py",
+      "sha256": "f76fda2e12e0f8df08a6ed589f4511917756c44a7cda8b707178443586d2d017",
+      "bytes": 3642
+    },
+    {
+      "path": "tests/test_backup_restore.py",
+      "sha256": "e579ac9b6088ba3e4bf1ff364d4ee575c114e472269f0c29f10fd1fddaddd1c9",
+      "bytes": 40690
+    },
+    {
+      "path": "tests/test_benchmark_smoke.py",
+      "sha256": "eb2ef72489620a10770edc66d14cff534efcde88993506ebd1af4b23f8cf27b6",
+      "bytes": 35530
+    },
+    {
+      "path": "tests/test_connectivity.py",
+      "sha256": "12ba06d4b8a80d329d534e6254ccf4f07d8b5e81ae58e341a2a5aca8554bb634",
+      "bytes": 12238
+    },
+    {
+      "path": "tests/test_connectivity_executor.py",
+      "sha256": "dc002406e37ed2569927c7ba216f0e7b321dd5372783ae53a51e08ee18cdb2e6",
+      "bytes": 5372
+    },
+    {
+      "path": "tests/test_fault_database.py",
+      "sha256": "d00504f09ee1b168861acfb1aeb02f352d1d3292c647f23b3b16e225940cb187",
+      "bytes": 27701
+    },
+    {
+      "path": "tests/test_fault_resilience_integration.py",
+      "sha256": "69ab2b6575b1eac78a34583f58083a73293a45938df8c8f64a24977405665020",
+      "bytes": 25177
+    },
+    {
+      "path": "tests/test_fault_transport.py",
+      "sha256": "8a53a5c27e6d5bc5ad9a6f1369e8241425ec09d5a3fd7e63eb4712233ffbe4ee",
+      "bytes": 30350
+    },
+    {
+      "path": "tests/test_fault_worker.py",
+      "sha256": "c9aab82fcdedd3e31f4df608403e047c92dfca6fa760a2825875138770898291",
+      "bytes": 43280
+    },
+    {
+      "path": "tests/test_final_release_packaging.py",
+      "sha256": "cf283abbf88e4f0b678d7d25cb596850a60917bd1b021e4dc2a2210039f09412",
+      "bytes": 898
+    },
+    {
+      "path": "tests/test_freshness.py",
+      "sha256": "d56e8859f7f44667a7c3c68ca0289ee2708bb69e918bcc9cdbb498b006f32d37",
+      "bytes": 3906
+    },
+    {
+      "path": "tests/test_gce_acceptance.py",
+      "sha256": "3884ee5e4fcb438808aad31d1cd093325913ab07c6d99464ed56286991c3925d",
+      "bytes": 13242
+    },
+    {
+      "path": "tests/test_health.py",
+      "sha256": "a5c67b890da26c9c703ac77df3952f8cc7e13500dd5624c121801e70fefba25e",
+      "bytes": 11374
+    },
+    {
+      "path": "tests/test_metrics.py",
+      "sha256": "34c276f42fd41b07e13a68201312e279b3ad620da85afa317a77280170de58e2",
+      "bytes": 4492
+    },
+    {
+      "path": "tests/test_monitoring_unit.py",
+      "sha256": "491f5838ee6db2a36125cc3980942c28a9cc5fbd23114a22dfffe5ded7000d44",
+      "bytes": 12026
+    },
+    {
+      "path": "tests/test_observability_unit.py",
+      "sha256": "2fdc410c8d66fecf7c54844c603bf4e3a4e933b83091dc9119aa2d0363a4046f",
+      "bytes": 34642
+    },
+    {
+      "path": "tests/test_onboarding_lifecycle.py",
+      "sha256": "53af9e04611da08acb0335676488544f1fa380ae4e7fcab3902dc68e56856bc7",
+      "bytes": 14300
+    },
+    {
+      "path": "tests/test_operations.py",
+      "sha256": "d44ee414ea47927a671ef1c0556340858ad117d9a7e6056bdec20fada61854f8",
+      "bytes": 20481
+    },
+    {
+      "path": "tests/test_operations_ssh_loopback.py",
+      "sha256": "6ffb72c33c8cafbab6995b8f186b860977c69c44b494b62f7499ab0e4b249e07",
+      "bytes": 19036
+    },
+    {
+      "path": "tests/test_operations_transport_loopback.py",
+      "sha256": "7768c9639983b6fa14e0a02c4cb30770a60eb67c3f0c932bc085d4151027fb88",
+      "bytes": 8148
+    },
+    {
+      "path": "tests/test_operations_unit.py",
+      "sha256": "275d3f199d96c522106adbf65b6656fe77e0d685e3f435d79d789ac97a4c0298",
+      "bytes": 16811
+    },
+    {
+      "path": "tests/test_package_source_bundle.py",
+      "sha256": "bdb3e86860fb6022cab00292e5fc316e3511cb5910b79d1edcf0510c0c9c25d7",
+      "bytes": 4279
+    },
+    {
+      "path": "tests/test_phase10_remediation.py",
+      "sha256": "f41c29d2e0aecd0637f97fcacda3028cc91afc05272ee04180e05f495f7f8e45",
+      "bytes": 7104
+    },
+    {
+      "path": "tests/test_prometheus_pipeline.py",
+      "sha256": "4a07ab6239d08d733f5f743d702dd089ddade0fa7158bee21d18d24e459e53a6",
+      "bytes": 4868
+    },
+    {
+      "path": "tests/test_repository.py",
+      "sha256": "6a303ed9b59d3a584c4b2cafe68d10d6a34fbac80992e4fd333ed348c24e63eb",
+      "bytes": 1918
+    },
+    {
+      "path": "tests/test_scheduler.py",
+      "sha256": "59111d7ffc503cfc6c84299d1695795465b0660f3bc406258304fb812c10ff53",
+      "bytes": 11409
+    },
+    {
+      "path": "tests/test_ssh_loopback.py",
+      "sha256": "4ca134dab35ab9e8fadcaa2476447e5e40563bddcc8967e882e2708034bd7a22",
+      "bytes": 8728
+    },
+    {
+      "path": "tests/test_ssh_transport.py",
+      "sha256": "6a0760f6c1802d0897864298cfe88a29ebc44ff4b256b9a349d6b19e5606c2e4",
+      "bytes": 12510
+    },
+    {
+      "path": "tests/test_ssh_transport_loopback.py",
+      "sha256": "79e707dc762257adf92550b924cb9f9f3532f070a2cb067bc36b13484dae615e",
+      "bytes": 3909
+    },
+    {
+      "path": "tests/test_status_api.py",
+      "sha256": "496b34d2f475bad0d10f918fb2cd2bf0b0e308a5d2262262227ca936f8130fcb",
+      "bytes": 3741
+    },
+    {
+      "path": "tests/test_trust_hardening.py",
+      "sha256": "121af18a1d7493016d2735f9485bfa5de3edea9069df7b23f791fc425f7aa518",
+      "bytes": 8921
+    },
+    {
+      "path": "tests/test_ui.py",
+      "sha256": "b48d4d3199d39278cae7a2f0ec5ec84541a0e0d2a3d0458d58884704f5cf5b08",
+      "bytes": 12934
+    },
+    {
+      "path": "tests/test_verification_scripts.py",
+      "sha256": "3d895e7bb7be925a1ac39a4bf9a73572af06c912547290eced24aaf9a7c16742",
+      "bytes": 23259
+    },
+    {
+      "path": "uv.lock",
+      "sha256": "7e5ad1f8d97573f35a742c3204860373f9f0ae801b2ec51a12ac607b06359c7e",
+      "bytes": 91613
+    }
+  ]
+}

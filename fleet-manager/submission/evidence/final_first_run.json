@@ -1,0 +1,8 @@
+{
+    "exit_code":  0,
+    "name":  "final_first_run",
+    "start_utc":  "2026-11-09T08:35:53.4799411Z",
+    "command":  ".venv\\Scripts\\python.exe scripts/run_browser_qa.py --first-run",
+    "end_utc":  "2026-11-09T08:36:40.7748799Z",
+    "log":  "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\final-release\\20261109T135321\\qa-20261109T082946Z\\final_first_run.log"
+}

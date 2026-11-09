@@ -1,0 +1,330 @@
+{
+  "assertions": [
+    "auth modal rendered",
+    "actual browser 422 validation response inspected",
+    "first-run setup view and focus",
+    "first-run setup issues browser session and loads inventory",
+    "Prometheus fixture populates Fleet Health cards",
+    "health detail trends render without page overflow",
+    "compact error toast is live, safe text and bounded width",
+    "error toast waits for accessible dismissal",
+    "error toast dismiss control works",
+    "success toast auto dismisses",
+    "four varying source-time charts with reporting samples",
+    "keyboard sample inspection shows timestamp and unit",
+    "two valid identical samples show collecting state",
+    "constant samples remain flat",
+    "missing samples split paths without interpolation",
+    "honest stale telemetry without invented points",
+    "honest unavailable telemetry without invented points",
+    "dashboard refresh preserves active browser session and inventory",
+    "invalid CSRF cannot revoke browser session",
+    "session locking on logout",
+    "normal login view displayed after logout",
+    "form authentication loads inventory",
+    "API TTL and browser refresh time remain separate",
+    "registration explains IP and hostname syntax without implying DNS reachability",
+    "SSH configuration warning stays inline without global banner",
+    "inline SSH guidance clears after valid refresh",
+    "local SVG sprite symbols render in shell",
+    "no emoji interface icons in shell",
+    "keyboard focus visible on shell action",
+    "reduced motion suppresses animation and transition",
+    "no remote assets requested",
+    "session locking",
+    "reload requires fresh authentication",
+    "form authentication loads inventory",
+    "search exact matching row and visible count",
+    "reachable filter",
+    "zero-result filter",
+    "no emoji interface glyphs in inventory",
+    "node selection and 20-record history",
+    "history next page",
+    "history previous page",
+    "initial command preview uptime",
+    "preview updates to free -m",
+    "preview updates to df -h -P",
+    "client inline validation error and preview indication",
+    "valid path clears error and updates preview",
+    "preview updates to systemctl status ssh",
+    "return to uptime",
+    "operation execution updates inspector with SUCCESS outcome and stdout",
+    "copy button explicit feedback",
+    "historical audit record inspection and row highlight",
+    "return to inventory restores focus",
+    "resume existing node and bootstrap display",
+    "keyboard focus inside modal",
+    "fresh scan requires independent acknowledgement",
+    "scanned and trusted fingerprints labelled separately",
+    "keyboard acknowledgement enables explicit trust",
+    "explicit trust enrollment",
+    "actual SSH outcome and setup shown separately",
+    "authentication retry takes dialog ownership and keyboard focus",
+    "form authentication loads inventory",
+    "onboarding resumes after authentication",
+    "hidden authentication dialog remains locked by onboarding",
+    "focus returns inside onboarding",
+    "HTTP success with failed SSH outcome is shown as failure",
+    "successful SSH retry restores verified setup",
+    "direct node switch retains modal ownership",
+    "mismatched key blocks trust and permits rescan",
+    "deliberate rescan clears acknowledgement",
+    "Escape dismisses onboarding",
+    "closing onboarding restores background interaction",
+    "delayed response keeps current node and visible status panel",
+    "current modal handlers remain valid",
+    "API outage marks stale data and preserves last success time",
+    "API outage recovery",
+    "responsive viewport 1440x900",
+    "1440 inventory actions fit without horizontal scrolling",
+    "health cards and toast fit viewport 1440",
+    "chart plot geometry fits and remains readable at 1440",
+    "workbench fits without page-level horizontal overflow at 1440",
+    "onboarding dialog loads at 1440",
+    "modal header and footer reachable at 1440",
+    "onboarding text and close control avoid horizontal clipping at 1440",
+    "responsive viewport 1024x800",
+    "1024 priority columns and actions",
+    "health cards and toast fit viewport 1024",
+    "chart plot geometry fits and remains readable at 1024",
+    "workbench fits without page-level horizontal overflow at 1024",
+    "onboarding dialog loads at 1024",
+    "modal header and footer reachable at 1024",
+    "onboarding text and close control avoid horizontal clipping at 1024",
+    "responsive viewport 768x1024",
+    "768 semantic table has internal scroll with connectivity visible",
+    "health cards and toast fit viewport 768",
+    "chart plot geometry fits and remains readable at 768",
+    "workbench fits without page-level horizontal overflow at 768",
+    "onboarding dialog loads at 768",
+    "modal header and footer reachable at 768",
+    "onboarding text and close control avoid horizontal clipping at 768",
+    "responsive viewport 390x844",
+    "390 node record layout and primary action",
+    "health cards and toast fit viewport 390",
+    "chart plot geometry fits and remains readable at 390",
+    "mobile tap sample inspection",
+    "workbench fits without page-level horizontal overflow at 390",
+    "onboarding dialog loads at 390",
+    "modal header and footer reachable at 390",
+    "onboarding text and close control avoid horizontal clipping at 390",
+    "short modal opens",
+    "short modal scroll and controls fit 768",
+    "short modal opens",
+    "short modal scroll and controls fit 390",
+    "expired session prompts re-authentication",
+    "no repeated unauthorized polling after expiry",
+    "form authentication loads inventory",
+    "re-authentication restores inventory",
+    "console/network/module/navigation inspection"
+  ],
+  "screenshots": [
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\01-first-run-setup.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\05-authenticated-dashboard.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\fleet-health.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\fleet-health-detail.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\health-constant.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\health-missing.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\health-stale.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\health-unavailable.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\health-varying.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\04-normal-login.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\inventory.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\operations-workbench.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\audit-history.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\onboarding-ready.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\onboarding-mismatch.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\health-1440x900.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\dashboard-1440x900.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\workbench-1440x900.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\onboarding-1440x900.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\health-1024x800.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\dashboard-1024x800.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\workbench-1024x800.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\onboarding-1024x800.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\health-768x1024.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\dashboard-768x1024.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\workbench-768x1024.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\onboarding-768x1024.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\health-390x844.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\dashboard-390x844.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\workbench-390x844.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\onboarding-390x844.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\inventory-390x844.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\onboarding-768x420.png",
+    "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\onboarding-390x500.png"
+  ],
+  "consoleErrors": [
+    {
+      "type": "log",
+      "data": {
+        "source": "network",
+        "level": "error",
+        "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "timestamp": 1794213357392.369,
+        "url": "http://127.0.0.1:62526/favicon.ico",
+        "networkRequestId": "45828.55"
+      },
+      "expected": true
+    },
+    {
+      "type": "log",
+      "data": {
+        "source": "network",
+        "level": "error",
+        "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)",
+        "timestamp": 1794213357658.813,
+        "url": "http://127.0.0.1:62526/api/auth/login",
+        "networkRequestId": "45828.56"
+      },
+      "expected": true
+    },
+    {
+      "type": "log",
+      "data": {
+        "source": "network",
+        "level": "error",
+        "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "timestamp": 1794213360317.779,
+        "url": "http://127.0.0.1:62526/api/auth/logout",
+        "networkRequestId": "45828.134"
+      },
+      "expected": true
+    },
+    {
+      "type": "log",
+      "data": {
+        "source": "network",
+        "level": "error",
+        "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "timestamp": 1794213371263.837,
+        "url": "http://127.0.0.1:62526/api/nodes/2/connectivity-check",
+        "networkRequestId": "45828.222"
+      },
+      "expected": true
+    },
+    {
+      "type": "log",
+      "data": {
+        "source": "network",
+        "level": "error",
+        "text": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+        "timestamp": 1794213376032.678,
+        "url": "http://127.0.0.1:62526/api/nodes/status",
+        "networkRequestId": "45828.251"
+      },
+      "expected": true
+    },
+    {
+      "type": "log",
+      "data": {
+        "source": "network",
+        "level": "error",
+        "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "timestamp": 1794213388898.119,
+        "url": "http://127.0.0.1:62526/api/nodes/status",
+        "networkRequestId": "45828.274"
+      },
+      "expected": true
+    },
+    {
+      "type": "log",
+      "data": {
+        "source": "network",
+        "level": "error",
+        "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "timestamp": 1794213388898.351,
+        "url": "http://127.0.0.1:62526/api/nodes/2/onboarding",
+        "networkRequestId": "45828.273"
+      },
+      "expected": true
+    },
+    {
+      "type": "log",
+      "data": {
+        "source": "network",
+        "level": "error",
+        "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "timestamp": 1794213388906.609,
+        "url": "http://127.0.0.1:62526/api/nodes/2/connectivity",
+        "networkRequestId": "45828.275"
+      },
+      "expected": true
+    }
+  ],
+  "failedRequests": [
+    {
+      "type": "http",
+      "url": "http://127.0.0.1:62526/favicon.ico",
+      "status": 404,
+      "expected": true
+    },
+    {
+      "type": "http",
+      "url": "http://127.0.0.1:62526/api/auth/login",
+      "status": 422,
+      "expected": true
+    },
+    {
+      "type": "http",
+      "url": "http://127.0.0.1:62526/api/auth/logout",
+      "status": 401,
+      "expected": true
+    },
+    {
+      "type": "http",
+      "url": "http://127.0.0.1:62526/api/nodes/2/connectivity-check",
+      "status": 401,
+      "expected": true
+    },
+    {
+      "type": "http",
+      "url": "http://127.0.0.1:62526/api/nodes/status",
+      "status": 503,
+      "expected": true
+    },
+    {
+      "type": "http",
+      "url": "http://127.0.0.1:62526/api/nodes/status",
+      "status": 401,
+      "expected": true
+    },
+    {
+      "type": "http",
+      "url": "http://127.0.0.1:62526/api/nodes/2/onboarding",
+      "status": 401,
+      "expected": true
+    },
+    {
+      "type": "http",
+      "url": "http://127.0.0.1:62526/api/nodes/2/connectivity",
+      "status": 401,
+      "expected": true
+    }
+  ],
+  "navigationFailures": [],
+  "loginRequestFields": [
+    [],
+    [
+      "password"
+    ],
+    [
+      "password"
+    ],
+    [
+      "password"
+    ],
+    [
+      "password"
+    ]
+  ],
+  "validation422": {
+    "status": 422,
+    "error": {
+      "code": "invalid_request",
+      "message": "Request body has missing or invalid fields"
+    },
+    "detail": []
+  },
+  "passed": true
+}

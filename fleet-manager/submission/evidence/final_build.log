@@ -1,0 +1,16 @@
+START_UTC: 2026-11-09T08:35:53.5989482Z
+CWD: C:\Users\adars\Desktop\ZOHO\SWFW-12-Sem5\fleet-manager
+COMMAND: uv build --offline --no-build-isolation --out-dir C:\Users\adars\Desktop\ZOHO\SWFW-12-Sem5\fleet-manager\.local\final-release\20261109T135321\qa-20261109T082946Z\final-dist
+uv : Building source distribution...
+At line:1 char:1
++ uv build --offline --no-build-isolation --out-dir C:\Users\adars\Desk ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Building source distribution...:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Building wheel from source distribution...
+Successfully built .local\final-release\20261109T135321\qa-20261109T082946Z\final-dist\swfw_fleet_manager-0.1.0.tar.gz
+Successfully built 
+.local\final-release\20261109T135321\qa-20261109T082946Z\final-dist\swfw_fleet_manager-0.1.0-py3-none-any.whl
+END_UTC: 2026-11-09T08:35:56.9118464Z
+EXIT: 0

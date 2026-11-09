@@ -1,0 +1,6 @@
+START_UTC: 2026-11-09T08:35:53.3480430Z
+CWD: C:\Users\adars\Desktop\ZOHO\SWFW-12-Sem5\fleet-manager
+COMMAND: .venv\Scripts\python.exe -m mypy src
+Success: no issues found in 50 source files
+END_UTC: 2026-11-09T08:35:55.3475913Z
+EXIT: 0

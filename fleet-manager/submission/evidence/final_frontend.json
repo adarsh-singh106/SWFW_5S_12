@@ -1,0 +1,8 @@
+{
+    "exit_code":  0,
+    "name":  "final_frontend",
+    "start_utc":  "2026-11-09T08:35:53.5224959Z",
+    "command":  "node --experimental-vm-modules --test tests/dashboard_modules.cjs tests/dashboard_regression.cjs",
+    "end_utc":  "2026-11-09T08:35:54.7519509Z",
+    "log":  "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\final-release\\20261109T135321\\qa-20261109T082946Z\\final_frontend.log"
+}

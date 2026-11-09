@@ -1,0 +1,21 @@
+{
+  "status": "READY WITH LIMITATIONS",
+  "timestamp_utc": "2026-11-09T08:45:21.050562+00:00",
+  "pdf_pages": 28,
+  "pdf_inspection": "All pages rendered with Windows.Data.Pdf; all-page contact sheets and full-size flow/architecture/acceptance/health inspected; no blank pages or clipping observed",
+  "zip_files": 269,
+  "zip_integrity": "CRC, clean extraction, member SHA256 and current source bytes verified",
+  "evidence_index_entries": 58,
+  "evidence_hashes_verified": true,
+  "learning_state_byte_equal": true,
+  "learning_state_sha256": "f5f531b4ddb7fecc030f95b3a671a9177482ae94f9ac22da53901e291a15edc2",
+  "checksums": {
+    "Adarsh_Singh_SWFW_5S_12.pdf": "710b1bcc47eee3242b115148de39a7f9021f2d282f732c307c4d7adf2110d39a",
+    "Adarsh_Singh_SWFW_5S_12_PROJECT-FILES.zip": "cc95c992e3f1bdfe88cc96cc20b0d935ae9541df529220ccc77a00d156f736c5"
+  },
+  "cloud": "Read-only closeout 08:39:35 UTC; all four RUNNING/no external accessConfigs; no mutations; IAP gate BLOCKED",
+  "acceptance": "exit2;2 local pass,6 skipped,6 simulated;0 failed",
+  "qa": "535 Python pass/7 warnings;74 frontend executions;CDP126+117 mocked;lint/format/Mypy/build pass",
+  "commits": "None; no push; main HEAD unchanged",
+  "manual": "PENDING; checklist section1; http://127.0.0.1:8000/dashboard"
+}

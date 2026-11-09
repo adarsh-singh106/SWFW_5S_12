@@ -1,0 +1,6 @@
+START_UTC: 2026-11-09T08:35:53.3340649Z
+CWD: C:\Users\adars\Desktop\ZOHO\SWFW-12-Sem5\fleet-manager
+COMMAND: .venv\Scripts\python.exe -m ruff check src tests scripts
+All checks passed!
+END_UTC: 2026-11-09T08:35:53.8895133Z
+EXIT: 0

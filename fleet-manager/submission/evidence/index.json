@@ -1,0 +1,490 @@
+[
+  {
+    "id": "E001",
+    "file": "submission/screenshots/01-first-run-setup.png",
+    "source": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0\\01-first-run-setup.png",
+    "timestamp_utc": "2026-11-09T08:35:57.836785+00:00",
+    "feature": "01-first-run-setup",
+    "type": "fresh local / automated simulation",
+    "telemetry": "MOCKED",
+    "sha256": "e238265212990f9c86104cbf3d1bcf328706bdf78a927ae6b90e1fed5ea2f784"
+  },
+  {
+    "id": "E002",
+    "file": "submission/screenshots/04-normal-login.png",
+    "source": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083709-05d8c314\\04-normal-login.png",
+    "timestamp_utc": "2026-11-09T08:37:14.460972+00:00",
+    "feature": "04-normal-login",
+    "type": "fresh local / automated simulation",
+    "telemetry": "MOCKED",
+    "sha256": "4fceaf9b0e5a4f74b81849bc1bfe1b668589f927a53c441a9d6c9c4be0775798"
+  },
+  {
+    "id": "E003",
+    "file": "submission/screenshots/audit-history.png",
+    "source": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083709-05d8c314\\audit-history.png",
+    "timestamp_utc": "2026-11-09T08:37:22.799540+00:00",
+    "feature": "audit-history",
+    "type": "fresh local / automated simulation",
+    "telemetry": "MOCKED",
+    "sha256": "ff73930967c78633b9f703c1511896a3cfce0c531e4e3535b495cf7feb3d1bb0"
+  },
+  {
+    "id": "E004",
+    "file": "submission/screenshots/dashboard-1024x800.png",
+    "source": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083709-05d8c314\\dashboard-1024x800.png",
+    "timestamp_utc": "2026-11-09T08:37:34.760781+00:00",
+    "feature": "dashboard-1024x800",
+    "type": "fresh local / automated simulation",
+    "telemetry": "MOCKED",
+    "sha256": "4c5d577a60afdb3aeb707affaaac40fa8aca57b342aefc32feefd706627d0e3d"
+  },
+  {
+    "id": "E005",
+    "file": "submission/screenshots/dashboard-1440x900.png",
+    "source": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083709-05d8c314\\dashboard-1440x900.png",
+    "timestamp_utc": "2026-11-09T08:37:31.597318+00:00",
+    "feature": "dashboard-1440x900",
+    "type": "fresh local / automated simulation",
+    "telemetry": "MOCKED",
+    "sha256": "dd30301e179623e077e3b028e61c0baccd86b27598e7350e2d515322d93fbc7a"
+  },
+  {
+    "id": "E006",
+    "file": "submission/screenshots/health-1440x900.png",
+    "source": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083709-05d8c314\\health-1440x900.png",
+    "timestamp_utc": "2026-11-09T08:37:31.031332+00:00",
+    "feature": "health-1440x900",
+    "type": "fresh local / automated simulation",
+    "telemetry": "MOCKED",
+    "sha256": "42e4c0661cb426991301894e46690d3810208368bd2c189cb73012018a86d7dd"
+  },
+  {
+    "id": "E007",
+    "file": "submission/screenshots/health-390x844.png",
+    "source": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083709-05d8c314\\health-390x844.png",
+    "timestamp_utc": "2026-11-09T08:37:39.162899+00:00",
+    "feature": "health-390x844",
+    "type": "fresh local / automated simulation",
+    "telemetry": "MOCKED",
+    "sha256": "59b9cedd427ab574b0c32397f5509109079fe277e88d4b22d967cf0d590d0bea"
+  },
+  {
+    "id": "E008",
+    "file": "submission/screenshots/health-missing.png",
+    "source": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083709-05d8c314\\health-missing.png",
+    "timestamp_utc": "2026-11-09T08:37:13.309124+00:00",
+    "feature": "health-missing",
+    "type": "fresh local / automated simulation",
+    "telemetry": "MOCKED",
+    "sha256": "fdf6cfe0283db89fe4f8f970a498c81fd9c79c32100dc7d96a8adb531758679f"
+  },
+  {
+    "id": "E009",
+    "file": "submission/screenshots/inventory.png",
+    "source": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083709-05d8c314\\inventory.png",
+    "timestamp_utc": "2026-11-09T08:37:22.146094+00:00",
+    "feature": "inventory",
+    "type": "fresh local / automated simulation",
+    "telemetry": "MOCKED",
+    "sha256": "99b70cc9a91c4bb106c8abb76bb4cfbb5de31464cbcbcbfed50c38ab474d1bce"
+  },
+  {
+    "id": "E010",
+    "file": "submission/screenshots/onboarding-768x1024.png",
+    "source": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083709-05d8c314\\onboarding-768x1024.png",
+    "timestamp_utc": "2026-11-09T08:37:39.012292+00:00",
+    "feature": "onboarding-768x1024",
+    "type": "fresh local / automated simulation",
+    "telemetry": "MOCKED",
+    "sha256": "2a5a428fb341e3d7008ab6ebe4317aba515f61d40faed2b349d7ff0be4af2f0f"
+  },
+  {
+    "id": "E011",
+    "file": "submission/screenshots/onboarding-ready.png",
+    "source": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083709-05d8c314\\onboarding-ready.png",
+    "timestamp_utc": "2026-11-09T08:37:24.962515+00:00",
+    "feature": "onboarding-ready",
+    "type": "fresh local / automated simulation",
+    "telemetry": "MOCKED",
+    "sha256": "ed4806306654abb26e50411096c5a58fdf44251a40ebd93b4d7a78486ce96b19"
+  },
+  {
+    "id": "E012",
+    "file": "submission/screenshots/operations-workbench.png",
+    "source": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083709-05d8c314\\operations-workbench.png",
+    "timestamp_utc": "2026-11-09T08:37:22.628138+00:00",
+    "feature": "operations-workbench",
+    "type": "fresh local / automated simulation",
+    "telemetry": "MOCKED",
+    "sha256": "8eb0a72be1f4fee2d3c992e24c4fcdb6ccebc24154c82d042af0e20c91d9bb9d"
+  },
+  {
+    "id": "E100",
+    "file": "submission/evidence/acceptance-final.json",
+    "timestamp_utc": "2026-11-09T08:43:07.855711+00:00",
+    "feature": "acceptance-final",
+    "type": "fresh local / automated simulation",
+    "sha256": "616bb3bd21efdc8fd1f6cce14ea76144870aa8aa9c4a5713c91ef251e3ca2a06"
+  },
+  {
+    "id": "E101",
+    "file": "submission/evidence/acceptance-final.txt",
+    "timestamp_utc": "2026-11-09T08:43:07.854111+00:00",
+    "feature": "acceptance-final",
+    "type": "fresh local / automated simulation",
+    "sha256": "a426be1a2e06d34aa49b154947e30605f5b08a6f9ec0f313692c927f39b1f12e"
+  },
+  {
+    "id": "E102",
+    "file": "submission/evidence/acceptance-matrix.md",
+    "timestamp_utc": "2026-11-09T08:34:04.730684+00:00",
+    "feature": "acceptance-matrix",
+    "type": "fresh local / automated simulation",
+    "sha256": "28793e5905a04d2e22c1dc1ae99673d077e7eff20ddfcb9b1f948d164b0dccfc"
+  },
+  {
+    "id": "E103",
+    "file": "submission/evidence/acceptance-mock-flag.txt",
+    "timestamp_utc": "2026-11-09T08:29:23.048503+00:00",
+    "feature": "acceptance-mock-flag",
+    "type": "fresh local / automated simulation",
+    "sha256": "56594d24b2ee8075679714c35e90f6fb813fb54cda4182397f10347cdcf03ad4"
+  },
+  {
+    "id": "E104",
+    "file": "submission/evidence/acceptance-mock.txt",
+    "timestamp_utc": "2026-11-09T08:29:21.579267+00:00",
+    "feature": "acceptance-mock",
+    "type": "fresh local / automated simulation",
+    "sha256": "d925bdea9f0542375624ca16ab13dd7ebb4dc39c3acedc372e978404e0489070"
+  },
+  {
+    "id": "E105",
+    "file": "submission/evidence/build-cached-pythonpath.txt",
+    "timestamp_utc": "2026-11-09T08:32:35.523998+00:00",
+    "feature": "build-cached-pythonpath",
+    "type": "fresh local / automated simulation",
+    "sha256": "fc3526d96fed3d114136dc4ce8f4c1865ac1bd1ccd437a7e07f3f4798b9854ba"
+  },
+  {
+    "id": "E106",
+    "file": "submission/evidence/cloud-sanitized.json",
+    "timestamp_utc": "2026-11-09T08:43:05.946044+00:00",
+    "feature": "cloud-sanitized",
+    "type": "fresh live control-plane read only",
+    "sha256": "491508be4a4700e1c192096aa49ac26dc96b6df9712d3939cdc64896beafc516"
+  },
+  {
+    "id": "E107",
+    "file": "submission/evidence/cloud-summary.md",
+    "timestamp_utc": "2026-11-09T08:43:05.945032+00:00",
+    "feature": "cloud-summary",
+    "type": "fresh live control-plane read only",
+    "sha256": "982ab767fec9daa8cabe8490e70fe886822df6a00231e535a26482a0a7593771"
+  },
+  {
+    "id": "E108",
+    "file": "submission/evidence/final-build-sha256.csv",
+    "timestamp_utc": "2026-11-09T08:36:37.585629+00:00",
+    "feature": "final-build-sha256",
+    "type": "fresh local / automated simulation",
+    "sha256": "63062c72e48972798c64313aecb930595a82f68e3d754412d33793c302c9c903"
+  },
+  {
+    "id": "E109",
+    "file": "submission/evidence/final-source-sha256.csv",
+    "timestamp_utc": "2026-11-09T08:36:37.576371+00:00",
+    "feature": "final-source-sha256",
+    "type": "fresh local / automated simulation",
+    "sha256": "45c14fea0b5483535abdde96dab9a9d260935f80f2268d41d68433b5c3fc4a49"
+  },
+  {
+    "id": "E110",
+    "file": "submission/evidence/final_browser.json",
+    "timestamp_utc": "2026-11-09T08:36:02.785253+00:00",
+    "feature": "final_browser",
+    "type": "fresh local / automated simulation",
+    "sha256": "8852b2374a24c5e4b93ab0437f5c3d1461a6a5056adfa7a2293c8083231b893c"
+  },
+  {
+    "id": "E111",
+    "file": "submission/evidence/final_browser.log",
+    "timestamp_utc": "2026-11-09T08:36:02.722469+00:00",
+    "feature": "final_browser",
+    "type": "fresh local / automated simulation",
+    "sha256": "fac031b0306203a6321b197cc4047892ccae94f6d732fcb9df2048406683dab0"
+  },
+  {
+    "id": "E112",
+    "file": "submission/evidence/final_browser.txt",
+    "timestamp_utc": "2026-11-09T08:36:02.722469+00:00",
+    "feature": "final_browser",
+    "type": "fresh local / automated simulation",
+    "sha256": "fac031b0306203a6321b197cc4047892ccae94f6d732fcb9df2048406683dab0"
+  },
+  {
+    "id": "E113",
+    "file": "submission/evidence/final_browser_retry.json",
+    "timestamp_utc": "2026-11-09T08:37:54.669039+00:00",
+    "feature": "final_browser_retry",
+    "type": "fresh local / automated simulation",
+    "sha256": "4fbd9485dad2b0c37707ad2e0c7a3ce47eac6931a8849e9d6038447acb862811"
+  },
+  {
+    "id": "E114",
+    "file": "submission/evidence/final_browser_retry.log",
+    "timestamp_utc": "2026-11-09T08:37:54.617873+00:00",
+    "feature": "final_browser_retry",
+    "type": "fresh local / automated simulation",
+    "sha256": "496445089ab3c0ce6b7590d38399d2e2cebd79dc0c8c3d1abbb18037b7b0af05"
+  },
+  {
+    "id": "E115",
+    "file": "submission/evidence/final_browser_retry.txt",
+    "timestamp_utc": "2026-11-09T08:37:54.617873+00:00",
+    "feature": "final_browser_retry",
+    "type": "fresh local / automated simulation",
+    "sha256": "496445089ab3c0ce6b7590d38399d2e2cebd79dc0c8c3d1abbb18037b7b0af05"
+  },
+  {
+    "id": "E116",
+    "file": "submission/evidence/final_build.json",
+    "timestamp_utc": "2026-11-09T08:35:57.033478+00:00",
+    "feature": "final_build",
+    "type": "fresh local / automated simulation",
+    "sha256": "123f8e4ac70be6a7336bc5fe87b39c8b01cef760e9b8a89df90e8cc70e812f14"
+  },
+  {
+    "id": "E117",
+    "file": "submission/evidence/final_build.log",
+    "timestamp_utc": "2026-11-09T08:35:56.932756+00:00",
+    "feature": "final_build",
+    "type": "fresh local / automated simulation",
+    "sha256": "a0762eccc0327ae2ca7c82706db671167858e090e30231f1b518a2dc948e30a9"
+  },
+  {
+    "id": "E118",
+    "file": "submission/evidence/final_build.txt",
+    "timestamp_utc": "2026-11-09T08:35:56.932756+00:00",
+    "feature": "final_build",
+    "type": "fresh local / automated simulation",
+    "sha256": "a0762eccc0327ae2ca7c82706db671167858e090e30231f1b518a2dc948e30a9"
+  },
+  {
+    "id": "E119",
+    "file": "submission/evidence/final_diff.json",
+    "timestamp_utc": "2026-11-09T08:35:53.952713+00:00",
+    "feature": "final_diff",
+    "type": "fresh local / automated simulation",
+    "sha256": "3336cd200d69e61ed654fedbd713adcfae44263410e1d3a098c4c5ec70b225bd"
+  },
+  {
+    "id": "E120",
+    "file": "submission/evidence/final_diff.log",
+    "timestamp_utc": "2026-11-09T08:35:53.884210+00:00",
+    "feature": "final_diff",
+    "type": "fresh local / automated simulation",
+    "sha256": "8e0dde85123432c9d3a20a8648f3c707e7c6575192760f63b9466c7d99238575"
+  },
+  {
+    "id": "E121",
+    "file": "submission/evidence/final_diff.txt",
+    "timestamp_utc": "2026-11-09T08:35:53.884210+00:00",
+    "feature": "final_diff",
+    "type": "fresh local / automated simulation",
+    "sha256": "8e0dde85123432c9d3a20a8648f3c707e7c6575192760f63b9466c7d99238575"
+  },
+  {
+    "id": "E122",
+    "file": "submission/evidence/final_first_run.json",
+    "timestamp_utc": "2026-11-09T08:36:40.835810+00:00",
+    "feature": "final_first_run",
+    "type": "fresh local / automated simulation",
+    "sha256": "2ceb525b133d4cb24d69a265cea45dedbdb446fc4795f3139ddcabfc9ba3839c"
+  },
+  {
+    "id": "E123",
+    "file": "submission/evidence/final_first_run.log",
+    "timestamp_utc": "2026-11-09T08:36:40.784039+00:00",
+    "feature": "final_first_run",
+    "type": "fresh local / automated simulation",
+    "sha256": "6d2cc949485169838abadf42e0addb2e4830fd6be5ec5b179d565b234bf137db"
+  },
+  {
+    "id": "E124",
+    "file": "submission/evidence/final_first_run.txt",
+    "timestamp_utc": "2026-11-09T08:36:40.784039+00:00",
+    "feature": "final_first_run",
+    "type": "fresh local / automated simulation",
+    "sha256": "6d2cc949485169838abadf42e0addb2e4830fd6be5ec5b179d565b234bf137db"
+  },
+  {
+    "id": "E125",
+    "file": "submission/evidence/final_format.json",
+    "timestamp_utc": "2026-11-09T08:35:54.000603+00:00",
+    "feature": "final_format",
+    "type": "fresh local / automated simulation",
+    "sha256": "be4045927ffd88e02ae792a34d85621d4c66f0ccfc06bc47dc111543c1945d95"
+  },
+  {
+    "id": "E126",
+    "file": "submission/evidence/final_format.log",
+    "timestamp_utc": "2026-11-09T08:35:53.928109+00:00",
+    "feature": "final_format",
+    "type": "fresh local / automated simulation",
+    "sha256": "7a3e6f361f9ab091f5a118b4f1f601cdb0152f3479fa9bc592622941ff5b29f2"
+  },
+  {
+    "id": "E127",
+    "file": "submission/evidence/final_format.txt",
+    "timestamp_utc": "2026-11-09T08:35:53.928109+00:00",
+    "feature": "final_format",
+    "type": "fresh local / automated simulation",
+    "sha256": "7a3e6f361f9ab091f5a118b4f1f601cdb0152f3479fa9bc592622941ff5b29f2"
+  },
+  {
+    "id": "E128",
+    "file": "submission/evidence/final_frontend.json",
+    "timestamp_utc": "2026-11-09T08:35:54.820376+00:00",
+    "feature": "final_frontend",
+    "type": "fresh local / automated simulation",
+    "sha256": "fb5826968912c3c3092010c319f7e611483985c46843eec7ce6dda506c96bab2"
+  },
+  {
+    "id": "E129",
+    "file": "submission/evidence/final_frontend.log",
+    "timestamp_utc": "2026-11-09T08:35:54.766727+00:00",
+    "feature": "final_frontend",
+    "type": "fresh local / automated simulation",
+    "sha256": "c58c55d26b2a6ca5fc597279870499ded6ef20a04c2e522d4f2b095db00f2829"
+  },
+  {
+    "id": "E130",
+    "file": "submission/evidence/final_frontend.txt",
+    "timestamp_utc": "2026-11-09T08:35:54.766727+00:00",
+    "feature": "final_frontend",
+    "type": "fresh local / automated simulation",
+    "sha256": "c58c55d26b2a6ca5fc597279870499ded6ef20a04c2e522d4f2b095db00f2829"
+  },
+  {
+    "id": "E131",
+    "file": "submission/evidence/final_lint.json",
+    "timestamp_utc": "2026-11-09T08:35:53.971489+00:00",
+    "feature": "final_lint",
+    "type": "fresh local / automated simulation",
+    "sha256": "98e3b4d2d2cc0338024f2f40e8720b240fea56b700fcf91f514b285dcd40d5c7"
+  },
+  {
+    "id": "E132",
+    "file": "submission/evidence/final_lint.log",
+    "timestamp_utc": "2026-11-09T08:35:53.902495+00:00",
+    "feature": "final_lint",
+    "type": "fresh local / automated simulation",
+    "sha256": "517ad767bd2590468464b82eb5d3c040756581d1c3bf467861eb8b985b343385"
+  },
+  {
+    "id": "E133",
+    "file": "submission/evidence/final_lint.txt",
+    "timestamp_utc": "2026-11-09T08:35:53.902495+00:00",
+    "feature": "final_lint",
+    "type": "fresh local / automated simulation",
+    "sha256": "517ad767bd2590468464b82eb5d3c040756581d1c3bf467861eb8b985b343385"
+  },
+  {
+    "id": "E134",
+    "file": "submission/evidence/final_mypy.json",
+    "timestamp_utc": "2026-11-09T08:35:55.424154+00:00",
+    "feature": "final_mypy",
+    "type": "fresh local / automated simulation",
+    "sha256": "785188c2282817f495eb4a9bfefd2e36c2b3c9946283ca1f22870ce8fc45a186"
+  },
+  {
+    "id": "E135",
+    "file": "submission/evidence/final_mypy.log",
+    "timestamp_utc": "2026-11-09T08:35:55.354268+00:00",
+    "feature": "final_mypy",
+    "type": "fresh local / automated simulation",
+    "sha256": "128ddc6cbf61ff121e8cb35556b82931b8b19bace80b0964078ca4bdbddb600f"
+  },
+  {
+    "id": "E136",
+    "file": "submission/evidence/final_mypy.txt",
+    "timestamp_utc": "2026-11-09T08:35:55.354268+00:00",
+    "feature": "final_mypy",
+    "type": "fresh local / automated simulation",
+    "sha256": "128ddc6cbf61ff121e8cb35556b82931b8b19bace80b0964078ca4bdbddb600f"
+  },
+  {
+    "id": "E137",
+    "file": "submission/evidence/final_python.json",
+    "timestamp_utc": "2026-11-09T08:38:26.498700+00:00",
+    "feature": "final_python",
+    "type": "fresh local / automated simulation",
+    "sha256": "dd13f20786d24f450bf1c3c335081de7693c1e3dbe8c26b053a35e3a4afce3e1"
+  },
+  {
+    "id": "E138",
+    "file": "submission/evidence/final_python.log",
+    "timestamp_utc": "2026-11-09T08:38:26.450087+00:00",
+    "feature": "final_python",
+    "type": "fresh local / automated simulation",
+    "sha256": "1be5cebc1711566e480c6e66dfc075887974019671ce66ab4e47312a79bc7f85"
+  },
+  {
+    "id": "E139",
+    "file": "submission/evidence/final_python.txt",
+    "timestamp_utc": "2026-11-09T08:38:26.450087+00:00",
+    "feature": "final_python",
+    "type": "fresh local / automated simulation",
+    "sha256": "1be5cebc1711566e480c6e66dfc075887974019671ce66ab4e47312a79bc7f85"
+  },
+  {
+    "id": "E140",
+    "file": "submission/evidence/first-run-browser.json",
+    "timestamp_utc": "2026-11-09T08:36:40.081952+00:00",
+    "feature": "first-run-browser",
+    "type": "fresh local / automated simulation",
+    "sha256": "675e04e8d71d2053dc0265ca7bc2adce3e93a1cdd0d50369e67787abc9b15446"
+  },
+  {
+    "id": "E141",
+    "file": "submission/evidence/first-run-runner.json",
+    "timestamp_utc": "2026-11-09T08:36:40.631937+00:00",
+    "feature": "first-run-runner",
+    "type": "fresh local / automated simulation",
+    "sha256": "af78d2a22be7c975466664be2eae3dabf10d4af8778e22dea17ef3eefcd7d1ab"
+  },
+  {
+    "id": "E143",
+    "file": "submission/evidence/normal-browser.json",
+    "timestamp_utc": "2026-11-09T08:37:53.880853+00:00",
+    "feature": "normal-browser",
+    "type": "fresh local / automated simulation",
+    "sha256": "f35471322695d1ca370dc2d0aa4d523a888a38a3f0ea533f58dbc19035b6ca69"
+  },
+  {
+    "id": "E144",
+    "file": "submission/evidence/normal-runner.json",
+    "timestamp_utc": "2026-11-09T08:37:54.440234+00:00",
+    "feature": "normal-runner",
+    "type": "fresh local / automated simulation",
+    "sha256": "50783b8222a5f62d5cf3d1ccbfa95663118315d24477b34c289364be13a7b8a6"
+  },
+  {
+    "id": "E145",
+    "file": "submission/evidence/preservation-checkpoint.json",
+    "timestamp_utc": "2026-11-09T08:43:06.093227+00:00",
+    "feature": "preservation-checkpoint",
+    "type": "fresh local / automated simulation",
+    "sha256": "b69b443bd6ce5ee5105e29e394a1b1b763f3687b81b526013c837e776af3f5a5"
+  },
+  {
+    "id": "E146",
+    "file": "submission/evidence/qa-summary.md",
+    "timestamp_utc": "2026-11-09T08:40:04.750001+00:00",
+    "feature": "qa-summary",
+    "type": "fresh local / automated simulation",
+    "sha256": "361b5e01b13387941ae57f57dce2b9ab956c876fe5bae59bfcacf587bf901bdd"
+  }
+]

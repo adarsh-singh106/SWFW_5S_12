@@ -2,11 +2,31 @@
 
 **Know what's wrong before you act.**
 
-Planned workflow: onboarding → monitoring → investigation → controlled action → verification.
+Product workflow: **Monitor → Understand → Operate → Audit**.
 
-The application implements token-protected node inventory, guided SSH fingerprint enrollment, a browser dashboard, periodic SSH observations with freshness/failure classification, Prometheus metrics and Grafana provisioning, and allowlisted remote operations with persisted audit history. SQLite stores inventory/observations/audit records; Prometheus stores metrics. Registration alone does not verify identity or host health. The shared operator token is not RBAC.
+The application implements browser administrator authentication (Argon2id passwords, HttpOnly sessions and CSRF), compatible optional API Bearer access, persistent node inventory, guided SSH fingerprint enrollment, periodic SSH observations with freshness/failure classification, authenticated native Fleet Health through fixed Prometheus queries, Grafana provisioning, and four read-only allowlisted operations with persisted audit history. SQLite stores inventory/observations/audit/administrator records; Prometheus stores metrics. Registration alone does not verify identity or host health. This is a single-administrator application, not RBAC.
 
-All four official requirements are **code-complete** and verified in isolated unit/integration tests (including failure classification, crash reconciliation, and backup/restore). **However, local implementation is not cloud acceptance: all four official requirements await actual three-node GCE evidence.** Independent fingerprint verification, successful remote command outputs and audit history, four healthy scrape targets (up=1), historical time-series storage, and rendered Grafana panels must be demonstrated live. Failure/recovery scenarios 08-13 are NOT IMPLEMENTED in the automated acceptance runner and are reported SKIPPED; neither mock execution nor a healthy baseline closes those gates. See [exact manual procedures for all four requirements](docs/DEPLOYMENT-RUNBOOK.md#15-exact-manual-acceptance-procedures-for-the-four-official-requirements).
+## Final release and manual testing — 9 November 2026
+
+See `submission/FINAL-EXECUTION-REPORT.md` for fresh evidence and limitations,
+`submission/MANUAL-ACCEPTANCE-CHECKLIST.md` for exact startup/testing commands, and
+`submission/Adarsh_Singh_SWFW_5S_12_FINAL_REPORT.md` for the technical report.
+Compile the final PDF and source ZIP with the already-installed Chrome renderer:
+
+```powershell
+uv run --no-sync python scripts/compile_submission.py
+```
+
+Outputs are under `submission/final/`. Browser QA uses **mocked Prometheus and SSH**,
+not live cloud metrics. Historical architecture/learning notes describe earlier slices;
+the final report distinguishes current local code from unverified deployed behavior.
+
+For a fresh browser-first local instance, enable password auth, use a new ignored
+database, bind to loopback, and open `/dashboard`. The manual checklist gives the
+complete commands. First-run setup does not require a known bootstrap password.
+`CHANGEME` is only a restricted local/demo bootstrap that forces replacement.
+
+All four official requirements have local implementation and isolated unit/integration coverage (including failure classification, crash reconciliation, and backup/restore). **However, local implementation is not cloud acceptance: all four official requirements await actual three-node GCE evidence.** Independent fingerprint verification, successful remote command outputs and audit history, four healthy scrape targets (up=1), historical time-series storage, and rendered Grafana panels must be demonstrated live. Failure/recovery scenarios 08–13 now run as explicitly labelled offline SIMULATED contracts; their genuine live procedures remain unimplemented/skipped. The incomplete all-scenario runner exits 2; neither simulation nor a healthy baseline closes those gates. See [exact manual procedures for all four requirements](docs/DEPLOYMENT-RUNBOOK.md#15-exact-manual-acceptance-procedures-for-the-four-official-requirements).
 
 - [Charter](docs/PROJECT-CHARTER.md): requirements, constraints, and unknowns.
 - [Documentation map](docs/README.md): learning guides, source material, and where decisions/evidence belong.
@@ -125,7 +145,7 @@ shutdown, active children are killed and reaped; interrupted requests receive
 Run one application worker: admission and same-node exclusion are process-local.
 See [ADR 0003](docs/decisions/0003-verified-ssh-observations.md).
 
-Startup fails if the token is absent, too short, or malformed. Format validation
+In bearer-only mode startup fails if the token is absent, too short, or malformed. Format validation
 cannot establish actual entropy, so generate it randomly. The token is shared by one
 development operator: it does not identify people or implement RBAC. It is sent
 on each request, so keep the server on loopback and use TLS plus real operator

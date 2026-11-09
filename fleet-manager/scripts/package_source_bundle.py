@@ -40,6 +40,8 @@ EXCLUDED_DIR_NAMES = {
     "dist",
     "build",
     "node_modules",
+    ".ssh",
+    "browser-profile",
 }
 
 EXCLUDED_FILE_EXTENSIONS = {
@@ -54,6 +56,11 @@ EXCLUDED_FILE_EXTENSIONS = {
     ".log",
     ".bak",
     ".tmp",
+    ".zip",
+    ".gz",
+    ".whl",
+    ".key",
+    ".pem",
 }
 
 # Critical required files that MUST exist inside the verified bundle
@@ -120,6 +127,10 @@ def is_excluded_path(rel_path: Path) -> bool:
         return True
 
     name = rel_path.name.lower()
+    if name.endswith((".db-wal", ".db-shm", ".db-journal", ".sqlite-journal")):
+        return True
+    if name in {"credentials.json", "application_default_credentials.json"}:
+        return True
 
     # Exclude temporary or cache files
     if rel_path.suffix.lower() in EXCLUDED_FILE_EXTENSIONS:
@@ -157,7 +168,7 @@ def collect_bundle_files(root: Path) -> list[Path]:
         if not target_dir.is_dir():
             continue
         for p in target_dir.rglob("*"):
-            if p.is_file():
+            if p.is_file() and not p.is_symlink():
                 rel = p.relative_to(root)
                 if not is_excluded_path(rel):
                     collected.append(rel)

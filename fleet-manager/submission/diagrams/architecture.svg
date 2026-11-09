@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="740" viewBox="0 0 1000 740" role="img" aria-label="Fleet Manager implemented architecture">
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#526c58"/></marker></defs>
+<rect width="1000" height="740" fill="#f6f4ef"/>
+<g font-family="Arial" fill="#29332d" text-anchor="middle">
+<text x="500" y="40" font-size="26" font-weight="bold">Implemented Architecture</text>
+<text x="500" y="69" font-size="16">Local source topology — not proof of the running GCP build</text>
+<g fill="#e4ecdf" stroke="#718772" stroke-width="2">
+<rect x="300" y="95" width="400" height="65" rx="10"/>
+<rect x="235" y="218" width="530" height="115" rx="10"/>
+<rect x="35" y="402" width="280" height="100" rx="10"/>
+<rect x="365" y="402" width="270" height="100" rx="10"/>
+<rect x="685" y="402" width="280" height="100" rx="10"/>
+<rect x="35" y="581" width="280" height="98" rx="10"/>
+<rect x="365" y="581" width="270" height="98" rx="10"/>
+<rect x="685" y="581" width="280" height="98" rx="10"/>
+</g>
+<g font-size="19">
+<text x="500" y="123">Administrator browser / API client</text>
+<text x="500" y="147" font-size="15">Session + CSRF / optional Bearer</text>
+<text x="500" y="247">FastAPI + Uvicorn — ONE worker</text>
+<text x="500" y="276" font-size="17">Inventory · Trust · Scheduler · Operations · Audit</text>
+<text x="500" y="306" font-size="16">Static ES modules + CSS · Authenticated fixed-query health</text>
+<text x="175" y="431">SQLite + known_hosts</text>
+<text x="175" y="458" font-size="15">Inventory / observations / audit</text>
+<text x="175" y="482" font-size="15">Admin hash; sessions in memory</text>
+<text x="500" y="431">Bounded SSH processes</text>
+<text x="500" y="459" font-size="15">Strict identity + private credential</text>
+<text x="500" y="483" font-size="15">Four read-only allowlisted actions</text>
+<text x="825" y="431">Prometheus</text>
+<text x="825" y="458" font-size="15">Time-series store + target scrape</text>
+<text x="825" y="483" font-size="15">Native health via fixed PromQL</text>
+<text x="175" y="610">Backup / restore utility</text>
+<text x="175" y="638" font-size="15">SQLite online backup + manifest</text>
+<text x="175" y="660" font-size="15">Protected, excluded from ZIP</text>
+<text x="500" y="610">Three independent Linux nodes</text>
+<text x="500" y="638" font-size="15">SSH + Node Exporter :9100</text>
+<text x="500" y="660" font-size="15">GCP services not redeployed here</text>
+<text x="825" y="610">Grafana :3000</text>
+<text x="825" y="638" font-size="15">Provisioned Prometheus datasource</text>
+<text x="825" y="660" font-size="15">Dashboards / panels</text>
+<text x="500" y="720" font-size="16">GCP access: approved IAP + independently trusted SSH required; gate BLOCKED in this release</text>
+</g></g>
+<g stroke="#526c58" stroke-width="2.5" fill="none" marker-end="url(#a)">
+<path d="M500 160V213"/><path d="M330 333L175 397"/><path d="M500 333V397"/>
+<path d="M670 333L825 397"/><path d="M175 502V576"/><path d="M500 502V576"/>
+<path d="M825 502V576"/><path d="M770 502L605 576"/>
+</g></svg>

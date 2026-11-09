@@ -1,5 +1,15 @@
 # Debian 12 & Ubuntu 26.04 Linux Deployment Runbook
 
+> Release handoff, 9 November 2026: current local source also implements Argon2id
+> administrator login, HttpOnly sessions/CSRF, optional compatible Bearer access,
+> and authenticated native Fleet Health backed by fixed Prometheus queries.
+> Use `submission/MANUAL-ACCEPTANCE-CHECKLIST.md` for fresh local startup and
+> `submission/FINAL-EXECUTION-REPORT.md` for observed QA/cloud limits. Deployment
+> procedures below are not execution evidence or authorization to change GCP.
+> Scenarios 08–13 now have explicitly labelled offline simulations; live gates
+> remain unmet and the incomplete runner still exits 2. No cloud deployment,
+> failure drill, security change or service restart occurred during this release.
+
 This runbook defines the authoritative operational procedure to deploy, harden, monitor, back up, and restore the Distributed Linux Fleet Manager control plane reproducibly on clean Debian 12 (Bookworm) and Ubuntu 26.04 LTS systems, with proposed procedures for Google Cloud Platform (GCE) multi-node topology. Live acceptance evidence is pending; commands below are instructions, not an execution record.
 
 ---

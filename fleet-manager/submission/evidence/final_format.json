@@ -1,0 +1,8 @@
+{
+    "exit_code":  0,
+    "name":  "final_format",
+    "start_utc":  "2026-11-09T08:35:53.4169780Z",
+    "command":  ".venv\\Scripts\\python.exe -m ruff format --check src tests scripts",
+    "end_utc":  "2026-11-09T08:35:53.9147198Z",
+    "log":  "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\final-release\\20261109T135321\\qa-20261109T082946Z\\final_format.log"
+}

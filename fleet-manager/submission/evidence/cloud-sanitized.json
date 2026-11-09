@@ -1,0 +1,461 @@
+{
+  "schema_version": 1,
+  "read_only": true,
+  "zone": "asia-south1-a",
+  "snapshot_windows_utc": {
+    "current": {
+      "start": "2026-11-09T08:25:39.202607+00:00",
+      "end": "2026-11-09T08:25:51.256694+00:00",
+      "source_file": "current-cloud-20261109T082551Z.json"
+    },
+    "final": {
+      "start": "2026-11-09T08:26:52.536020+00:00",
+      "end": "2026-11-09T08:27:01.332184+00:00",
+      "source_file": "final-cloud-20261109T082701Z.json"
+    },
+    "closeout": {
+      "start": "2026-11-09T08:39:25.341945+00:00",
+      "end": "2026-11-09T08:39:35.227663+00:00",
+      "source_file": "closeout-cloud-20261109T083935Z.json"
+    }
+  },
+  "gate": {
+    "status": "BLOCKED",
+    "connectivity_attempted": false,
+    "mutations_performed": false,
+    "reasons": [
+      "Independent host-key trust provenance not established.",
+      "Inspected local public identity absent from node-b and node-c instance-authorized keys.",
+      "Complete effective IAP authorization not established."
+    ]
+  },
+  "vms": [
+    {
+      "name": "fleet-controller",
+      "initial": {
+        "name": "fleet-controller",
+        "id": "6165456888218965032",
+        "state": "RUNNING",
+        "nics": [
+          {
+            "name": "nic0",
+            "network": "default",
+            "subnetwork": "default",
+            "internal_ipv4": "10.160.0.2",
+            "stack_type": "IPV4_ONLY",
+            "access_configs": []
+          }
+        ],
+        "disks": [
+          {
+            "name": "fleet-controller",
+            "device_name": "fleet-controller",
+            "boot": true,
+            "auto_delete": true,
+            "mode": "READ_WRITE",
+            "size_gib": "20",
+            "type": "pd-balanced",
+            "status": "READY"
+          }
+        ]
+      },
+      "prior_final": {
+        "name": "fleet-controller",
+        "id": "6165456888218965032",
+        "state": "RUNNING",
+        "nics": [
+          {
+            "name": "nic0",
+            "network": "default",
+            "subnetwork": "default",
+            "internal_ipv4": "10.160.0.2",
+            "stack_type": "IPV4_ONLY",
+            "access_configs": []
+          }
+        ],
+        "disks": [
+          {
+            "name": "fleet-controller",
+            "device_name": "fleet-controller",
+            "boot": true,
+            "auto_delete": true,
+            "mode": "READ_WRITE",
+            "size_gib": "20",
+            "type": "pd-balanced",
+            "status": "READY"
+          }
+        ]
+      },
+      "final_closeout": {
+        "name": "fleet-controller",
+        "id": "6165456888218965032",
+        "state": "RUNNING",
+        "nics": [
+          {
+            "name": "nic0",
+            "network": "default",
+            "subnetwork": "default",
+            "internal_ipv4": "10.160.0.2",
+            "stack_type": "IPV4_ONLY",
+            "access_configs": []
+          }
+        ],
+        "disks": [
+          {
+            "name": "fleet-controller",
+            "device_name": "fleet-controller",
+            "boot": true,
+            "auto_delete": true,
+            "mode": "READ_WRITE",
+            "size_gib": "20",
+            "type": "pd-balanced",
+            "status": "READY"
+          }
+        ]
+      },
+      "comparison": {
+        "initial_to_final": {
+          "identity_state_nics_disks_equal": true,
+          "full_nics_equal": true,
+          "full_disk_attachments_equal": true,
+          "metadata_version_fingerprint_equal": true,
+          "non_ssh_metadata_values_equal": true,
+          "effective_firewall_equal_ignoring_order": true
+        },
+        "initial_to_closeout": {
+          "identity_state_nics_disks_equal": true,
+          "full_nics_equal": true,
+          "full_disk_attachments_equal": true,
+          "metadata_version_fingerprint_equal": true,
+          "non_ssh_metadata_values_equal": true,
+          "effective_firewall_equal_ignoring_order": true
+        },
+        "corrected_final_to_closeout_sanitized_metadata_equal": true
+      }
+    },
+    {
+      "name": "fleet-node-a",
+      "initial": {
+        "name": "fleet-node-a",
+        "id": "3577027459247655022",
+        "state": "RUNNING",
+        "nics": [
+          {
+            "name": "nic0",
+            "network": "default",
+            "subnetwork": "default",
+            "internal_ipv4": "10.160.0.5",
+            "stack_type": "IPV4_ONLY",
+            "access_configs": []
+          }
+        ],
+        "disks": [
+          {
+            "name": "fleet-node-a",
+            "device_name": "persistent-disk-0",
+            "boot": true,
+            "auto_delete": true,
+            "mode": "READ_WRITE",
+            "size_gib": "10",
+            "type": "pd-standard",
+            "status": "READY"
+          }
+        ]
+      },
+      "prior_final": {
+        "name": "fleet-node-a",
+        "id": "3577027459247655022",
+        "state": "RUNNING",
+        "nics": [
+          {
+            "name": "nic0",
+            "network": "default",
+            "subnetwork": "default",
+            "internal_ipv4": "10.160.0.5",
+            "stack_type": "IPV4_ONLY",
+            "access_configs": []
+          }
+        ],
+        "disks": [
+          {
+            "name": "fleet-node-a",
+            "device_name": "persistent-disk-0",
+            "boot": true,
+            "auto_delete": true,
+            "mode": "READ_WRITE",
+            "size_gib": "10",
+            "type": "pd-standard",
+            "status": "READY"
+          }
+        ]
+      },
+      "final_closeout": {
+        "name": "fleet-node-a",
+        "id": "3577027459247655022",
+        "state": "RUNNING",
+        "nics": [
+          {
+            "name": "nic0",
+            "network": "default",
+            "subnetwork": "default",
+            "internal_ipv4": "10.160.0.5",
+            "stack_type": "IPV4_ONLY",
+            "access_configs": []
+          }
+        ],
+        "disks": [
+          {
+            "name": "fleet-node-a",
+            "device_name": "persistent-disk-0",
+            "boot": true,
+            "auto_delete": true,
+            "mode": "READ_WRITE",
+            "size_gib": "10",
+            "type": "pd-standard",
+            "status": "READY"
+          }
+        ]
+      },
+      "comparison": {
+        "initial_to_final": {
+          "identity_state_nics_disks_equal": true,
+          "full_nics_equal": true,
+          "full_disk_attachments_equal": true,
+          "metadata_version_fingerprint_equal": true,
+          "non_ssh_metadata_values_equal": true,
+          "effective_firewall_equal_ignoring_order": true
+        },
+        "initial_to_closeout": {
+          "identity_state_nics_disks_equal": true,
+          "full_nics_equal": true,
+          "full_disk_attachments_equal": true,
+          "metadata_version_fingerprint_equal": true,
+          "non_ssh_metadata_values_equal": true,
+          "effective_firewall_equal_ignoring_order": true
+        },
+        "corrected_final_to_closeout_sanitized_metadata_equal": true
+      }
+    },
+    {
+      "name": "fleet-node-b",
+      "initial": {
+        "name": "fleet-node-b",
+        "id": "3130536454590449774",
+        "state": "RUNNING",
+        "nics": [
+          {
+            "name": "nic0",
+            "network": "default",
+            "subnetwork": "default",
+            "internal_ipv4": "10.160.0.3",
+            "stack_type": "IPV4_ONLY",
+            "access_configs": []
+          }
+        ],
+        "disks": [
+          {
+            "name": "fleet-node-b",
+            "device_name": "persistent-disk-0",
+            "boot": true,
+            "auto_delete": true,
+            "mode": "READ_WRITE",
+            "size_gib": "10",
+            "type": "pd-standard",
+            "status": "READY"
+          }
+        ]
+      },
+      "prior_final": {
+        "name": "fleet-node-b",
+        "id": "3130536454590449774",
+        "state": "RUNNING",
+        "nics": [
+          {
+            "name": "nic0",
+            "network": "default",
+            "subnetwork": "default",
+            "internal_ipv4": "10.160.0.3",
+            "stack_type": "IPV4_ONLY",
+            "access_configs": []
+          }
+        ],
+        "disks": [
+          {
+            "name": "fleet-node-b",
+            "device_name": "persistent-disk-0",
+            "boot": true,
+            "auto_delete": true,
+            "mode": "READ_WRITE",
+            "size_gib": "10",
+            "type": "pd-standard",
+            "status": "READY"
+          }
+        ]
+      },
+      "final_closeout": {
+        "name": "fleet-node-b",
+        "id": "3130536454590449774",
+        "state": "RUNNING",
+        "nics": [
+          {
+            "name": "nic0",
+            "network": "default",
+            "subnetwork": "default",
+            "internal_ipv4": "10.160.0.3",
+            "stack_type": "IPV4_ONLY",
+            "access_configs": []
+          }
+        ],
+        "disks": [
+          {
+            "name": "fleet-node-b",
+            "device_name": "persistent-disk-0",
+            "boot": true,
+            "auto_delete": true,
+            "mode": "READ_WRITE",
+            "size_gib": "10",
+            "type": "pd-standard",
+            "status": "READY"
+          }
+        ]
+      },
+      "comparison": {
+        "initial_to_final": {
+          "identity_state_nics_disks_equal": true,
+          "full_nics_equal": true,
+          "full_disk_attachments_equal": true,
+          "metadata_version_fingerprint_equal": true,
+          "non_ssh_metadata_values_equal": true,
+          "effective_firewall_equal_ignoring_order": true
+        },
+        "initial_to_closeout": {
+          "identity_state_nics_disks_equal": true,
+          "full_nics_equal": true,
+          "full_disk_attachments_equal": true,
+          "metadata_version_fingerprint_equal": true,
+          "non_ssh_metadata_values_equal": true,
+          "effective_firewall_equal_ignoring_order": true
+        },
+        "corrected_final_to_closeout_sanitized_metadata_equal": true
+      }
+    },
+    {
+      "name": "fleet-node-c",
+      "initial": {
+        "name": "fleet-node-c",
+        "id": "466352435402000494",
+        "state": "RUNNING",
+        "nics": [
+          {
+            "name": "nic0",
+            "network": "default",
+            "subnetwork": "default",
+            "internal_ipv4": "10.160.0.4",
+            "stack_type": "IPV4_ONLY",
+            "access_configs": []
+          }
+        ],
+        "disks": [
+          {
+            "name": "fleet-node-c",
+            "device_name": "persistent-disk-0",
+            "boot": true,
+            "auto_delete": true,
+            "mode": "READ_WRITE",
+            "size_gib": "10",
+            "type": "pd-standard",
+            "status": "READY"
+          }
+        ]
+      },
+      "prior_final": {
+        "name": "fleet-node-c",
+        "id": "466352435402000494",
+        "state": "RUNNING",
+        "nics": [
+          {
+            "name": "nic0",
+            "network": "default",
+            "subnetwork": "default",
+            "internal_ipv4": "10.160.0.4",
+            "stack_type": "IPV4_ONLY",
+            "access_configs": []
+          }
+        ],
+        "disks": [
+          {
+            "name": "fleet-node-c",
+            "device_name": "persistent-disk-0",
+            "boot": true,
+            "auto_delete": true,
+            "mode": "READ_WRITE",
+            "size_gib": "10",
+            "type": "pd-standard",
+            "status": "READY"
+          }
+        ]
+      },
+      "final_closeout": {
+        "name": "fleet-node-c",
+        "id": "466352435402000494",
+        "state": "RUNNING",
+        "nics": [
+          {
+            "name": "nic0",
+            "network": "default",
+            "subnetwork": "default",
+            "internal_ipv4": "10.160.0.4",
+            "stack_type": "IPV4_ONLY",
+            "access_configs": []
+          }
+        ],
+        "disks": [
+          {
+            "name": "fleet-node-c",
+            "device_name": "persistent-disk-0",
+            "boot": true,
+            "auto_delete": true,
+            "mode": "READ_WRITE",
+            "size_gib": "10",
+            "type": "pd-standard",
+            "status": "READY"
+          }
+        ]
+      },
+      "comparison": {
+        "initial_to_final": {
+          "identity_state_nics_disks_equal": true,
+          "full_nics_equal": true,
+          "full_disk_attachments_equal": true,
+          "metadata_version_fingerprint_equal": true,
+          "non_ssh_metadata_values_equal": true,
+          "effective_firewall_equal_ignoring_order": true
+        },
+        "initial_to_closeout": {
+          "identity_state_nics_disks_equal": true,
+          "full_nics_equal": true,
+          "full_disk_attachments_equal": true,
+          "metadata_version_fingerprint_equal": true,
+          "non_ssh_metadata_values_equal": true,
+          "effective_firewall_equal_ignoring_order": true
+        },
+        "corrected_final_to_closeout_sanitized_metadata_equal": true
+      }
+    }
+  ],
+  "normalization": {
+    "metadata": "Initial collector could not parse username-prefixed SSH public-key records and emitted UNPARSEABLE. Corrected parser emitted fingerprints in later evidence. Raw sanitized metadata inequality is therefore a collector representation difference, not evidence of cloud metadata change. Metadata version fingerprints and non-SSH metadata fields are separately compared. Initial public-key content equality cannot be reconstructed from the sanitized initial file.",
+    "firewall": "List order is non-semantic here. Recursively sorting lists before comparison preserves every returned field while removing ordering-only differences.",
+    "bounds": "Independent API reads, not atomic snapshots or continuous monitoring. Equal observations do not exclude intervening changes."
+  },
+  "network_observation": {
+    "reserved_addresses_returned": 0,
+    "cloud_routers_returned": 0,
+    "cloud_nat": "No Cloud Router NAT configuration observed; custom guest/proxy egress not assessed."
+  },
+  "evidence_limits": [
+    "No SSH/tunnel, private-key read, guest command, deployment verification, live Prometheus/Grafana verification, or failure/recovery test.",
+    "RUNNING and READY are control-plane states, not guest/application health.",
+    "No new tooling bootstrap or installation attempted during closeout."
+  ]
+}

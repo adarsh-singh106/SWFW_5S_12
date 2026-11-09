@@ -1,0 +1,6 @@
+START_UTC: 2026-11-09T08:35:53.4169780Z
+CWD: C:\Users\adars\Desktop\ZOHO\SWFW-12-Sem5\fleet-manager
+COMMAND: .venv\Scripts\python.exe -m ruff format --check src tests scripts
+102 files already formatted
+END_UTC: 2026-11-09T08:35:53.9147198Z
+EXIT: 0

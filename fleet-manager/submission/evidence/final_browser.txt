@@ -1,0 +1,14 @@
+START_UTC: 2026-11-09T08:35:53.5699266Z
+CWD: C:\Users\adars\Desktop\ZOHO\SWFW-12-Sem5\fleet-manager
+COMMAND: .venv\Scripts\python.exe scripts/run_browser_qa.py
+{
+  "run_id": "20261109T083555-d4ad9908",
+  "output": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-d4ad9908",
+  "cleanup": true,
+  "temporary_directory": "C:\\Users\\adars\\AppData\\Local\\Temp\\fm_browser_qa_5gz0o_f4",
+  "telemetry_source": "Mocked Prometheus fixture; no live host measurements",
+  "chrome_pid": 38060,
+  "error": "PermissionError: [Errno 13] Permission denied: 'C:\\\\Users\\\\adars\\\\AppData\\\\Local\\\\Temp\\\\fm_browser_qa_5gz0o_f4\\\\chrome-profile\\\\DevToolsActivePort'"
+}
+END_UTC: 2026-11-09T08:36:02.7095956Z
+EXIT: 1

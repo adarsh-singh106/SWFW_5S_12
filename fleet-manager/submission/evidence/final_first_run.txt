@@ -1,0 +1,14 @@
+START_UTC: 2026-11-09T08:35:53.4799411Z
+CWD: C:\Users\adars\Desktop\ZOHO\SWFW-12-Sem5\fleet-manager
+COMMAND: .venv\Scripts\python.exe scripts/run_browser_qa.py --first-run
+{
+  "run_id": "20261109T083555-a16a77b0",
+  "output": "C:\\Users\\adars\\Desktop\\ZOHO\\SWFW-12-Sem5\\fleet-manager\\.local\\browser-qa\\20261109T083555-a16a77b0",
+  "cleanup": true,
+  "temporary_directory": "C:\\Users\\adars\\AppData\\Local\\Temp\\fm_browser_qa_02zhxj_h",
+  "telemetry_source": "Mocked Prometheus fixture; no live host measurements",
+  "chrome_pid": 34072,
+  "driver_exit": 0
+}
+END_UTC: 2026-11-09T08:36:40.7748799Z
+EXIT: 0

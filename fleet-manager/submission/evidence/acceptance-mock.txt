@@ -1,0 +1,39 @@
+===========================================================================
+    SWFW_5S_12: GCE Automated Acceptance Test Suite
+    Mode: MOCK (Isolated)
+    Fault-Injection: SIMULATED contracts only
+===========================================================================
+  [OK] API Authentication Barrier (16.0ms)
+  [SKIP] Controller-origin SSH Connectivity (0.0ms) - No real SSH transport in offline mode
+  [SKIP] Node Inventory Onboarding & Trust (0.0ms) - MANUAL APPROVAL GATE: register all 3 nodes; independently verify each fingerprint via authenticated GCE console/IAP access before explicit enrollment. A stored TRUSTED flag alone is not evidence of out-of-band verification. See runbook 15.
+  [SKIP] Availability & Freshness Derivation (0.0ms) - No live observations in offline mode
+  [SKIP] Controlled Remote Operations (0.0ms) - No remote commands executed in offline mode
+  [SKIP] Prometheus Scrape Pipeline Health (0.0ms) - No Prometheus queried in offline mode
+  [SKIP] Grafana Service, Datasource & Dashboard (0.0ms) - No Grafana queried in offline mode
+  [SIM] Invalid SSH Credentials Classification (0.0ms) - SIMULATED ONLY; LIVE GATE UNMET: Injected AUTH_FAILED persisted; no credentials rejected
+  [SIM] Host-Key Mismatch Rejection (0.0ms) - SIMULATED ONLY; LIVE GATE UNMET: Injected mismatch persisted; no real host key verified
+  [SIM] Timeout & Unreachable Node Handling (0.0ms) - SIMULATED ONLY; LIVE GATE UNMET: Four injected categories; no transport deadline measured
+  [SIM] Transient Outage Node Recovery (0.0ms) - SIMULATED ONLY; LIVE GATE UNMET: New manual injected probe; not automatic scheduler recovery
+  [SIM] Partial Fleet Failure Resilience (0.0ms) - SIMULATED ONLY; LIVE GATE UNMET: Three local records; no independent host outage/concurrency
+  [SIM] Controller Crash Reconciliation (0.0ms) - SIMULATED ONLY; LIVE GATE UNMET: Seeded RUNNING record and app lifespan restart; no process crash
+[*] Starting online backup: C:\Users\adars\AppData\Local\Temp\fm_backup_accept_wg32wxwh\inventory.db -> C:\Users\adars\AppData\Local\Temp\fm_backup_accept_wg32wxwh\inventory_latest.db
+[+] Backup completed successfully in 0.016s
+    - Schema version : 5
+    - Size           : 40960 bytes
+    - SHA-256        : ab07cc15a16b55b0...
+    - Table counts   : {'connectivity_observations': 0, 'connectivity_validation': 0, 'nodes': 0, 'operation_executions': 0}
+    - Manifest saved : C:\Users\adars\AppData\Local\Temp\fm_backup_accept_wg32wxwh\inventory_latest.db.manifest.json
+[*] Pre-flight integrity check on backup: C:\Users\adars\AppData\Local\Temp\fm_backup_accept_wg32wxwh\inventory_latest.db
+[+] Database restored successfully to C:\Users\adars\AppData\Local\Temp\fm_backup_accept_wg32wxwh\inventory_restored.db
+    - Schema version : 5
+    - Table counts   : {'connectivity_observations': 0, 'connectivity_validation': 0, 'nodes': 0, 'operation_executions': 0}
+  [OK] Disaster Recovery: Backup & Restore Pre-Flight (93.0ms) - LOCAL temporary empty DB only; not deployed backup/recovery evidence
+
+===========================================================================
+                         ACCEPTANCE TEST SUMMARY
+===========================================================================
+Total Tests: 14 | Passed: 2 | Skipped: 6 | Failed: 0 | Not Implemented: 0 | Simulated (live unmet): 6
+===========================================================================
+Incomplete/manual gates are not acceptance success. Offline results are not GCE evidence.
+C:\Users\adars\Desktop\ZOHO\SWFW-12-Sem5\fleet-manager\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
