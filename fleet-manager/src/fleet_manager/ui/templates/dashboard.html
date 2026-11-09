@@ -53,7 +53,12 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="setup-confirm-password">Confirm Administrator Password</label>
-            <input type="password" id="setup-confirm-password" class="presentation-7 form-control" placeholder="Re-enter password" required autocomplete="new-password">
+            <div class="presentation-6">
+              <input type="password" id="setup-confirm-password" class="presentation-7 form-control" placeholder="Re-enter password" required autocomplete="new-password">
+              <button type="button" id="toggle-setup-confirm-btn" title="Toggle password visibility" aria-label="Toggle password visibility" class="presentation-8">
+                <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#eye"></use></svg>
+              </button>
+            </div>
             <div id="setup-validation-msg" class="validation-msg" style="display:none; color: #e06c75; font-size: 0.85rem; margin-top: 0.35rem;"></div>
           </div>
           <div class="presentation-9">
@@ -101,7 +106,12 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="change-confirm-password">Confirm New Password</label>
-            <input type="password" id="change-confirm-password" class="presentation-7 form-control" placeholder="Re-enter new password" required autocomplete="new-password">
+            <div class="presentation-6">
+              <input type="password" id="change-confirm-password" class="presentation-7 form-control" placeholder="Re-enter new password" required autocomplete="new-password">
+              <button type="button" id="toggle-change-confirm-btn" title="Toggle password visibility" aria-label="Toggle password visibility" class="presentation-8">
+                <svg class="icon" aria-hidden="true"><use href="/static/icons.svg#eye"></use></svg>
+              </button>
+            </div>
             <div id="change-validation-msg" class="validation-msg" style="display:none; color: #e06c75; font-size: 0.85rem; margin-top: 0.35rem;"></div>
           </div>
           <div class="presentation-9">

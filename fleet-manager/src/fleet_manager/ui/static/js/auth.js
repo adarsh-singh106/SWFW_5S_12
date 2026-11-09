@@ -22,6 +22,40 @@ import { boundedFetch, showAlert } from "./api.js";
 import { fetchFleetStatus } from "./fleet.js";
 import { activateDialog, deactivateDialog } from "./dialog-ownership.js";
 
+let errorDismissTimer = null;
+
+export function displayAuthError(msg) {
+  const errBox = document.getElementById("auth-error");
+  if (!errBox) return;
+  if (errorDismissTimer) {
+    clearTimeout(errorDismissTimer);
+    errorDismissTimer = null;
+  }
+  if (!msg) {
+    errBox.textContent = "";
+    errBox.style.display = "none";
+    return;
+  }
+  errBox.textContent = msg;
+  errBox.style.display = "block";
+  errorDismissTimer = setTimeout(() => {
+    errBox.style.display = "none";
+    errBox.textContent = "";
+    errorDismissTimer = null;
+  }, 5000);
+}
+
+export function clearAuthError() {
+  const errBox = document.getElementById("auth-error");
+  if (!errBox) return;
+  if (errorDismissTimer) {
+    clearTimeout(errorDismissTimer);
+    errorDismissTimer = null;
+  }
+  errBox.style.display = "none";
+  errBox.textContent = "";
+}
+
 export function switchAuthView(mode) {
   setAuthMode(mode);
   const setupView = document.getElementById("auth-setup-view");
@@ -32,7 +66,7 @@ export function switchAuthView(mode) {
   const errBox = document.getElementById("auth-error");
   const successBox = document.getElementById("auth-success");
 
-  if (errBox) errBox.style.display = "none";
+  clearAuthError();
   if (successBox) successBox.style.display = "none";
 
   if (setupView) setupView.style.display = mode === "setup" ? "block" : "none";
@@ -82,10 +116,9 @@ export function showAuthModal(errMsg = "", initialView = null) {
 
   if (errBox) {
     if (errMsg) {
-      errBox.textContent = errMsg;
-      errBox.style.display = "block";
+      displayAuthError(errMsg);
     } else {
-      errBox.style.display = "none";
+      clearAuthError();
     }
   }
 
@@ -169,6 +202,40 @@ export function initAuth({ skipInitialCheck = false } = {}) {
     });
   }
 
+  const toggleSetupConfirmBtn = document.getElementById("toggle-setup-confirm-btn");
+  if (toggleSetupConfirmBtn) {
+    toggleSetupConfirmBtn.addEventListener("click", () => {
+      const p2 = document.getElementById("setup-confirm-password");
+      if (p2) {
+        p2.type = p2.type === "password" ? "text" : "password";
+      }
+    });
+  }
+
+  const toggleChangeConfirmBtn = document.getElementById("toggle-change-confirm-btn");
+  if (toggleChangeConfirmBtn) {
+    toggleChangeConfirmBtn.addEventListener("click", () => {
+      const p2 = document.getElementById("change-confirm-password");
+      if (p2) {
+        p2.type = p2.type === "password" ? "text" : "password";
+      }
+    });
+  }
+
+  // Clear auth error as soon as user types into any password field
+  [
+    tokenInput,
+    document.getElementById("setup-password"),
+    document.getElementById("setup-confirm-password"),
+    document.getElementById("change-current-password"),
+    document.getElementById("change-new-password"),
+    document.getElementById("change-confirm-password")
+  ].forEach(inp => {
+    if (inp) {
+      inp.addEventListener("input", clearAuthError);
+    }
+  });
+
   // Live inline validation: First-run setup
   const setupPw = document.getElementById("setup-password");
   const setupConfirm = document.getElementById("setup-confirm-password");
@@ -225,17 +292,11 @@ export function initAuth({ skipInitialCheck = false } = {}) {
       const submitBtn = document.getElementById("setup-submit-btn");
 
       if (pw.length < 12) {
-        if (errBox) {
-          errBox.textContent = "Password must be at least 12 characters long.";
-          errBox.style.display = "block";
-        }
+        displayAuthError("Password must be at least 12 characters long.");
         return;
       }
       if (pw !== confirm) {
-        if (errBox) {
-          errBox.textContent = "Passwords do not match.";
-          errBox.style.display = "block";
-        }
+        displayAuthError("Passwords do not match.");
         return;
       }
 
@@ -262,16 +323,10 @@ export function initAuth({ skipInitialCheck = false } = {}) {
           showAlert("Administrator setup completed successfully.", "success");
           fetchFleetStatus();
         } else {
-          if (errBox) {
-            errBox.textContent = data.error?.message || "Setup failed";
-            errBox.style.display = "block";
-          }
+          displayAuthError(data.error?.message || "Setup failed");
         }
       } catch (err) {
-        if (errBox) {
-          errBox.textContent = "Failed to connect to Fleet Manager API: " + err.message;
-          errBox.style.display = "block";
-        }
+        displayAuthError("Failed to connect to Fleet Manager API: " + err.message);
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -304,15 +359,9 @@ export function initAuth({ skipInitialCheck = false } = {}) {
         });
 
         if (testRes.status === 401) {
-          if (errBox) {
-            errBox.textContent = "Invalid administrator password. Authentication failed.";
-            errBox.style.display = "block";
-          }
+          displayAuthError("Invalid administrator password. Authentication failed.");
         } else if (testRes.status === 429) {
-          if (errBox) {
-            errBox.textContent = "Too many failed attempts. Login is temporarily locked out.";
-            errBox.style.display = "block";
-          }
+          displayAuthError("Too many failed attempts. Login is temporarily locked out.");
         } else if (testRes.ok) {
           const data = await testRes.json();
           setIsAuthenticated(true);
@@ -334,16 +383,10 @@ export function initAuth({ skipInitialCheck = false } = {}) {
             fetchFleetStatus();
           }
         } else {
-          if (errBox) {
-            errBox.textContent = `Server returned status ${testRes.status}`;
-            errBox.style.display = "block";
-          }
+          displayAuthError(`Server returned status ${testRes.status}`);
         }
       } catch (err) {
-        if (errBox) {
-          errBox.textContent = "Failed to connect to Fleet Manager API: " + err.message;
-          errBox.style.display = "block";
-        }
+        displayAuthError("Failed to connect to Fleet Manager API: " + err.message);
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -364,24 +407,15 @@ export function initAuth({ skipInitialCheck = false } = {}) {
       const submitBtn = document.getElementById("change-password-submit-btn");
 
       if (newPw.length < 12) {
-        if (errBox) {
-          errBox.textContent = "New password must be at least 12 characters long.";
-          errBox.style.display = "block";
-        }
+        displayAuthError("New password must be at least 12 characters long.");
         return;
       }
       if (newPw !== confirm) {
-        if (errBox) {
-          errBox.textContent = "New passwords do not match.";
-          errBox.style.display = "block";
-        }
+        displayAuthError("New passwords do not match.");
         return;
       }
       if (newPw === "CHANGEME") {
-        if (errBox) {
-          errBox.textContent = "Cannot use placeholder password 'CHANGEME'.";
-          errBox.style.display = "block";
-        }
+        displayAuthError("Cannot use placeholder password 'CHANGEME'.");
         return;
       }
 
@@ -428,16 +462,10 @@ export function initAuth({ skipInitialCheck = false } = {}) {
               return;
             }
           }
-          if (errBox) {
-            errBox.textContent = data.error?.message || "Password update failed";
-            errBox.style.display = "block";
-          }
+          displayAuthError(data.error?.message || "Password update failed");
         }
       } catch (err) {
-        if (errBox) {
-          errBox.textContent = "Failed to update password: " + err.message;
-          errBox.style.display = "block";
-        }
+        displayAuthError("Failed to update password: " + err.message);
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;

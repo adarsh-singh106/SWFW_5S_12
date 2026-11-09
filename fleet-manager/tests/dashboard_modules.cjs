@@ -782,4 +782,39 @@ test('password visibility toggles switch input type between password and text', 
   assert.equal(tokenInput.type, 'text');
   await toggleBtn.fire('click');
   assert.equal(tokenInput.type, 'password');
+
+  const setupConfirm = h.element('setup-confirm-password');
+  const toggleSetupConfirm = h.element('toggle-setup-confirm-btn');
+  if (setupConfirm && toggleSetupConfirm) {
+    setupConfirm.type = 'password';
+    await toggleSetupConfirm.fire('click');
+    assert.equal(setupConfirm.type, 'text');
+    await toggleSetupConfirm.fire('click');
+    assert.equal(setupConfirm.type, 'password');
+  }
+
+  const changeConfirm = h.element('change-confirm-password');
+  const toggleChangeConfirm = h.element('toggle-change-confirm-btn');
+  if (changeConfirm && toggleChangeConfirm) {
+    changeConfirm.type = 'password';
+    await toggleChangeConfirm.fire('click');
+    assert.equal(changeConfirm.type, 'text');
+    await toggleChangeConfirm.fire('click');
+    assert.equal(changeConfirm.type, 'password');
+  }
+});
+
+test('typing into password input clears active auth error', async () => {
+  const h = await harness();
+  h.module('app').initApp();
+  const errBox = h.element('auth-error');
+  const tokenInput = h.element('token-input');
+
+  h.module('auth').displayAuthError('Invalid password');
+  assert.equal(errBox.style.display, 'block');
+  assert.equal(errBox.textContent, 'Invalid password');
+
+  await tokenInput.fire('input');
+  assert.equal(errBox.style.display, 'none');
+  assert.equal(errBox.textContent, '');
 });

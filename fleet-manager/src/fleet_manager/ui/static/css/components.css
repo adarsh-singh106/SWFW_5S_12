@@ -128,9 +128,14 @@
   align-items: flex-start;
   gap: 0.7rem;
   overflow-wrap: anywhere;
+  animation: toastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .toast-danger { border-color: var(--danger-border); color: var(--danger-text); }
-.toast-success { border-color: var(--success-border); color: var(--success-text); }
+.toast-success { border-color: var(--success-border); color: var(--success-text); box-shadow: var(--shadow-lg), 0 0 0 1px var(--success-border); }
 .toast-warning { border-color: var(--warning-border); color: var(--warning-text); }
 .toast-icon { flex: none; font-size: 1rem; font-weight: 800; }
 .toast-message { flex: 1; min-width: 0; }
