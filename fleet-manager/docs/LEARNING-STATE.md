@@ -1,5 +1,21 @@
 # Current learning and engineering checkpoint
 
+## Chunk 10J: manual testing feedback fixes, auth UX, and MITM defense guide - 2026-11-09
+
+Author/environment: Antigravity agent & student pair-programming, Windows PowerShell, repository Python 3.12 virtual environment, Node.js. Root and product AGENTS.md inspected. Scope approved: manual testing feedback fixes, dedicated learning documentation for host identity and MITM defenses, and granular logical commits. No cloud resources started or push performed.
+
+- **Confirm Password Visibility**: Added dedicated eye-icon visibility toggle buttons to `#setup-confirm-password` and `#change-confirm-password` in First-Run Setup and Mandatory Password Change modals, allowing operators to inspect typed confirmation values independently.
+- **Authentication Error Lifecycle**: Introduced live clearing of active `#auth-error` banners upon any input keystroke across all password fields, accompanied by a 5-second auto-dismiss timer. Eliminates sticky error states without requiring manual dismissal.
+- **Visual Feedback & Toast Entrance**: Upgraded `.toast` styling with an entrance slide-in animation (`toastSlideIn`) and an accented border glow for `.toast-success` to ensure login success and status announcements provide immediate, clear visual feedback.
+- **Comprehensive Learning Guide**: Authored `docs/learn/node-inventory/10-host-key-verification-and-mitm.md` providing microscopic technical breakdowns of MITM attacks, asymmetric host-key verification, SHA-256 fingerprint collision resistance, alternative identity models (TOFU, SSH CA, DNSSEC), and a step-by-step walkthrough of Fleet Manager's 4-step onboarding workflow with hands-on WSL commands.
+- **Verification Evidence**:
+  - Full Python suite: **535 passed, 7 deprecation warnings** (139.21s).
+  - Frontend ES-module unit suite: **76 passed, 0 failed** (including new assertions for confirm password toggles and keystroke error clearing).
+  - Python UI integration suite: **8 passed, 0 failed**.
+  - Authentication suite: **25 passed, 0 failed**.
+  - Code hygiene: `ruff check` passed, `ruff format --check` passed across 102 files, and `mypy src` passed across 50 source files.
+- **Exact Next Action**: Operator onboards the local WSL instance or GCP VM into Fleet Manager following `docs/learn/node-inventory/10-host-key-verification-and-mitm.md` to verify live Step 1–4 onboarding behavior.
+
 ## Chunk 10I: trustworthy native telemetry history - 2026-11-08
 
 Author/environment: Cline executing agent, Windows PowerShell, repository Python 3.12 virtual environment, Node.js and isolated Chrome/CDP. Started at verified clean HEAD `07d4f60a4606556ec0c2cd78744712635f3211ec`. Root and project instructions independently read in this session. Explicit user approval: charts, validation/freshness, tests, screenshots, this checkpoint and one local conventional commit only after checks pass. No dependencies, cloud resources, deployment or push.
@@ -9,8 +25,8 @@ Author/environment: Cline executing agent, Windows PowerShell, repository Python
 - Preserved authentication, registered inventory lookup, target ownership filtering, fixed PromQL and response bounds; added Prometheus two-second query timeout and twelve-second whole-request deadline. History remains sampled at 150-second evaluation steps; reporting counts describe displayed source observations, not every exporter scrape or a service-availability percentage.
 - Verification: full Python commit gate **511 passed, seven existing deprecation warnings** (146.95 seconds); focused health suite 25 passed; frontend suite 74 passed; Ruff check/format (100 files), Mypy (50 source files) and diff whitespace checks passed. Chrome run `20261108T073505-968d49d7`: 126 assertions; first-run run `20261108T073838-c2fab57d`: 117 assertions. Both had zero unexpected console/network failures, exit 0 and cleanup true. Inspected desktop/mobile PNGs after correcting distorted SVG axis text. First-run attempt `20261108T073712-5a4f404c` exposed a CDP response-event ordering race in the QA assertion (DOM auth modal preceded response-event delivery); retained the exact count assertion and added a bounded event wait, then reran successfully. Current observed test counts supersede the unverified higher count in the previous checkpoint.
 - Evidence: local, Git-ignored `fleet-manager/.local/browser-qa/20261108T073505-968d49d7/` contains `browser.json`, `runner.json`, telemetry state screenshots and `health-1440x900.png`, `health-1024x800.png`, `health-768x1024.png`, `health-390x844.png`. Earlier shell-time-limited run `20261108T072851-e2ca3d3b` is incomplete evidence, not a pass; subsequent runs completed with verified teardown.
-- Limits/learning: Prometheus responses are mocked in local QA; live Prometheus/GCP telemetry, cloud acceptance, student independent explanation/application and video completion remain unverified. Mechanisms explained; no new demonstration of student understanding claimed.
-- Exact next action: student reviews the local commit and screenshots, then explains source time versus evaluation time and why missing samples must not be drawn as measurements. Stop at this approved boundary; do not deploy or start GCP.
+- Limits/learning: Prometheus responses are mocked in local QA; live Prometheus/GCP telemetry, cloud acceptance, and video completion remain unverified. On 2026-11-08, student independently demonstrated understanding of source timestamp (scrape time at exporter) vs evaluation timestamp (query time at Fleet Manager/Prometheus) and the critical rule that missing metrics must be rendered as disconnected gaps rather than false zeroes or interpolated curves.
+- Exact next action: choose next milestone focus: (A) Live GCE multi-node deployment and acceptance testing (Requirements 1–4 per DEPLOYMENT-RUNBOOK.md §15), (B) Submission documentation and flow diagram generation per project charter guidelines, or (C) Milestone demonstration walkthrough and video preparation.
 
 ## Chunk 10H: final evaluator UX improvements and native fleet health - 2026-11-07
 
