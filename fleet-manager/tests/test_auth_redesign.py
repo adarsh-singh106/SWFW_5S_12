@@ -21,6 +21,26 @@ def api_token() -> str:
     return secrets.token_urlsafe(32)
 
 
+@pytest.mark.parametrize("cookie", ['"\\351"', '"\\377"', "short", "a" * 44, "!" * 43])
+def test_malformed_session_cookie_is_rejected_without_server_error(
+    tmp_path: Path, cookie: str
+) -> None:
+    app = create_app(
+        database_path=tmp_path / "inventory.db",
+        api_token="a" * 43,
+        enable_password_auth=True,
+        initial_password="",
+        enable_scheduler=False,
+    )
+    with TestClient(app) as client:
+        headers = {"cookie": f"{SESSION_COOKIE_NAME}={cookie}"}
+        assert client.get("/api/nodes", headers=headers).status_code == 401
+        session = client.get("/api/auth/session", headers=headers)
+        assert session.status_code == 200
+        assert session.json()["authenticated"] is False
+        assert client.post("/api/auth/logout", headers=headers).status_code == 200
+
+
 # ==============================================================================
 # 1. BOOTSTRAP LIFECYCLE TESTS
 # ==============================================================================

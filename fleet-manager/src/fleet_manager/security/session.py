@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 import secrets
 import time
 from collections import OrderedDict
@@ -15,6 +16,7 @@ from fastapi import Request
 from fleet_manager.security.models import SessionData
 
 SESSION_COOKIE_NAME: Final[str] = "fleet_session"
+_SESSION_TOKEN_PATTERN: Final[re.Pattern[str]] = re.compile(r"[A-Za-z0-9_-]{43}", re.ASCII)
 DEFAULT_IDLE_TIMEOUT_SECONDS: Final[float] = 1800.0  # 30 minutes
 DEFAULT_ABSOLUTE_TIMEOUT_SECONDS: Final[float] = 43200.0  # 12 hours
 
@@ -69,7 +71,7 @@ class SessionStore:
 
         Expires idle and absolute sessions.
         """
-        if not raw_token:
+        if not raw_token or _SESSION_TOKEN_PATTERN.fullmatch(raw_token) is None:
             return None
         verifier = self._verifier(raw_token)
         session = self._sessions.get(verifier)
@@ -97,7 +99,7 @@ class SessionStore:
 
     def revoke_session(self, raw_token: str | None) -> None:
         """Revoke a specific session."""
-        if raw_token:
+        if raw_token and _SESSION_TOKEN_PATTERN.fullmatch(raw_token) is not None:
             self._sessions.pop(self._verifier(raw_token), None)
 
     def revoke_all_except(self, current_raw_token: str) -> None:
