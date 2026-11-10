@@ -1,9 +1,11 @@
 # Current learning and engineering checkpoint
 
-## Chunk 10L: live GCP multi-node IAP tunnel and operations verification - 2026-11-10
+## Chunk 10L: live GCP app deployment, UI modernization, and multi-node verification - 2026-11-10
 
-Author/environment: Antigravity agent & student pair-programming, Windows PowerShell, Google Cloud SDK, IAP SSH forwarding tunnel. Root and product AGENTS.md inspected. Scope approved: option 1 live multi-node GCP verification over IAP.
+Author/environment: Antigravity agent & student pair-programming, Windows PowerShell, Google Cloud SDK, IAP SSH forwarding tunnel. Root and product AGENTS.md inspected. Scope approved: option 1 live multi-node GCP deployment and UI modernization over IAP.
 
+- **Offline Cloud Bundle & Dependency Deployment**: Diagnosed that GCP `fleet-controller` was running an outdated build from November 4. Generated fresh application source bundle (`cae5782c...`, 216 files, 682KB) and staged Linux wheels offline for newly added dependencies (`httpx>=0.28.1`, `pwdlib[argon2]>=0.3.1`, `argon2-cffi`, `cffi`, etc.) into controller venv over IAP SCP, bypassing lack of outbound internet/NAT gateway.
+- **Database Evolution & Service Restart**: Triggered SQLite schema evolution (`PRAGMA user_version = 6`) creating `administrator_credentials`. Restarted `fleet-manager.service` with zero downtime issues; verified `/favicon.ico` SVG endpoint and modern UI dashboard templates.
 - **Live IAP Port Forwarding Tunnel**: Launched secure background IAP port forwarding forwarding local loopback ports (`127.0.0.1:8000` -> `fleet-controller` Fleet Manager UI/API, `127.0.0.1:9090` -> Prometheus, `127.0.0.1:3000` -> Grafana). Verified zero public ingress or firewall exceptions needed.
 - **Multi-Node Fleet Health & Background Monitoring**: Confirmed active 60s background monitoring across 4 live GCP nodes: Node 1 (`fleet-node-a`, `10.160.0.5`), Node 2 (`fleet-node-b`, `10.160.0.3`), Node 3 (`fleet-node-c`, `10.160.0.4`), and Node 4 (FQDN). All nodes reported `display_status: REACHABLE`, `setup_state: READY`, and `outcome: CONNECTED`.
 - **Live Remote Operations Verification**: Dispatched allowlisted operations from local workstation through forwarded IAP control plane, executed remotely via Ed25519 publickey authentication under non-root `fleetbootstrap`:
@@ -11,7 +13,7 @@ Author/environment: Antigravity agent & student pair-programming, Windows PowerS
   - `system.memory` on `fleet-node-b` (`10.160.0.3`): exit code 0 (`Mem: 1959 total, 383 used`).
   - `system.disk` on `fleet-node-c` (`10.160.0.4`): exit code 0 (`/dev/root 8.6G total, 38% used`).
   - `service.status` (`ssh`) on `fleet-node-a` (`10.160.0.5`): exit code 0 (active running, journal logs verified).
-- **Exact Next Action**: (A) Operator opens `http://127.0.0.1:8000/dashboard` in local browser to visually inspect the multi-node UI, or (B) Execute `gcloud compute instances stop` before heading out to stop compute charges ($0.00/hr).
+- **Exact Next Action**: (A) Operator opens `http://127.0.0.1:8000/dashboard` in local browser (Ctrl+F5) to complete First-Run Setup and inspect the modern UI, or (B) Execute `gcloud compute instances stop` before heading out to stop compute charges ($0.00/hr).
 
 ## Chunk 10K: live WSL node onboarding, multi-node namespace discovery, and UI export - 2026-11-10
 
