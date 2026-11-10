@@ -1,5 +1,16 @@
 # Current learning and engineering checkpoint
 
+## Chunk 10K: live WSL node onboarding, multi-node namespace discovery, and UI export - 2026-11-10
+
+Author/environment: Antigravity agent & student pair-programming, Windows PowerShell, repository Python 3.12 virtual environment, WSL2 Debian/Ubuntu, and Google Cloud SDK. Root and product AGENTS.md inspected. Scope approved: manual feedback verification, live WSL node onboarding, multi-node namespace investigation, and UI bundle packaging for independent student refinement. No cloud resources modified or push performed.
+
+- **Live Node Onboarding & Operations Execution**: Successfully registered, scanned, and trusted local WSL Debian (`wsl-debian-ip` at `172.20.135.178:22`). Deployed unencrypted Ed25519 controller keypair, authorized public key in `~/.ssh/authorized_keys`, and verified connectivity state transitioning to `READY` and `REACHABLE`. Verified full Operations Workbench lifecycle: executed allowlisted actions (`service.status`, `system.disk`, `system.memory`, `system.uptime`) returning HTTP 200 / exit code 0 with live Linux stdout.
+- **Session Administrator Operations Authorization**: Fixed `AttributeError` in `operations/service.py` by supporting cookie-based session administrator invocations (`operator_digest: None`) alongside Bearer token digests, committed in `c5a000d`.
+- **UI Form Alignment & Favicon**: Resolved vertical label misalignment in `.form-row-3` (`align-items: start`) and added dedicated `/favicon.ico` SVG endpoint in `main.py` (committed in `d6f5af5`).
+- **Multi-Node & Hostname Architectural Discovery**: Student inspected WSL Ubuntu vs Debian, discovering both share the same underlying Hyper-V microVM IP (`172.20.135.178`) and hostname (`DeathNode`), causing Ubuntu sshd to bind to port 2222. Reconciled architectural difference with GCP multi-node topology where 4 independent VMs (`fleet-controller`, `fleet-node-a`, `fleet-node-b`, `fleet-node-c`) run in distinct private network namespaces (`10.160.0.0/24`).
+- **Student UI Bundle Export**: Packaged all UI templates, CSS, and client-side JavaScript into standalone zip archives at `C:\Users\adars\Desktop\ZOHO\SWFW-12-Sem5\fleet-manager-ui.zip` and parent folder for student's independent UI refinements.
+- **Exact Next Action**: (A) Review student-refined UI modifications and integrate them, or (B) Launch GCE IAP port-forwarding tunnel (`deploy/gce/06-start-tunnel.sh --execute`) to verify multi-node fleet management across live GCP VMs.
+
 ## Chunk 10J: manual testing feedback fixes, auth UX, and MITM defense guide - 2026-11-09
 
 Author/environment: Antigravity agent & student pair-programming, Windows PowerShell, repository Python 3.12 virtual environment, Node.js. Root and product AGENTS.md inspected. Scope approved: manual testing feedback fixes, dedicated learning documentation for host identity and MITM defenses, and granular logical commits. No cloud resources started or push performed.
