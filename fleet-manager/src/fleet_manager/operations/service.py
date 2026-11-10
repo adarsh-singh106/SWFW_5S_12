@@ -100,7 +100,7 @@ class OperationService:
         node_id: int,
         action: str,
         arguments: dict[str, Any] | None,
-        operator_digest: bytes,
+        operator_digest: bytes | None,
     ) -> OperationRecord:
         node = self.inventory_repository.get_node(node_id)
         if node is None:
@@ -117,10 +117,16 @@ class OperationService:
 
         operation_id = f"op_{uuid.uuid4().hex}"
         requested_at = datetime.now(UTC)
-        audit_metadata = {
-            "operator_type": "bearer_token",
-            "operator_digest_prefix": operator_digest.hex()[:8],
-        }
+        if operator_digest is not None:
+            audit_metadata = {
+                "operator_type": "bearer_token",
+                "operator_digest_prefix": operator_digest.hex()[:8],
+            }
+        else:
+            audit_metadata = {
+                "operator_type": "session_admin",
+                "operator_digest_prefix": "admin",
+            }
 
         started_at: datetime | None = None
         admitted = False

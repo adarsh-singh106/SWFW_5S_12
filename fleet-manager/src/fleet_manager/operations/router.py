@@ -20,12 +20,12 @@ def _service(request: Request) -> OperationService:
     return cast(OperationService, request.app.state.operation_service)
 
 
-def _operator_digest(request: Request) -> bytes:
-    return cast(bytes, request.app.state.operator_token_digest)
+def _operator_digest(request: Request) -> bytes | None:
+    return getattr(request.app.state, "operator_token_digest", None)
 
 
 ServiceDependency = Annotated[OperationService, Depends(_service)]
-DigestDependency = Annotated[bytes, Depends(_operator_digest)]
+DigestDependency = Annotated[bytes | None, Depends(_operator_digest)]
 
 router = APIRouter(prefix="/api/nodes", dependencies=[Depends(require_operator_token)])
 
