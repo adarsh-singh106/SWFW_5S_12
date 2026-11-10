@@ -1,9 +1,9 @@
 {
   "checksums": {
-    "Adarsh_Singh_SWFW_5S_12.pdf": "710b1bcc47eee3242b115148de39a7f9021f2d282f732c307c4d7adf2110d39a",
-    "Adarsh_Singh_SWFW_5S_12_PROJECT-FILES.zip": "cc95c992e3f1bdfe88cc96cc20b0d935ae9541df529220ccc77a00d156f736c5"
+    "Adarsh_Singh_SWFW_5S_12.pdf": "d1fbd8ea4482ecdc370271fcb0ce46ee8da63f26f67942daa800465ce58d3830",
+    "Adarsh_Singh_SWFW_5S_12_PROJECT-FILES.zip": "c6a995c716cffba2e186d62d6ec145d18be32150226a612ee1caa4294174c3e5"
   },
-  "file_count": 269,
+  "file_count": 271,
   "integrity": "CRC + clean extraction + SHA-256 + extracted source syntax PASS",
   "files": [
     {
@@ -88,8 +88,8 @@
     },
     {
       "path": "docs/LEARNING-STATE.md",
-      "sha256": "f5f531b4ddb7fecc030f95b3a671a9177482ae94f9ac22da53901e291a15edc2",
-      "bytes": 90371
+      "sha256": "95af3aebb7fc5a1c589eb1f942d6b89ce545410ec876d084e2a56c6ee69efa4d",
+      "bytes": 98339
     },
     {
       "path": "docs/PROJECT-CHARTER.md",
@@ -300,6 +300,16 @@
       "path": "docs/learn/node-inventory/07-http-api-layer.md",
       "sha256": "20b63eb624fb70d078ac23611f83430ea3973fe121e77194085dfe0562865159",
       "bytes": 10276
+    },
+    {
+      "path": "docs/learn/node-inventory/10-host-key-verification-and-mitm.md",
+      "sha256": "2c57795ff354fb14655dc17c89c8cf85ea9c1a15d20391806dcc726eccddcbd5",
+      "bytes": 11647
+    },
+    {
+      "path": "docs/learn/node-inventory/11-ssh-keys-signatures-and-onboarding-hinglish.md",
+      "sha256": "b06fc30c9db1c78028d8f4913c3778d54bdaeb8f7bd8ceeb7e999c51ac30a7af",
+      "bytes": 7823
     },
     {
       "path": "docs/learn/node-inventory/README.md",
@@ -643,8 +653,8 @@
     },
     {
       "path": "src/fleet_manager/main.py",
-      "sha256": "ced72bd0740fa005a3b227c42e22477001d1d372b45080162bdc0c5eb92b1e8d",
-      "bytes": 18724
+      "sha256": "4e15bdf3bb1015e3c863f8fdb5093d69c8e781a952c1aff178daec867d2936be",
+      "bytes": 19483
     },
     {
       "path": "src/fleet_manager/metrics/__init__.py",
@@ -703,8 +713,8 @@
     },
     {
       "path": "src/fleet_manager/operations/router.py",
-      "sha256": "3ab7fd4a2b9279a6a59c311b611157e03ae55be977de90456ca5c972e6a64dc2",
-      "bytes": 3998
+      "sha256": "97f471058e2160ef338b9a3f3372a368fd9247f2a3a6db8c11b02a7f49fd6e19",
+      "bytes": 4017
     },
     {
       "path": "src/fleet_manager/operations/schemas.py",
@@ -713,8 +723,8 @@
     },
     {
       "path": "src/fleet_manager/operations/service.py",
-      "sha256": "b76f02ccd234952f100a24b7e37676431abdb8e7ef520c1114f1aaa362874240",
-      "bytes": 11045
+      "sha256": "9873ccde6774660af38244c65325e9d13e13c6e667cc2cf55a407b70376de351",
+      "bytes": 11274
     },
     {
       "path": "src/fleet_manager/operations/transport.py",
@@ -783,8 +793,8 @@
     },
     {
       "path": "src/fleet_manager/ui/static/css/components.css",
-      "sha256": "c1ad150bfb3fd353e33f26b24eaf96eb87de06645c8d075511a9031a68efa756",
-      "bytes": 40650
+      "sha256": "47b0e6cfd3b7548ea88fae13b7f951af4ee34d59e2b2dec2bf561c7ac2ff3c67",
+      "bytes": 40975
     },
     {
       "path": "src/fleet_manager/ui/static/css/layout.css",
@@ -818,8 +828,8 @@
     },
     {
       "path": "src/fleet_manager/ui/static/js/auth.js",
-      "sha256": "b541e41738d460719618a560e87437b743f4e1cf8b589722cd2637b8f26dd941",
-      "bytes": 19842
+      "sha256": "0fe3a38c84c0bc3eaf1dabbae385c922314a1344972125046bf518d0c12aee4b",
+      "bytes": 20727
     },
     {
       "path": "src/fleet_manager/ui/static/js/dialog-ownership.js",
@@ -863,23 +873,23 @@
     },
     {
       "path": "src/fleet_manager/ui/templates/dashboard.html",
-      "sha256": "abfb41a2b65fbb43b241f8dfab1a3f94afa0b0c675e98cc23fc8079591cc1194",
-      "bytes": 47029
+      "sha256": "99f19660fe0e1e31adc718e47742e08b593c452908b91e87c0c06d97b697d3cf",
+      "bytes": 47825
     },
     {
       "path": "submission/Adarsh_Singh_SWFW_5S_12_FINAL_REPORT.md",
-      "sha256": "d5937b0d029049bd8c0f0fbc57942d87204e5144e348b74640b3c8a04bfe8a18",
-      "bytes": 29857
+      "sha256": "704eacebb1b3eacb8b9fcecfe8f038cd8c2111d933e72a6686c83e56a2b6d0de",
+      "bytes": 16836
     },
     {
       "path": "submission/FINAL-EXECUTION-REPORT.md",
-      "sha256": "2983768e043450cdf35ea05d431ac18da3fe2601dba7309483c1ad2a28ac26fd",
-      "bytes": 6762
+      "sha256": "adda07519f88368f09e27c6b9c007c484d35bb93bdc0afb3e66435c631c784e5",
+      "bytes": 2994
     },
     {
       "path": "submission/MANUAL-ACCEPTANCE-CHECKLIST.md",
-      "sha256": "36cebdbb199d27975094caaf2c0f0439d1a9c8dc01c2f9c1bd40b89d97640326",
-      "bytes": 9125
+      "sha256": "95e913c3363791de1de72bfc97e687978d2a19e1319616b6e21508b66a469ce8",
+      "bytes": 7830
     },
     {
       "path": "submission/diagrams/architecture.svg",
@@ -1078,8 +1088,8 @@
     },
     {
       "path": "submission/final/Adarsh_Singh_SWFW_5S_12.pdf",
-      "sha256": "710b1bcc47eee3242b115148de39a7f9021f2d282f732c307c4d7adf2110d39a",
-      "bytes": 1187529
+      "sha256": "d1fbd8ea4482ecdc370271fcb0ce46ee8da63f26f67942daa800465ce58d3830",
+      "bytes": 887112
     },
     {
       "path": "submission/screenshots/01-first-run-setup.png",
@@ -1153,8 +1163,8 @@
     },
     {
       "path": "tests/dashboard_modules.cjs",
-      "sha256": "85b69fe734205573cfe4e82f89b9c6829040a8303a6600f186862424436acf41",
-      "bytes": 41141
+      "sha256": "a31093db429cd575e1a74aca2a26c0a2a4d1574b77a771c04c91e7a078b6000b",
+      "bytes": 42485
     },
     {
       "path": "tests/dashboard_regression.cjs",
