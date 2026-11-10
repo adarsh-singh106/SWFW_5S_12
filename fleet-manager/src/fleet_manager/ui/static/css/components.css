@@ -353,7 +353,10 @@
   display: grid;
   grid-template-columns: 2fr 2fr 1fr auto;
   gap: 0.75rem;
-  align-items: flex-end;
+  align-items: start;
+}
+.form-row-3 > .btn {
+  margin-top: 1.35rem;
 }
 
 .form-group {

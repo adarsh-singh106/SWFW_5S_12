@@ -9,7 +9,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -284,6 +284,20 @@ def create_app(
 
     application = FastAPI(title="Fleet Manager Inventory API", lifespan=lifespan)
     application.state.is_ready = False
+
+    @application.api_route("/favicon.ico", methods=["GET", "HEAD"], include_in_schema=False)
+    def favicon() -> Response:
+        """Return a branded SVG favicon to avoid browser 404 console errors."""
+        svg = (
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" '
+            'stroke="#4a7c59" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+            '<rect x="2" y="2" width="20" height="8" rx="2"/>'
+            '<rect x="2" y="14" width="20" height="8" rx="2"/>'
+            '<line x1="6" y1="6" x2="6.01" y2="6"/>'
+            '<line x1="6" y1="18" x2="6.01" y2="18"/>'
+            "</svg>"
+        )
+        return Response(content=svg, media_type="image/svg+xml")
 
     @application.get(
         "/healthz",
