@@ -13,7 +13,7 @@ Author/environment: Antigravity agent & student pair-programming, Windows PowerS
   - `system.memory` on `fleet-node-b` (`10.160.0.3`): exit code 0 (`Mem: 1959 total, 383 used`).
   - `system.disk` on `fleet-node-c` (`10.160.0.4`): exit code 0 (`/dev/root 8.6G total, 38% used`).
   - `service.status` (`ssh`) on `fleet-node-a` (`10.160.0.5`): exit code 0 (active running, journal logs verified).
-- **Exact Next Action**: (A) Operator opens `http://127.0.0.1:8000/dashboard` in local browser (Ctrl+F5) to complete First-Run Setup and inspect the modern UI, or (B) Execute `gcloud compute instances stop` before heading out to stop compute charges ($0.00/hr).
+- **Exact Next Action**: All 4 GCP VMs cleanly shut down and verified `TERMINATED` ($0.00/hr compute charges). Next session: resume from student's review of UI customizations or final demo video recording.
 
 ## Chunk 10K: live WSL node onboarding, multi-node namespace discovery, and UI export - 2026-11-10
 
