@@ -1,5 +1,18 @@
 # Current learning and engineering checkpoint
 
+## Chunk 10L: live GCP multi-node IAP tunnel and operations verification - 2026-11-10
+
+Author/environment: Antigravity agent & student pair-programming, Windows PowerShell, Google Cloud SDK, IAP SSH forwarding tunnel. Root and product AGENTS.md inspected. Scope approved: option 1 live multi-node GCP verification over IAP.
+
+- **Live IAP Port Forwarding Tunnel**: Launched secure background IAP port forwarding forwarding local loopback ports (`127.0.0.1:8000` -> `fleet-controller` Fleet Manager UI/API, `127.0.0.1:9090` -> Prometheus, `127.0.0.1:3000` -> Grafana). Verified zero public ingress or firewall exceptions needed.
+- **Multi-Node Fleet Health & Background Monitoring**: Confirmed active 60s background monitoring across 4 live GCP nodes: Node 1 (`fleet-node-a`, `10.160.0.5`), Node 2 (`fleet-node-b`, `10.160.0.3`), Node 3 (`fleet-node-c`, `10.160.0.4`), and Node 4 (FQDN). All nodes reported `display_status: REACHABLE`, `setup_state: READY`, and `outcome: CONNECTED`.
+- **Live Remote Operations Verification**: Dispatched allowlisted operations from local workstation through forwarded IAP control plane, executed remotely via Ed25519 publickey authentication under non-root `fleetbootstrap`:
+  - `system.uptime` on `fleet-node-a` (`10.160.0.5`): exit code 0 (`load average: 0.10, 0.07, 0.01`).
+  - `system.memory` on `fleet-node-b` (`10.160.0.3`): exit code 0 (`Mem: 1959 total, 383 used`).
+  - `system.disk` on `fleet-node-c` (`10.160.0.4`): exit code 0 (`/dev/root 8.6G total, 38% used`).
+  - `service.status` (`ssh`) on `fleet-node-a` (`10.160.0.5`): exit code 0 (active running, journal logs verified).
+- **Exact Next Action**: (A) Operator opens `http://127.0.0.1:8000/dashboard` in local browser to visually inspect the multi-node UI, or (B) Execute `gcloud compute instances stop` before heading out to stop compute charges ($0.00/hr).
+
 ## Chunk 10K: live WSL node onboarding, multi-node namespace discovery, and UI export - 2026-11-10
 
 Author/environment: Antigravity agent & student pair-programming, Windows PowerShell, repository Python 3.12 virtual environment, WSL2 Debian/Ubuntu, and Google Cloud SDK. Root and product AGENTS.md inspected. Scope approved: manual feedback verification, live WSL node onboarding, multi-node namespace investigation, and UI bundle packaging for independent student refinement. No cloud resources modified or push performed.
