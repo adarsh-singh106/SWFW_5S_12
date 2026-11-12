@@ -18,16 +18,18 @@ jobs:
       - name: Checkout Codebase
         uses: actions/checkout@v4
 
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Install uv Package Manager
         uses: astral-sh/setup-uv@v5
         with:
-          enable-cache: true
+          version: 'latest'
 
-      - name: Set up Python 3.12
-        run: uv python install 3.12
-
-      - name: Install Dependencies (Locked)
-        run: uv sync --locked
+      - name: Install Dependencies
+        run: uv sync
 
       - name: Code Quality & Linting
         run: uv run ruff check src tests

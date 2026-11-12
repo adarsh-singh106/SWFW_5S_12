@@ -597,6 +597,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
+    { name = "httpx" },
     { name = "paramiko" },
     { name = "pwdlib", extra = ["argon2"] },
     { name = "uvicorn" },
@@ -614,6 +615,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.162.0" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "paramiko", specifier = ">=5.1.0" },
     { name = "pwdlib", extras = ["argon2"], specifier = ">=0.3.1" },
     { name = "uvicorn", specifier = ">=0.54.0" },
