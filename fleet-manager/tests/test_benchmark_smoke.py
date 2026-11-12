@@ -27,6 +27,11 @@ from fleet_manager.operations.models import OperationExecutionResult, OperationO
 from fleet_manager.operations.repository import SQLiteOperationsRepository
 from fleet_manager.operations.service import OperationService
 
+pytestmark = pytest.mark.skipif(
+    sys.platform != "win32",
+    reason="Benchmark performance contracts require Windows-native Python 3.12",
+)
+
 
 def test_cli_defaults_and_explicit_configuration() -> None:
     config = benchmark.parse_args([])
