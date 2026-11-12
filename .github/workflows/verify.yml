@@ -1,0 +1,36 @@
+name: Fleet Manager CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Automated Verification Suite (535 Tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: fleet-manager
+
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Install uv Package Manager
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python 3.12
+        run: uv python install 3.12
+
+      - name: Install Dependencies (Locked)
+        run: uv sync --locked
+
+      - name: Code Quality & Linting
+        run: uv run ruff check src tests
+
+      - name: Execute Full Test Suite
+        run: uv run pytest -q --tb=short
