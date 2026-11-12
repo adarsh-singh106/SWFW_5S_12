@@ -40,16 +40,18 @@ Success includes independent implementation/debugging/explanation, reproducible 
 - Approved one-node SSH check: pinned host key, explicit non-root key credential, bounded connection/banner/auth phases, and a separate observation history; see [ADR 0003](decisions/0003-verified-ssh-observations.md). This does not establish overall node health or remote command execution.
 - Do not add heavy infrastructure without a demonstrated need.
 
-## Official submission guidelines & timeline (SETU 2026, confirmed 2026-10-15)
+## Official submission guidelines & timeline (SETU 2026, updated 2026-11-11)
 
-Source: Official SETU 2026 project submission guidelines received by the student.
+Source: SETU 2026 guidelines and prescribed report-format image supplied by the student on 2026-11-11; supersedes the previously recorded November 5 closing date. Portal/account eligibility has not been independently verified.
 
-- **Submission Window:** 2 November 2026 (10:00 AM) to 5 November 2026 (5:00 PM).
+- **Submission Window:** 2 November 2026 (10:00 AM) to 12 November 2026 (5:00 PM); supplied text does not specify timezone.
 - **Submission Format:** Single file upload (1 file only, PDF or ZIP).
   - PDF: `<STUDENT_NAME>_SWFW_5S_12.pdf`
-  - ZIP (recommended for codebase + report): `<STUDENT_NAME>_SWFW_5S_12_PROJECT-FILES.zip` containing the PDF report and project files.
-- **Mandatory Additional Requirement for SWFW_5S_12:** **Flow Diagram** included directly inside the PDF report along with screenshots and build steps.
+  - ZIP (only when external files are required): `<STUDENT_NAME>_SWFW_5S_12_PROJECT-FILES.zip` containing the PDF report and additional files.
+- **Prescribed report sections:** Student Details (name, course/program, semester/year, domain, email); Project Details (problem statement number, title); Work Done; Output / Screenshots with descriptions. Describe additional files when included.
+- **Mandatory Additional Requirement for SWFW_5S_12:** **Flow Diagram** included directly inside the PDF report. The supplied table does not separately mandate complete source code or build files for this PS ID.
 - **Reporting Rule:** All diagrams, screenshots, build steps must be embedded in the same PDF.
+- **Eligibility/account checks:** Student must have completed the Project Selection Form, submit that same selected project, and use the same account. DOCX is an editing companion, not an allowed standalone upload.
 
 ## Known unknowns
 

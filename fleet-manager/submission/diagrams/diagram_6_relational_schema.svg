@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" width="1200" height="760" style="background:#ffffff; font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;">
+  <defs>
+
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0 0 L8 4 L0 8 Z" fill="#2563eb" />
+    </marker>
+  </defs>
+
+  <!-- Title Header -->
+  <rect x="0" y="0" width="1200" height="70" fill="#0f172a"/>
+  <text x="40" y="36" fill="#f8fafc" font-size="20" font-weight="700">Relational Persistence Architecture &amp; Database Schema (SQLite WAL)</text>
+  <text x="40" y="56" fill="#94a3b8" font-size="12">Entity-Relationship Model: Foreign Key Cascades, Singleton Constraints, Indices &amp; PRAGMA user_version Migrations</text>
+
+  <!-- Table 1: NODES -->
+  <g transform="translate(60, 110)">
+    <rect width="320" height="300" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect width="320" height="36" rx="8" fill="#0f172a"/>
+    <text x="16" y="23" fill="#f8fafc" font-size="13" font-weight="700">TABLE: nodes</text>
+    <text x="290" y="23" fill="#38bdf8" font-size="10" font-weight="600" text-anchor="end">PRIMARY</text>
+
+    <!-- Columns -->
+    <rect x="10" y="46" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="62" fill="#0f172a" font-size="11" font-weight="700">id</text>
+    <text x="110" y="62" fill="#2563eb" font-size="10" font-family="Consolas, monospace">INTEGER PRIMARY KEY AUTO</text>
+
+    <text x="16" y="92" fill="#0f172a" font-size="11" font-weight="600">name</text>
+    <text x="110" y="92" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT NOT NULL (1..100)</text>
+
+    <rect x="10" y="106" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="122" fill="#0f172a" font-size="11" font-weight="600">address</text>
+    <text x="110" y="122" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT NOT NULL (IPv4/v6/FQDN)</text>
+
+    <text x="16" y="152" fill="#0f172a" font-size="11" font-weight="600">ssh_port</text>
+    <text x="110" y="152" fill="#475569" font-size="10" font-family="Consolas, monospace">INTEGER NOT NULL (1..65535)</text>
+
+    <rect x="10" y="166" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="182" fill="#0f172a" font-size="11" font-weight="600">observation_state</text>
+    <text x="130" y="182" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT DEFAULT 'NOT_CHECKED'</text>
+
+    <text x="16" y="212" fill="#0f172a" font-size="11" font-weight="600">setup_state</text>
+    <text x="130" y="212" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT DEFAULT 'PENDING_KEY_SCAN'</text>
+
+    <rect x="10" y="226" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="242" fill="#0f172a" font-size="11" font-weight="600">created_at</text>
+    <text x="110" y="242" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT NOT NULL (ISO-8601)</text>
+
+    <text x="16" y="272" fill="#0f172a" font-size="11" font-weight="600">updated_at</text>
+    <text x="110" y="272" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT NOT NULL (ISO-8601)</text>
+
+    <!-- Constraint Note -->
+    <rect x="10" y="284" width="300" height="12" fill="#ffffff"/>
+  </g>
+
+  <!-- Table 2: CONNECTIVITY_OBSERVATIONS -->
+  <g transform="translate(480, 110)">
+    <rect width="320" height="260" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect width="320" height="36" rx="8" fill="#1e3a8a"/>
+    <text x="16" y="23" fill="#f8fafc" font-size="13" font-weight="700">connectivity_observations</text>
+    <text x="300" y="23" fill="#93c5fd" font-size="10" font-weight="600" text-anchor="end">HISTORICAL</text>
+
+    <!-- Columns -->
+    <rect x="10" y="46" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="62" fill="#0f172a" font-size="11" font-weight="700">id</text>
+    <text x="110" y="62" fill="#2563eb" font-size="10" font-family="Consolas, monospace">INTEGER PRIMARY KEY AUTO</text>
+
+    <text x="16" y="92" fill="#0f172a" font-size="11" font-weight="700">node_id</text>
+    <text x="110" y="92" fill="#dc2626" font-size="10" font-family="Consolas, monospace">INTEGER FK (nodes.id CASCADE)</text>
+
+    <rect x="10" y="106" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="122" fill="#0f172a" font-size="11" font-weight="600">observed_at</text>
+    <text x="110" y="122" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT NOT NULL (ISO-8601)</text>
+
+    <text x="16" y="152" fill="#0f172a" font-size="11" font-weight="600">outcome</text>
+    <text x="110" y="152" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT (CONNECTED, REFUSED...)</text>
+
+    <rect x="10" y="166" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="182" fill="#0f172a" font-size="11" font-weight="600">error_category</text>
+    <text x="110" y="182" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT (TIMEOUT, AUTH_FAILED...)</text>
+
+    <text x="16" y="212" fill="#0f172a" font-size="11" font-weight="600">details</text>
+    <text x="110" y="212" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT (Diagnostic banner/reason)</text>
+
+    <rect x="10" y="226" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="242" fill="#0f172a" font-size="11" font-weight="600">duration_ms</text>
+    <text x="110" y="242" fill="#475569" font-size="10" font-family="Consolas, monospace">INTEGER (Probe latency)</text>
+  </g>
+
+  <!-- Table 3: OPERATION_EXECUTIONS -->
+  <g transform="translate(840, 110)">
+    <rect width="320" height="420" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect width="320" height="36" rx="8" fill="#14532d"/>
+    <text x="16" y="23" fill="#f8fafc" font-size="13" font-weight="700">operation_executions</text>
+    <text x="300" y="23" fill="#86efac" font-size="10" font-weight="600" text-anchor="end">IMMUTABLE</text>
+
+    <!-- Columns -->
+    <rect x="10" y="46" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="62" fill="#0f172a" font-size="11" font-weight="700">id</text>
+    <text x="110" y="62" fill="#2563eb" font-size="10" font-family="Consolas, monospace">TEXT PRIMARY KEY (UUID4)</text>
+
+    <text x="16" y="92" fill="#0f172a" font-size="11" font-weight="700">node_id</text>
+    <text x="110" y="92" fill="#dc2626" font-size="10" font-family="Consolas, monospace">INTEGER FK (nodes.id CASCADE)</text>
+
+    <rect x="10" y="106" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="122" fill="#0f172a" font-size="11" font-weight="600">action</text>
+    <text x="110" y="122" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT (Allowlisted Identifier)</text>
+
+    <text x="16" y="152" fill="#0f172a" font-size="11" font-weight="600">arguments</text>
+    <text x="110" y="152" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT (JSON parameters)</text>
+
+    <rect x="10" y="166" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="182" fill="#0f172a" font-size="11" font-weight="600">requested_at</text>
+    <text x="110" y="182" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT NOT NULL (ISO-8601)</text>
+
+    <text x="16" y="212" fill="#0f172a" font-size="11" font-weight="600">started_at</text>
+    <text x="110" y="212" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT (ISO-8601)</text>
+
+    <rect x="10" y="226" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="242" fill="#0f172a" font-size="11" font-weight="600">completed_at</text>
+    <text x="110" y="242" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT (ISO-8601)</text>
+
+    <text x="16" y="272" fill="#0f172a" font-size="11" font-weight="600">outcome</text>
+    <text x="110" y="272" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT (SUCCESS, FAILURE...)</text>
+
+    <rect x="10" y="286" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="302" fill="#0f172a" font-size="11" font-weight="600">failure_cat</text>
+    <text x="110" y="302" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT (TIMEOUT, REJECTED...)</text>
+
+    <text x="16" y="332" fill="#0f172a" font-size="11" font-weight="600">exit_code</text>
+    <text x="110" y="332" fill="#475569" font-size="10" font-family="Consolas, monospace">INTEGER (Linux Process Code)</text>
+
+    <rect x="10" y="346" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="362" fill="#0f172a" font-size="11" font-weight="600">stdout</text>
+    <text x="110" y="362" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT (Up to 64 KiB cap)</text>
+
+    <text x="16" y="392" fill="#0f172a" font-size="11" font-weight="600">output_trunc</text>
+    <text x="110" y="392" fill="#475569" font-size="10" font-family="Consolas, monospace">INTEGER (Boolean 0 or 1)</text>
+  </g>
+
+  <!-- Table 4: ADMINISTRATOR_CREDENTIALS -->
+  <g transform="translate(60, 450)">
+    <rect width="320" height="180" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect width="320" height="36" rx="8" fill="#713f12"/>
+    <text x="16" y="23" fill="#f8fafc" font-size="13" font-weight="700">administrator_credentials</text>
+    <text x="300" y="23" fill="#fde68a" font-size="10" font-weight="600" text-anchor="end">SINGLETON</text>
+
+    <rect x="10" y="46" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="62" fill="#0f172a" font-size="11" font-weight="700">id</text>
+    <text x="110" y="62" fill="#2563eb" font-size="10" font-family="Consolas, monospace">INTEGER CHECK (id = 1)</text>
+
+    <text x="16" y="92" fill="#0f172a" font-size="11" font-weight="600">password_hash</text>
+    <text x="110" y="92" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT (Argon2id Cryptographic)</text>
+
+    <rect x="10" y="106" width="300" height="24" fill="#f1f5f9"/>
+    <text x="16" y="122" fill="#0f172a" font-size="11" font-weight="600">requires_change</text>
+    <text x="110" y="122" fill="#475569" font-size="10" font-family="Consolas, monospace">INTEGER DEFAULT 0 (Boolean)</text>
+
+    <text x="16" y="152" fill="#0f172a" font-size="11" font-weight="600">updated_at</text>
+    <text x="110" y="152" fill="#475569" font-size="10" font-family="Consolas, monospace">TEXT NOT NULL (ISO-8601)</text>
+  </g>
+
+  <!-- Foreign Key Relationship Connectors -->
+  <!-- 1: nodes -> connectivity_observations -->
+  <path d="M 380 200 L 480 200" stroke="#dc2626" stroke-width="2" marker-end="url(#arr)"/>
+  <rect x="400" y="185" width="60" height="18" rx="3" fill="#fee2e2" stroke="#fca5a5"/>
+  <text x="430" y="198" fill="#991b1b" font-size="9" font-weight="700" text-anchor="middle">1 to N</text>
+
+  <!-- 2: nodes -> operation_executions -->
+  <path d="M 380 260 L 430 260 L 430 400 L 840 400" stroke="#dc2626" stroke-width="2" marker-end="url(#arr)" fill="none"/>
+  <rect x="440" y="388" width="60" height="18" rx="3" fill="#fee2e2" stroke="#fca5a5"/>
+  <text x="470" y="401" fill="#991b1b" font-size="9" font-weight="700" text-anchor="middle">1 to N</text>
+
+  <!-- Performance & Concurrency Features Box -->
+  <g transform="translate(420, 450)">
+    <rect width="380" height="180" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+    <rect width="380" height="30" rx="8" fill="#f1f5f9"/>
+    <text x="16" y="20" fill="#0f172a" font-size="12" font-weight="700">DATABASE INTEGRITY &amp; CONCURRENCY DECISIONS</text>
+    <text x="16" y="52" fill="#334155" font-size="10">• PRAGMA journal_mode = WAL: Concurrent readers + writer</text>
+    <text x="16" y="70" fill="#334155" font-size="10">• PRAGMA synchronous = NORMAL: Durability + high throughput</text>
+    <text x="16" y="88" fill="#334155" font-size="10">• PRAGMA foreign_keys = ON: Relational cascade integrity</text>
+    <text x="16" y="106" fill="#334155" font-size="10">• PRAGMA user_version = 2: Explicit versioned migrations</text>
+    <text x="16" y="124" fill="#334155" font-size="10">• Unique Constraint: UNIQUE(address, ssh_port) prevents dups</text>
+    <rect x="16" y="140" width="348" height="24" rx="4" fill="#e2e8f0"/>
+    <text x="190" y="156" fill="#1e293b" font-size="9" font-family="Consolas, monospace" text-anchor="middle">Zero Redis Dependency: Process-local concurrency</text>
+  </g>
+
+  <!-- Footer Banner -->
+  <rect x="60" y="660" width="1100" height="35" rx="6" fill="#0f172a"/>
+  <text x="610" y="682" fill="#f8fafc" font-size="11" text-anchor="middle">Audit records are append-only | Cascading deletes remove executions only when the parent node record is explicitly pruned</text>
+</svg>

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="750" viewBox="0 0 1000 750" role="img">
+<title>D1 / Runtime and ownership</title><desc>One controller process; child workers isolate SSH work. Prometheus stores resource time series.</desc>
+<defs><marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#34566b" stroke-width="1.5"/></marker></defs>
+<rect width="1000" height="750" fill="#f5f8fb"/>
+<text x="26" y="35" font-family="Arial, sans-serif" font-size="25" font-weight="700" text-anchor="start" fill="#173b50">D1 / Runtime and ownership</text>
+<text x="26" y="65" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">One controller process; child workers isolate SSH work. Prometheus stores resource time series.</text>
+<rect x="25" y="112" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="139" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Operator boundary</text>
+<text x="38" y="163" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Browser session or API bearer; structured</text>
+<text x="38" y="185" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">requests</text>
+<rect x="560" y="112" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="573" y="139" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Remote Linux machines</text>
+<text x="573" y="163" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">sshd and non-root account; Node Exporter</text>
+<rect x="25" y="267" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="294" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">FastAPI application</text>
+<text x="38" y="318" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Routers -&gt; services -&gt; repositories; one</text>
+<text x="38" y="340" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Uvicorn worker</text>
+<rect x="560" y="267" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="573" y="294" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Local child processes</text>
+<text x="573" y="318" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Connectivity/operation workers use bounded</text>
+<text x="573" y="340" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">SSH transport</text>
+<rect x="25" y="422" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="449" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Controller-owned state</text>
+<text x="38" y="473" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">SQLite control records; process-local</text>
+<text x="38" y="495" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">sessions and scheduler</text>
+<rect x="560" y="422" width="415" height="105" rx="9" fill="#fff2d8" stroke="#b18535" stroke-width="1.4"/>
+<text x="573" y="449" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Protected filesystem</text>
+<text x="573" y="473" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">known_hosts and SSH key; not stored in</text>
+<text x="573" y="495" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">inventory SQLite</text>
+<rect x="25" y="577" width="415" height="105" rx="9" fill="#e4f4ef" stroke="#4a9487" stroke-width="1.4"/>
+<text x="38" y="604" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Prometheus process</text>
+<text x="38" y="628" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Scrapes app /metrics and Node Exporter;</text>
+<text x="38" y="650" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">resource TSDB</text>
+<rect x="560" y="577" width="415" height="105" rx="9" fill="#e4f4ef" stroke="#4a9487" stroke-width="1.4"/>
+<text x="573" y="604" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Grafana process</text>
+<text x="573" y="628" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Queries Prometheus; provisioned datasource</text>
+<text x="573" y="650" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">and panels</text>
+<polyline points="232.5,217 232.5,267" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="242.5" y="246.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">HTTP</text>
+<polyline points="440,319.5 560,319.5" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="500.0" y="309.5" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="middle" fill="#173b50">request</text>
+<polyline points="232.5,372 232.5,422" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="242.5" y="401.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">SQL / memory</text>
+<polyline points="767.5,267 767.5,217" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="777.5" y="246.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">SSH</text>
+<polyline points="440,629.5 560,629.5" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="500.0" y="619.5" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="middle" fill="#173b50">data</text>
+<text x="26" y="732" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">Source-derived implementation view | branch labels are conditions, not measured acceptance</text></svg>

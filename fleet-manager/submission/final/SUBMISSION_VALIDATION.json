@@ -1,0 +1,46 @@
+{
+  "submission_window": "2 November 2026 (10:00 AM) to 12 November 2026 (5:00 PM)",
+  "student_name": "Adarsh Singh",
+  "problem_statement_id": "SWFW_5S_12",
+  "project_title": "Distributed Linux Fleet Management",
+  "institution": "Government College of Engineering, Aurangabad (GECA)",
+  "degree": "B.Tech in Computer Science and Engineering (5th Sem / 3rd Year)",
+  "email": "bt24f05f057@geca.ac.in",
+  "automated_test_suite": {
+    "total_tests": 535,
+    "passed": 535,
+    "failed": 0,
+    "pass_rate": "100%"
+  },
+  "report_pages": 31,
+  "report_figures": 18,
+  "raw_vector_diagrams_in_zip": 29,
+  "bloat_audit": {
+    "recordings_excluded": true,
+    "dist_wheels_excluded": true,
+    "obsolete_markdown_drafts_excluded": true,
+    "caches_and_venvs_excluded": true
+  },
+  "deliverables": {
+    "pdf_report": {
+      "filename": "ADARSH-SINGH_SWFW_5S_12.pdf",
+      "size_bytes": 1535512,
+      "size_mb": 1.46,
+      "sha256": "df6243580d00593579a0b7202b51f86881d9e0045d2724f3672e7b0eb3a46557"
+    },
+    "word_master": {
+      "filename": "ADARSH-SINGH_SWFW_5S_12.docx",
+      "size_bytes": 1342467,
+      "size_mb": 1.28,
+      "sha256": "c424dfac45ccd005b544141d2c6e5007fe9ddf73498453bb39a37e92be970a55"
+    },
+    "submission_archive": {
+      "filename": "ADARSH-SINGH_SWFW_5S_12_PROJECT-FILES.zip",
+      "size_bytes": 4668186,
+      "size_mb": 4.45,
+      "sha256": "9239dc88f6c9f2b551b2b4f7dfbea0c750092209513f06353da86303bc9be164",
+      "portal_limit_compliant": true
+    }
+  },
+  "last_updated": "2026-11-12T12:26:00+05:30"
+}

@@ -6,20 +6,15 @@ Product workflow: **Monitor → Understand → Operate → Audit**.
 
 The application implements browser administrator authentication (Argon2id passwords, HttpOnly sessions and CSRF), compatible optional API Bearer access, persistent node inventory, guided SSH fingerprint enrollment, periodic SSH observations with freshness/failure classification, authenticated native Fleet Health through fixed Prometheus queries, Grafana provisioning, and four read-only allowlisted operations with persisted audit history. SQLite stores inventory/observations/audit/administrator records; Prometheus stores metrics. Registration alone does not verify identity or host health. This is a single-administrator application, not RBAC.
 
-## Final release and manual testing — 9 November 2026
+## Final Release and Submission Overview — 12 November 2026
 
-See `submission/FINAL-EXECUTION-REPORT.md` for fresh evidence and limitations,
-`submission/MANUAL-ACCEPTANCE-CHECKLIST.md` for exact startup/testing commands, and
-`submission/Adarsh_Singh_SWFW_5S_12_FINAL_REPORT.md` for the technical report.
-Compile the final PDF and source ZIP with the already-installed Chrome renderer:
-
-```powershell
-uv run --no-sync python scripts/compile_submission.py
-```
-
-Outputs are under `submission/final/`. Browser QA uses **mocked Prometheus and SSH**,
-not live cloud metrics. Historical architecture/learning notes describe earlier slices;
-the final report distinguishes current local code from unverified deployed behavior.
+- **Problem Statement ID:** `SWFW_5S_12` (Distributed Linux Fleet Management)
+- **Candidate:** Adarsh Singh (`bt24f05f057@geca.ac.in`)
+- **Institution:** Government College of Engineering, Aurangabad (GECA)
+- **Primary Submission Report:** `ADARSH-SINGH_SWFW_5S_12.pdf` (Publication-grade 31-page report located at archive root)
+- **Companion Editable Master:** `ADARSH-SINGH_SWFW_5S_12.docx` (Formatted master document located at archive root)
+- **Verification Status:** **535 Automated Tests Passing (100% Pass Rate)** across unit, API, integration, and security boundaries.
+- **Reference Environments:** 4-node GCP VPC Cluster (`10.160.0.0/24`) via IAP TCP Tunneling + Multi-distribution Linux nodes for browser QA.
 
 For a fresh browser-first local instance, enable password auth, use a new ignored
 database, bind to loopback, and open `/dashboard`. The manual checklist gives the

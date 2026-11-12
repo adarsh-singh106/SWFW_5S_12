@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="740" height="560" viewBox="0 0 740 560" role="img"><title>06 / Metrics and freshness dataflow</title><desc>Collection, storage, query and presentation are separate responsibilities.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#426077" stroke-width="1.3"/></marker></defs>
+<rect width="740" height="560" rx="14" fill="#f5f8fb"/>
+<text x="22" y="31" font-family="Arial, sans-serif" font-size="21" fill="#12344b" font-weight="700" text-anchor="start">06 / Metrics and freshness dataflow</text>
+<text x="22" y="56" font-family="Arial, sans-serif" font-size="13" fill="#365269" font-weight="400" text-anchor="start">Collection, storage, query and presentation are separate responsibilities.</text>
+<rect x="24" y="85" width="200" height="95" rx="8" fill="#e5f4f1" stroke="#569d92"/>
+<text x="36" y="110" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Linux kernel / exporters</text>
+<text x="36" y="134" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">CPU / memory / disk</text>
+<text x="36" y="155" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Network / load / uptime</text>
+<rect x="274" y="85" width="200" height="95" rx="8" fill="#e5f4f1" stroke="#569d92"/>
+<text x="286" y="110" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Prometheus</text>
+<text x="286" y="134" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">5 s scrape / 4 s timeout</text>
+<text x="286" y="155" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Time-series database</text>
+<rect x="524" y="85" width="192" height="95" rx="8" fill="#e5f4f1" stroke="#569d92"/>
+<text x="536" y="110" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Grafana</text>
+<text x="536" y="134" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Provisioned datasource</text>
+<text x="536" y="155" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Time-range panels</text>
+<polyline points="224,133 274,133" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="234" y="120" font-family="Arial, sans-serif" font-size="13" fill="#18394e" font-weight="400" text-anchor="start">pull</text>
+<polyline points="474,133 524,133" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="479" y="120" font-family="Arial, sans-serif" font-size="13" fill="#18394e" font-weight="400" text-anchor="start">query</text>
+<rect x="274" y="256" width="200" height="116" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="286" y="281" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Fixed-query health API</text>
+<text x="286" y="305" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Registered nodes only</text>
+<text x="286" y="326" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Bounded PromQL requests</text>
+<text x="286" y="347" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Missing / old → unavailable</text>
+<polyline points="374,180 374,256" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="388" y="220" font-family="Arial, sans-serif" font-size="13" fill="#18394e" font-weight="400" text-anchor="start">Query + sample timestamp</text>
+<rect x="24" y="420" width="310" height="85" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="36" y="445" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Native browser health views</text>
+<text x="36" y="469" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Summary → node detail → trends</text>
+<text x="36" y="490" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Missing data ≠ numeric zero</text>
+<polyline points="274,314 179,314 179,420" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="32" y="300" font-family="Arial, sans-serif" font-size="13" fill="#18394e" font-weight="400" text-anchor="start">Structured result</text>
+<rect x="406" y="420" width="310" height="85" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="418" y="445" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Controller /metrics</text>
+<text x="418" y="469" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Application telemetry → Prometheus</text>
+<text x="418" y="490" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Separate from node resource metrics</text>
+<polyline points="560,420 560,223 474,223 474,180" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="573" y="296" font-family="Arial, sans-serif" font-size="13" fill="#18394e" font-weight="400" text-anchor="start">scrape</text>
+<text x="22" y="544" font-family="Arial, sans-serif" font-size="12" fill="#365269" font-weight="400" text-anchor="start">Source-derived model | arrows name requests/data, not deployment acceptance</text></svg>

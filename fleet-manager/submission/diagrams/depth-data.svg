@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="905" viewBox="0 0 1000 905" role="img">
+<title>D8 / Persistent control data</title><desc>Selected real columns. Arrows labelled FK are database relationships; other links are context.</desc>
+<defs><marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#34566b" stroke-width="1.5"/></marker></defs>
+<rect width="1000" height="905" fill="#f5f8fb"/>
+<text x="26" y="35" font-family="Arial, sans-serif" font-size="25" font-weight="700" text-anchor="start" fill="#173b50">D8 / Persistent control data</text>
+<text x="26" y="65" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Selected real columns. Arrows labelled FK are database relationships; other links are context.</text>
+<rect x="25" y="112" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="139" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">nodes [PK id]</text>
+<text x="38" y="163" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">name, address COLLATE NOCASE, ssh_port;</text>
+<text x="38" y="185" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">UNIQUE(address,port)</text>
+<rect x="560" y="112" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="573" y="139" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">administrator_credentials</text>
+<text x="573" y="163" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">PK id CHECK(id=1); hash, change flag,</text>
+<text x="573" y="185" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">timestamps</text>
+<rect x="25" y="267" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="294" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">connectivity_observations</text>
+<text x="38" y="318" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">PK id; FK node_id; observed_at, outcome,</text>
+<text x="38" y="340" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">error_category</text>
+<rect x="560" y="267" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="573" y="294" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">operation_executions</text>
+<text x="573" y="318" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">PK id; FK node_id; action, arguments,</text>
+<text x="573" y="340" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">requested/start/end</text>
+<rect x="25" y="422" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="449" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">connectivity_validation</text>
+<text x="38" y="473" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">PK/FK observation_id; revision length=64</text>
+<rect x="560" y="422" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="573" y="449" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Operation result columns</text>
+<text x="573" y="473" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">outcome/category, exit, stdout/stderr,</text>
+<text x="573" y="495" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">truncation, metadata</text>
+<rect x="25" y="577" width="415" height="105" rx="9" fill="#fff2d8" stroke="#b18535" stroke-width="1.4"/>
+<text x="38" y="604" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Separate filesystem stores</text>
+<text x="38" y="628" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">known_hosts pin file and protected SSH</text>
+<text x="38" y="650" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">client key</text>
+<rect x="560" y="577" width="415" height="105" rx="9" fill="#fff2d8" stroke="#b18535" stroke-width="1.4"/>
+<text x="573" y="604" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Non-durable controller state</text>
+<text x="573" y="628" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Sessions, admission maps and pending</text>
+<text x="573" y="650" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">completions</text>
+<rect x="25" y="732" width="415" height="105" rx="9" fill="#e4f4ef" stroke="#4a9487" stroke-width="1.4"/>
+<text x="38" y="759" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Prometheus TSDB</text>
+<text x="38" y="783" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Resource time series are not inventory SQL</text>
+<text x="38" y="805" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">rows</text>
+<rect x="560" y="732" width="415" height="105" rx="9" fill="#fff2d8" stroke="#b18535" stroke-width="1.4"/>
+<text x="573" y="759" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">No operator identity foreign key</text>
+<text x="573" y="783" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Session-admin/shared token is metadata, not</text>
+<text x="573" y="805" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">a named user</text>
+<polyline points="232.5,217 232.5,267" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="242.5" y="246.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">1:N FK</text>
+<polyline points="440,164.5 500,164.5 500,319.5 560,319.5" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="508" y="242.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="middle" fill="#173b50">1:N FK</text>
+<polyline points="232.5,372 232.5,422" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="242.5" y="401.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">1:0..1 FK</text>
+<polyline points="767.5,372 767.5,422" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="777.5" y="401.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">same row</text>
+<text x="26" y="887" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">Source-derived implementation view | branch labels are conditions, not measured acceptance</text></svg>

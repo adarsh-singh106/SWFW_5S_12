@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="740" height="655" viewBox="0 0 740 655" role="img"><title>05 / Diagnostic execution lifecycle</title><desc>No remote replay after uncertain completion; HTTP response and command outcome differ.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#426077" stroke-width="1.3"/></marker></defs>
+<rect width="740" height="655" rx="14" fill="#f5f8fb"/>
+<text x="22" y="31" font-family="Arial, sans-serif" font-size="21" fill="#12344b" font-weight="700" text-anchor="start">05 / Diagnostic execution lifecycle</text>
+<text x="22" y="56" font-family="Arial, sans-serif" font-size="13" fill="#365269" font-weight="400" text-anchor="start">No remote replay after uncertain completion; HTTP response and command outcome differ.</text>
+<rect x="24" y="85" width="320" height="86" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="36" y="110" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">1. Authenticate + validate</text>
+<text x="36" y="134" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Known node / allowlisted action</text>
+<text x="36" y="155" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Typed arguments; no free-form shell</text>
+<rect x="396" y="85" width="320" height="86" rx="8" fill="#fff3dc" stroke="#ba903f"/>
+<text x="408" y="110" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">2. Admission</text>
+<text x="408" y="134" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Same node busy → 409</text>
+<text x="408" y="155" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Global capacity full → 429</text>
+<polyline points="344,128 396,128" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<rect x="396" y="218" width="320" height="86" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="408" y="243" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">3. Persist RUNNING</text>
+<text x="408" y="267" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">After worker admission, before dispatch</text>
+<text x="408" y="288" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Storage failure → no command dispatch</text>
+<polyline points="556,171 556,218" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="566" y="199" font-family="Arial, sans-serif" font-size="13" fill="#18394e" font-weight="400" text-anchor="start">Admitted</text>
+<rect x="24" y="218" width="320" height="86" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="36" y="243" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">4. Worker + pinned SSH</text>
+<text x="36" y="267" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Bounded deadline / output capture</text>
+<text x="36" y="288" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Non-root login; catalog command</text>
+<polyline points="396,261 344,261" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<rect x="24" y="351" width="320" height="108" rx="8" fill="#e5f4f1" stroke="#569d92"/>
+<text x="36" y="376" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">5. Classify + persist result</text>
+<text x="36" y="400" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">SUCCESS / FAILURE / TIMEOUT</text>
+<text x="36" y="421" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">UNCERTAIN if completion unknown</text>
+<text x="36" y="442" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Output truncation is explicit</text>
+<polyline points="184,304 184,351" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<rect x="396" y="351" width="320" height="108" rx="8" fill="#fff3dc" stroke="#ba903f"/>
+<text x="408" y="376" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">6. Operator verifies history</text>
+<text x="408" y="400" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Returned terminal record: HTTP 200</text>
+<text x="408" y="421" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Admitted infrastructure error: 503</text>
+<text x="408" y="442" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Lookup operation ID; do not replay</text>
+<polyline points="344,405 396,405" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<rect x="24" y="507" width="692" height="93" rx="8" fill="#fae9e7" stroke="#bc827d"/>
+<text x="36" y="532" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Controller restart boundary</text>
+<text x="36" y="556" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Remaining RUNNING rows → UNCERTAIN / CONTROL_PLANE_RESTARTED.</text>
+<text x="36" y="577" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Local worker termination cannot prove the remote command has stopped.</text>
+<text x="22" y="639" font-family="Arial, sans-serif" font-size="12" fill="#365269" font-weight="400" text-anchor="start">Source-derived model | arrows name requests/data, not deployment acceptance</text></svg>

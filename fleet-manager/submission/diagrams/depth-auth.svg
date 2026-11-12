@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="905" viewBox="0 0 1000 905" role="img">
+<title>D9 / Protected-route authentication</title><desc>This decision gate does not describe first-run setup/login endpoint authorization.</desc>
+<defs><marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#34566b" stroke-width="1.5"/></marker></defs>
+<rect width="1000" height="905" fill="#f5f8fb"/>
+<text x="26" y="35" font-family="Arial, sans-serif" font-size="25" font-weight="700" text-anchor="start" fill="#173b50">D9 / Protected-route authentication</text>
+<text x="26" y="65" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">This decision gate does not describe first-run setup/login endpoint authorization.</text>
+<rect x="25" y="112" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="139" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Authorization header present?</text>
+<text x="38" y="163" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Any explicit header selects bearer</text>
+<text x="38" y="185" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">authentication</text>
+<rect x="560" y="112" width="415" height="105" rx="9" fill="#fff2d8" stroke="#b18535" stroke-width="1.4"/>
+<text x="573" y="139" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Validate exactly one Bearer</text>
+<text x="573" y="163" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Strict syntax + digest comparison; no</text>
+<text x="573" y="185" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">cookie fallback</text>
+<rect x="25" y="267" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="294" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">No header: session cookie</text>
+<text x="38" y="318" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Verifier lookup; 30m idle / 12h absolute</text>
+<text x="38" y="340" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">expiry</text>
+<rect x="560" y="267" width="415" height="105" rx="9" fill="#fbe8e6" stroke="#b2736e" stroke-width="1.4"/>
+<text x="573" y="294" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Invalid credential -&gt; reject</text>
+<text x="573" y="318" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Invalid bearer is not rescued by a valid</text>
+<text x="573" y="340" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">session</text>
+<rect x="25" y="422" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="449" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Mandatory password change?</text>
+<text x="38" y="473" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Restrict ordinary browser workflows until</text>
+<text x="38" y="495" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">resolved</text>
+<rect x="560" y="422" width="415" height="105" rx="9" fill="#e4f4ef" stroke="#4a9487" stroke-width="1.4"/>
+<text x="573" y="449" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Valid bearer -&gt; allow</text>
+<text x="573" y="473" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Returns before cookie-specific</text>
+<text x="573" y="495" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">CSRF/password checks</text>
+<rect x="25" y="577" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="604" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Cookie mutation request?</text>
+<text x="38" y="628" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Require synchronizer token + matching</text>
+<text x="38" y="650" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Origin/Referer</text>
+<rect x="560" y="577" width="415" height="105" rx="9" fill="#fbe8e6" stroke="#b2736e" stroke-width="1.4"/>
+<text x="573" y="604" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Mismatch / missing -&gt; reject</text>
+<text x="573" y="628" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Not a claim that setup/login use this gate</text>
+<rect x="25" y="732" width="415" height="105" rx="9" fill="#e4f4ef" stroke="#4a9487" stroke-width="1.4"/>
+<text x="38" y="759" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Authorized protected request</text>
+<text x="38" y="783" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Reads skip mutation CSRF; lifecycle rules</text>
+<text x="38" y="805" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">still apply</text>
+<rect x="560" y="732" width="415" height="105" rx="9" fill="#fff2d8" stroke="#b18535" stroke-width="1.4"/>
+<text x="573" y="759" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Deployment constraint</text>
+<text x="573" y="783" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Secure cookie only on HTTPS; TLS/proxy</text>
+<text x="573" y="805" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">review separate</text>
+<polyline points="440,164.5 560,164.5" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="500.0" y="154.5" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="middle" fill="#173b50">yes</text>
+<polyline points="232.5,217 232.5,267" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="242.5" y="246.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">no</text>
+<polyline points="767.5,217 767.5,267" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="777.5" y="246.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">invalid</text>
+<polyline points="232.5,372 232.5,422" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="242.5" y="401.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">valid session</text>
+<polyline points="975,164.5 987,164.5 987,474.5 975,474.5" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="979" y="319.5" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="end" fill="#173b50">valid</text>
+<polyline points="232.5,527 232.5,577" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="242.5" y="556.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">allowed path</text>
+<polyline points="440,629.5 560,629.5" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="500.0" y="619.5" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="middle" fill="#173b50">fails</text>
+<polyline points="232.5,682 232.5,732" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="242.5" y="711.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">valid / read</text>
+<text x="26" y="887" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">Source-derived implementation view | branch labels are conditions, not measured acceptance</text></svg>

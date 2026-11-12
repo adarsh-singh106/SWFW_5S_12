@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="740" height="550" viewBox="0 0 740 550" role="img"><title>10 / Engineering evidence pipeline</title><desc>Keep design inspection, local tests, mock browser QA and live acceptance distinguishable.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#426077" stroke-width="1.3"/></marker></defs>
+<rect width="740" height="550" rx="14" fill="#f5f8fb"/>
+<text x="22" y="31" font-family="Arial, sans-serif" font-size="21" fill="#12344b" font-weight="700" text-anchor="start">10 / Engineering evidence pipeline</text>
+<text x="22" y="56" font-family="Arial, sans-serif" font-size="13" fill="#365269" font-weight="400" text-anchor="start">Keep design inspection, local tests, mock browser QA and live acceptance distinguishable.</text>
+<rect x="24" y="85" width="310" height="88" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="36" y="110" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Requirement / invariant</text>
+<text x="36" y="134" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Define expected outcome + limits</text>
+<text x="36" y="155" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Identify a reproducible test</text>
+<rect x="406" y="85" width="310" height="88" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="418" y="110" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Inspect implementation</text>
+<text x="418" y="134" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Route → service → adapter → storage</text>
+<text x="418" y="155" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Record source path + digest</text>
+<polyline points="334,129 406,129" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<rect x="406" y="229" width="310" height="88" rx="8" fill="#e5f4f1" stroke="#569d92"/>
+<text x="418" y="254" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Execute bounded verification</text>
+<text x="418" y="278" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Unit / integration / browser mocks</text>
+<text x="418" y="299" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Live test only when authorized</text>
+<polyline points="560,173 560,229" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<rect x="24" y="229" width="310" height="88" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="36" y="254" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Preserve raw evidence</text>
+<text x="36" y="278" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Build / target / time / request / output</text>
+<text x="36" y="299" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Audit ID / peer behavior / cleanup</text>
+<polyline points="406,273 334,273" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<rect x="24" y="390" width="310" height="88" rx="8" fill="#fff3dc" stroke="#ba903f"/>
+<text x="36" y="415" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Interpret conservatively</text>
+<text x="36" y="439" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Expected vs observed; negative findings</text>
+<text x="36" y="460" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Report gaps and uncertainty</text>
+<polyline points="179,317 179,390" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<rect x="406" y="390" width="310" height="88" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="418" y="415" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Report + render checks</text>
+<text x="418" y="439" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Embedded figures / hashes / layout</text>
+<text x="418" y="460" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Review independently; no invented pass</text>
+<polyline points="334,434 406,434" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="22" y="534" font-family="Arial, sans-serif" font-size="12" fill="#365269" font-weight="400" text-anchor="start">Source-derived model | arrows name requests/data, not deployment acceptance</text></svg>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="740" height="580" viewBox="0 0 740 580" role="img"><title>04 / Availability interpretation</title><desc>Two independent axes: onboarding readiness and freshness of the latest SSH observation.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#426077" stroke-width="1.3"/></marker></defs>
+<rect width="740" height="580" rx="14" fill="#f5f8fb"/>
+<text x="22" y="31" font-family="Arial, sans-serif" font-size="21" fill="#12344b" font-weight="700" text-anchor="start">04 / Availability interpretation</text>
+<text x="22" y="56" font-family="Arial, sans-serif" font-size="13" fill="#365269" font-weight="400" text-anchor="start">Two independent axes: onboarding readiness and freshness of the latest SSH observation.</text>
+<rect x="230" y="83" width="280" height="66" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="242" y="108" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Latest observation + as_of</text>
+<text x="242" y="132" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Use timezone-aware timestamps</text>
+<rect x="24" y="206" width="210" height="87" rx="8" fill="#fff3dc" stroke="#ba903f"/>
+<text x="36" y="231" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">No observation</text>
+<text x="36" y="255" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">NOT_CHECKED</text>
+<text x="36" y="276" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Do not infer host failure</text>
+<rect x="264" y="206" width="210" height="87" rx="8" fill="#fae9e7" stroke="#bc827d"/>
+<text x="276" y="231" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Invalid / future time</text>
+<text x="276" y="255" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">CHECK_ERROR</text>
+<text x="276" y="276" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Clock/configuration issue</text>
+<rect x="504" y="206" width="210" height="87" rx="8" fill="#fff3dc" stroke="#ba903f"/>
+<text x="516" y="231" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Age &gt; TTL (180 s)</text>
+<text x="516" y="255" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">STALE / TTL_EXPIRED</text>
+<text x="516" y="276" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Keep last known outcome</text>
+<polyline points="370,149 370,175 129,175 129,206" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<polyline points="370,149 370,175 369,175 369,206" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<polyline points="370,149 370,175 609,175 609,206" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="250" y="325" font-family="Arial, sans-serif" font-size="15" fill="#18394e" font-weight="700" text-anchor="start">Otherwise: classify a fresh observation</text>
+<rect x="24" y="354" width="210" height="82" rx="8" fill="#e5f4f1" stroke="#569d92"/>
+<text x="36" y="379" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">CONNECTED</text>
+<text x="36" y="403" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">REACHABLE</text>
+<text x="36" y="424" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">SSH endpoint observed</text>
+<rect x="264" y="354" width="210" height="82" rx="8" fill="#fff3dc" stroke="#ba903f"/>
+<text x="276" y="379" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Refused / timeout</text>
+<text x="276" y="403" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">UNREACHABLE</text>
+<text x="276" y="424" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Not proof of dead host</text>
+<rect x="504" y="354" width="210" height="82" rx="8" fill="#fae9e7" stroke="#bc827d"/>
+<text x="516" y="379" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Other failure</text>
+<text x="516" y="403" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">CHECK_ERROR</text>
+<text x="516" y="424" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Auth / trust / DNS / config</text>
+<rect x="24" y="473" width="690" height="66" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="36" y="498" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Setup state is separate</text>
+<text x="36" y="522" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">READY records validated setup for a revision; it does not guarantee current availability.</text>
+<text x="22" y="564" font-family="Arial, sans-serif" font-size="12" fill="#365269" font-weight="400" text-anchor="start">Source-derived model | arrows name requests/data, not deployment acceptance</text></svg>

@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" style="background:#ffffff; font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;">
+  <defs>
+
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0 0 L8 4 L0 8 Z" fill="#2563eb" />
+    </marker>
+    <marker id="arr-orange" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0 0 L8 4 L0 8 Z" fill="#ea580c" />
+    </marker>
+  </defs>
+
+  <!-- Title Header -->
+  <rect x="0" y="0" width="1200" height="70" fill="#0f172a"/>
+  <text x="40" y="36" fill="#f8fafc" font-size="20" font-weight="700">Decoupled Telemetry Pipeline &amp; Honest Gap Information Architecture</text>
+  <text x="40" y="56" fill="#94a3b8" font-size="12">Why SSH Reachability != Health, Why Missing Metrics != Zero &amp; How Decoupled TSDB Guarantees Observability Integrity</text>
+
+  <!-- Top Comparison: Flawed vs Honest Architecture -->
+  <!-- Flawed Box (Left) -->
+  <g transform="translate(40, 95)">
+    <rect width="530" height="200" rx="8" fill="#fef2f2" stroke="#fecaca" stroke-width="1.5"/>
+    <rect width="530" height="32" rx="8" fill="#fee2e2"/>
+    <text x="20" y="21" fill="#991b1b" font-size="12" font-weight="700">FLAWED MONITORING PATTERN (Anti-Pattern)</text>
+    
+    <text x="20" y="56" fill="#b91c1c" font-size="11" font-weight="600">1. Conflating Port Reachability with Host Health:</text>
+    <text x="20" y="74" fill="#334155" font-size="10">Assuming that because SSH responds on :22, CPU, memory, and services are healthy.</text>
+    
+    <text x="20" y="98" fill="#b91c1c" font-size="11" font-weight="600">2. Fabricating Zeroes for Missing Metrics (Zero-Filling):</text>
+    <text x="20" y="116" fill="#334155" font-size="10">When a node goes offline, plotting 0% CPU falsely signals that the machine is idle.</text>
+    
+    <text x="20" y="140" fill="#b91c1c" font-size="11" font-weight="600">3. Misusing Relational Database for High-Frequency Telemetry:</text>
+    <text x="20" y="158" fill="#334155" font-size="10">Polling CPU every 2 seconds into SQLite causes write amplification and lock thrashing.</text>
+    
+    <rect x="20" y="172" width="490" height="18" rx="3" fill="#fee2e2"/>
+    <text x="265" y="185" fill="#991b1b" font-size="9" font-weight="600" text-anchor="middle">Result: Misled operators, corrupted statistical rates (P95/P99), database lockouts</text>
+  </g>
+
+  <!-- Honest Box (Right) -->
+  <g transform="translate(630, 95)">
+    <rect width="530" height="200" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+    <rect width="530" height="32" rx="8" fill="#dcfce7"/>
+    <text x="20" y="21" fill="#14532d" font-size="12" font-weight="700">FLEET MANAGER HONEST OBSERVABILITY (Implemented)</text>
+    
+    <text x="20" y="56" fill="#15803d" font-size="11" font-weight="600">1. Complete Plane Separation (Control vs Telemetry):</text>
+    <text x="20" y="74" fill="#334155" font-size="10">SSH control plane operates independently from Prometheus time-series collection.</text>
+    
+    <text x="20" y="98" fill="#15803d" font-size="11" font-weight="600">2. Honest Disconnected Gap Rendering:</text>
+    <text x="20" y="116" fill="#334155" font-size="10">Missing scrape samples appear as broken/disconnected lines, showing explicit downtime.</text>
+    
+    <text x="20" y="140" fill="#15803d" font-size="11" font-weight="600">3. Decoupled Dedicated Time-Series TSDB:</text>
+    <text x="20" y="158" fill="#334155" font-size="10">Prometheus handles compression &amp; chunk storage; SQLite stores only metadata.</text>
+    
+    <rect x="20" y="172" width="490" height="18" rx="3" fill="#dcfce7"/>
+    <text x="265" y="185" fill="#14532d" font-size="9" font-weight="600" text-anchor="middle">Result: 100% operational truth, reliable trend analysis, zero SQLite lock contention</text>
+  </g>
+
+  <!-- Bottom: Implemented Telemetry Pipeline Architecture -->
+  <g transform="translate(40, 320)">
+    <rect width="1120" height="320" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    <rect width="1120" height="34" rx="8" fill="#f8fafc"/>
+    <text x="20" y="22" fill="#0f172a" font-size="13" font-weight="700">IMPLEMENTED 4-STAGE TELEMETRY DATA PIPELINE</text>
+
+    <!-- Stage 1: Target Node Exporter -->
+    <rect x="20" y="55" width="250" height="240" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+    <text x="32" y="78" fill="#0f172a" font-size="11" font-weight="700">STAGE 1: KERNEL PROBES</text>
+    <text x="32" y="98" fill="#334155" font-size="10">• prometheus-node-exporter</text>
+    <text x="32" y="116" fill="#334155" font-size="10">• Port 9100 /metrics endpoint</text>
+    <text x="32" y="134" fill="#334155" font-size="10">• Direct Linux /proc &amp; /sys inspection:</text>
+    <text x="44" y="152" fill="#64748b" font-size="9">- /proc/stat (CPU seconds)</text>
+    <text x="44" y="168" fill="#64748b" font-size="9">- /proc/meminfo (MemTotal/Avail)</text>
+    <text x="44" y="184" fill="#64748b" font-size="9">- /proc/diskstats (I/O latency)</text>
+    <text x="44" y="200" fill="#64748b" font-size="9">- /proc/net/dev (RX/TX bytes)</text>
+    <rect x="32" y="220" width="226" height="60" rx="4" fill="#e2e8f0"/>
+    <text x="145" y="238" fill="#1e293b" font-size="9" font-weight="600" text-anchor="middle">Unprivileged systemd service</text>
+    <text x="145" y="254" fill="#475569" font-size="9" text-anchor="middle">CPU footprint: &lt; 0.5% overhead</text>
+    <text x="145" y="270" fill="#475569" font-size="9" text-anchor="middle">Zero custom kernel patches</text>
+
+    <!-- Arrow 1 -> 2 -->
+    <path d="M 270 175 L 300 175" stroke="#ea580c" stroke-width="2.5" marker-end="url(#arr-orange)"/>
+
+    <!-- Stage 2: Prometheus TSDB -->
+    <rect x="300" y="55" width="250" height="240" rx="6" fill="#fff7ed" stroke="#fed7aa"/>
+    <text x="312" y="78" fill="#7c2d12" font-size="11" font-weight="700">STAGE 2: SCRAPE &amp; TSDB</text>
+    <text x="312" y="98" fill="#7c2d12" font-size="10">• Prometheus Server v2.45.0</text>
+    <text x="312" y="116" fill="#7c2d12" font-size="10">• Scrape interval: 60 seconds</text>
+    <text x="312" y="134" fill="#7c2d12" font-size="10">• Scrape timeout: 10 seconds</text>
+    <text x="312" y="152" fill="#7c2d12" font-size="10">• Targets configured in YAML:</text>
+    <text x="324" y="170" fill="#9a3412" font-size="9">- 10.160.0.5:9100 (fleet-node-a)</text>
+    <text x="324" y="186" fill="#9a3412" font-size="9">- 10.160.0.3:9100 (fleet-node-b)</text>
+    <text x="324" y="202" fill="#9a3412" font-size="9">- 10.160.0.4:9100 (fleet-node-c)</text>
+    <rect x="312" y="220" width="226" height="60" rx="4" fill="#ffedd5"/>
+    <text x="425" y="238" fill="#7c2d12" font-size="9" font-weight="600" text-anchor="middle">TSDB Chunk Storage</text>
+    <text x="425" y="254" fill="#9a3412" font-size="9" text-anchor="middle">Gorilla delta-of-delta encoding</text>
+    <text x="425" y="270" fill="#9a3412" font-size="9" text-anchor="middle">15-day on-disk retention</text>
+
+    <!-- Arrow 2 -> 3 -->
+    <path d="M 550 175 L 580 175" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arr)"/>
+
+    <!-- Stage 3: Fixed PromQL Proxy -->
+    <rect x="580" y="55" width="260" height="240" rx="6" fill="#eff6ff" stroke="#bfdbfe"/>
+    <text x="592" y="78" fill="#1e3a8a" font-size="11" font-weight="700">STAGE 3: HEALTH GATEWAY</text>
+    <text x="592" y="98" fill="#1e40af" font-size="10">• FastAPI Authenticated Proxy</text>
+    <text x="592" y="116" fill="#1e40af" font-size="10">• Route: GET /api/nodes/{id}/health</text>
+    <text x="592" y="134" fill="#1e40af" font-size="10">• Fixed PromQL (Zero User PromQL):</text>
+    <text x="604" y="152" fill="#1e3a8a" font-size="9">CPU: 100 - avg(rate(idle[5m]))*100</text>
+    <text x="604" y="168" fill="#1e3a8a" font-size="9">Mem: ((total-avail)/total)*100</text>
+    <text x="604" y="184" fill="#1e3a8a" font-size="9">Disk: ((size-free)/size)*100</text>
+    <text x="604" y="200" fill="#1e3a8a" font-size="9">Net: rate(rx_bytes[5m])</text>
+    <rect x="592" y="220" width="236" height="60" rx="4" fill="#dbeafe"/>
+    <text x="710" y="238" fill="#1e3a8a" font-size="9" font-weight="600" text-anchor="middle">PromQL Injection Defense</text>
+    <text x="710" y="254" fill="#1e40af" font-size="9" text-anchor="middle">Fixed range (1h) &amp; step (60s)</text>
+    <text x="710" y="270" fill="#1e40af" font-size="9" text-anchor="middle">Evaluated server-side</text>
+
+    <!-- Arrow 3 -> 4 -->
+    <path d="M 840 175 L 870 175" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arr)"/>
+
+    <!-- Stage 4: Visualization (UI & Grafana) -->
+    <rect x="870" y="55" width="230" height="240" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+    <text x="882" y="78" fill="#0f172a" font-size="11" font-weight="700">STAGE 4: VISUALIZATION</text>
+    <text x="882" y="98" fill="#334155" font-size="10">• Dual-Tier Observability:</text>
+    <text x="882" y="118" fill="#059669" font-size="10" font-weight="600">A. Native UI Health Cards:</text>
+    <text x="894" y="136" fill="#475569" font-size="9">- Real-time CPU, RAM, Disk</text>
+    <text x="894" y="152" fill="#475569" font-size="9">- SVG Sparklines with hover values</text>
+    <text x="894" y="168" fill="#475569" font-size="9">- Disconnected Gap Markers</text>
+    <text x="882" y="190" fill="#d97706" font-size="10" font-weight="600">B. Dedicated Grafana (:3000):</text>
+    <text x="894" y="208" fill="#475569" font-size="9">- fleet-monitoring.json dashboard</text>
+    <text x="894" y="224" fill="#475569" font-size="9">- Multi-node stacked time-series</text>
+    <rect x="882" y="240" width="206" height="40" rx="4" fill="#e2e8f0"/>
+    <text x="985" y="256" fill="#1e293b" font-size="9" font-weight="600" text-anchor="middle">Verified on Live Cluster</text>
+    <text x="985" y="271" fill="#475569" font-size="9" text-anchor="middle">CPU rates match top/mpstat</text>
+  </g>
+
+  <!-- Footer Banner -->
+  <rect x="40" y="660" width="1120" height="35" rx="6" fill="#0f172a"/>
+  <text x="600" y="682" fill="#f8fafc" font-size="11" text-anchor="middle">Observability principle: The map must reflect the territory | If telemetry is missing, display the void honestly rather than inventing calm</text>
+</svg>

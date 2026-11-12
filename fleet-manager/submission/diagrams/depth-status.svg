@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="905" viewBox="0 0 1000 905" role="img">
+<title>D4 / Ordered SSH display classifier</title><desc>An interpretation tree, not a claim that a machine transitions through every box.</desc>
+<defs><marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#34566b" stroke-width="1.5"/></marker></defs>
+<rect width="1000" height="905" fill="#f5f8fb"/>
+<text x="26" y="35" font-family="Arial, sans-serif" font-size="25" font-weight="700" text-anchor="start" fill="#173b50">D4 / Ordered SSH display classifier</text>
+<text x="26" y="65" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">An interpretation tree, not a claim that a machine transitions through every box.</text>
+<rect x="25" y="112" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="139" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Observation exists?</text>
+<text x="38" y="163" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">No transport evidence yet is not a negative</text>
+<text x="38" y="185" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">probe</text>
+<rect x="560" y="112" width="415" height="105" rx="9" fill="#fff2d8" stroke="#b18535" stroke-width="1.4"/>
+<text x="573" y="139" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">NOT_CHECKED</text>
+<text x="573" y="163" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">No observation retained</text>
+<rect x="25" y="267" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="294" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Timestamp valid and not future?</text>
+<text x="38" y="318" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Both observation and comparison clock must</text>
+<text x="38" y="340" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">be aware</text>
+<rect x="560" y="267" width="415" height="105" rx="9" fill="#fbe8e6" stroke="#b2736e" stroke-width="1.4"/>
+<text x="573" y="294" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">CHECK_ERROR</text>
+<text x="573" y="318" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">INVALID_TIMESTAMP or FUTURE_TIMESTAMP</text>
+<rect x="25" y="422" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="449" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Age &lt;= configured TTL?</text>
+<text x="38" y="473" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Default 180 seconds; equality remains fresh</text>
+<rect x="560" y="422" width="415" height="105" rx="9" fill="#fff2d8" stroke="#b18535" stroke-width="1.4"/>
+<text x="573" y="449" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">STALE</text>
+<text x="573" y="473" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">TTL_EXPIRED; previous observation retained</text>
+<rect x="25" y="577" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="604" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Fresh CONNECTED outcome?</text>
+<text x="38" y="628" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">A successful SSH observation supports</text>
+<text x="38" y="650" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">reachability</text>
+<rect x="560" y="577" width="415" height="105" rx="9" fill="#e4f4ef" stroke="#4a9487" stroke-width="1.4"/>
+<text x="573" y="604" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">REACHABLE</text>
+<text x="573" y="628" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Not proof of healthy services or resource</text>
+<text x="573" y="650" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">usage</text>
+<rect x="25" y="732" width="415" height="105" rx="9" fill="#e7f0fa" stroke="#648db0" stroke-width="1.4"/>
+<text x="38" y="759" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Fresh refusal or timeout?</text>
+<text x="38" y="783" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Yes: UNREACHABLE; other outcomes:</text>
+<text x="38" y="805" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">CHECK_ERROR</text>
+<rect x="560" y="732" width="415" height="105" rx="9" fill="#fff2d8" stroke="#b18535" stroke-width="1.4"/>
+<text x="573" y="759" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="start" fill="#173b50">Independent dimensions</text>
+<text x="573" y="783" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">Setup state and Prometheus status are not</text>
+<text x="573" y="805" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#173b50">this classifier</text>
+<polyline points="440,164.5 560,164.5" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="500.0" y="154.5" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="middle" fill="#173b50">no</text>
+<polyline points="232.5,217 232.5,267" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="242.5" y="246.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">yes</text>
+<polyline points="440,319.5 560,319.5" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="500.0" y="309.5" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="middle" fill="#173b50">no</text>
+<polyline points="232.5,372 232.5,422" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="242.5" y="401.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">yes</text>
+<polyline points="440,474.5 560,474.5" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="500.0" y="464.5" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="middle" fill="#173b50">no</text>
+<polyline points="232.5,527 232.5,577" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="242.5" y="556.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">yes</text>
+<polyline points="440,629.5 560,629.5" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="500.0" y="619.5" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="middle" fill="#173b50">yes</text>
+<polyline points="232.5,682 232.5,732" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="242.5" y="711.0" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">no</text>
+<polyline points="440,784.5 560,784.5" fill="none" stroke="#34566b" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="500.0" y="774.5" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="middle" fill="#173b50">see also</text>
+<text x="26" y="887" font-family="Arial, sans-serif" font-size="17" font-weight="400" text-anchor="start" fill="#173b50">Source-derived implementation view | branch labels are conditions, not measured acceptance</text></svg>

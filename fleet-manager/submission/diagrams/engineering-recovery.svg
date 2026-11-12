@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="740" height="555" viewBox="0 0 740 555" role="img"><title>08 / Backup and offline restore</title><desc>Implemented utility + runbook workflow; deployed restore acceptance is not established.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#426077" stroke-width="1.3"/></marker></defs>
+<rect width="740" height="555" rx="14" fill="#f5f8fb"/>
+<text x="22" y="31" font-family="Arial, sans-serif" font-size="21" fill="#12344b" font-weight="700" text-anchor="start">08 / Backup and offline restore</text>
+<text x="22" y="56" font-family="Arial, sans-serif" font-size="13" fill="#365269" font-weight="400" text-anchor="start">Implemented utility + runbook workflow; deployed restore acceptance is not established.</text>
+<rect x="24" y="85" width="310" height="88" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="36" y="110" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Online snapshot</text>
+<text x="36" y="134" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Connection.backup() → temporary DB</text>
+<text x="36" y="155" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Not a raw live database file copy</text>
+<rect x="406" y="85" width="310" height="88" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="418" y="110" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Validate before publishing</text>
+<text x="418" y="134" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Integrity / foreign keys / schema</text>
+<text x="418" y="155" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Manifest: digest, counts, timestamp</text>
+<polyline points="334,129 406,129" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<rect x="406" y="228" width="310" height="86" rx="8" fill="#e5f4f1" stroke="#569d92"/>
+<text x="418" y="253" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Publish latest snapshot</text>
+<text x="418" y="277" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Atomic database replacement</text>
+<text x="418" y="298" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">One latest baseline; no rotation</text>
+<polyline points="560,173 560,228" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<rect x="24" y="228" width="310" height="86" rx="8" fill="#fff3dc" stroke="#ba903f"/>
+<text x="36" y="253" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Quiesce before restore</text>
+<text x="36" y="277" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Stop app + backup service / timer</text>
+<text x="36" y="298" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Confirm no database handles remain</text>
+<polyline points="406,271 334,271" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="344" y="258" font-family="Arial, sans-serif" font-size="13" fill="#18394e" font-weight="400" text-anchor="start">Operator</text>
+<rect x="24" y="370" width="310" height="108" rx="8" fill="#e8f1fa" stroke="#7195b7"/>
+<text x="36" y="395" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Offline restore</text>
+<text x="36" y="419" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Verify manifest + snapshot</text>
+<text x="36" y="440" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Preserve pre-restore safety copy</text>
+<text x="36" y="461" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Collision aborts; do not overwrite</text>
+<polyline points="179,314 179,370" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<rect x="406" y="370" width="310" height="108" rx="8" fill="#e5f4f1" stroke="#569d92"/>
+<text x="418" y="395" font-family="Arial, sans-serif" font-size="16" fill="#18394e" font-weight="700" text-anchor="start">Restart + validate</text>
+<text x="418" y="419" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Check inventory + operation history</text>
+<text x="418" y="440" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Reconcile RUNNING → UNCERTAIN</text>
+<text x="418" y="461" font-family="Arial, sans-serif" font-size="14" fill="#365269" font-weight="400" text-anchor="start">Re-observe nodes; retain evidence</text>
+<polyline points="334,423 406,423" fill="none" stroke="#426077" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="22" y="539" font-family="Arial, sans-serif" font-size="12" fill="#365269" font-weight="400" text-anchor="start">Source-derived model | arrows name requests/data, not deployment acceptance</text></svg>
